@@ -1,3 +1,6 @@
+Note : Ce projet est un fork de Spytify (GitHub). Ajouts de cette version : Support natif du format OGG Vorbis (256kbps) via conversion FFmpeg.
+
+
 [![Spytify Logo](https://user-images.githubusercontent.com/23088305/29906214-6daad21c-8de1-11e7-80f5-ef6791cc7825.png)](https://jwallet.github.io/spy-spotify/)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/s26ibv6ls9j56enr/branch/master?svg=true)](https://ci.appveyor.com/project/jwallet/spy-spotify/branch/master)
@@ -11,6 +14,7 @@
 Spytify is a Spotify recorder for Windows which records Spotify audio without recording or playing ads. It automatically splits songs into separate tracks and records to WAV or MP3 with media metadata, meaning you can easily start enjoying your music offline.
 
 <p align="center"><img alt="Spotify Recorder logs" src="https://jwallet.github.io/spy-spotify/assets/images/ui_record.png" /></p>
+
 
 ### [How does it work?](#how-does-it-work)
 
