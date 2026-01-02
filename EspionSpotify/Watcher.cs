@@ -350,7 +350,10 @@ namespace EspionSpotify
                 _audioSession.UnrouteSpotifyAudioSessions();
             }
             
-            _audioThrottler.Running = false;
+            if (_audioThrottler != null)
+            {
+                _audioThrottler.Running = false;
+            }
         }
 
         private void ResetSpotifyHandler()

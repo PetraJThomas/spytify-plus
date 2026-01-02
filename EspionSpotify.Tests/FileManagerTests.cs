@@ -399,6 +399,33 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        internal void BuildFileName_ReturnsFileNameOgg()
+        {
+            // On définit le format sur Ogg
+            _userSettings.MediaFormat = MediaFormat.Opus;
+
+            _fileManager = new FileManager(_userSettings, _track, _fileSystem, DateTime.Now);
+            var fileName = _fileManager.GetOutputFileAndInitDirectories().ToMediaFilePath();
+
+            // On vérifie que l'extension est bien .ogg
+            Assert.Equal($@"{PATH}\Artist - Title - Live.ogg", fileName);
+        }
+
+        [Fact]
+        internal void BuildFileName_ReturnsUnixFileNameOgg()
+        {
+            _userSettings.OutputPath = NETWORK_PATH;
+            _userSettings.MediaFormat = MediaFormat.Opus;
+
+            _fileManager = new FileManager(_userSettings, _track, _fileSystem, DateTime.Now);
+            var fileName = _fileManager.GetOutputFileAndInitDirectories().ToMediaFilePath();
+
+            // On vérifie pour le chemin réseau (UNC)
+            Assert.Equal($@"{NETWORK_PATH}\Artist - Title - Live.ogg", fileName);
+        }
+
+
+        [Fact]
         internal void GetFolderPath_ReturnsNoArtistFolderPath()
         {
             var (artistFolder, albumFolder) = FileManager.GetFolderPath(_track, _userSettings);

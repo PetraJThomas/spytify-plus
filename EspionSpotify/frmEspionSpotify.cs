@@ -196,6 +196,7 @@ namespace EspionSpotify
 
             rbMp3.Checked = Settings.Default.settings_media_audio_format == (int) MediaFormat.Mp3;
             rbWav.Checked = Settings.Default.settings_media_audio_format == (int) MediaFormat.Wav;
+            rbOgg.Checked = Settings.Default.settings_media_audio_format == (int) MediaFormat.Opus;
             tbMinTime.Value = Settings.Default.settings_media_minimum_recorded_length_in_seconds / 5;
             tgListenToSpotifyPlayback.Checked = Settings.Default.advanced_watcher_listen_to_spotify_playback_enabled;
             tgAddSeparators.Checked = Settings.Default.advanced_file_replace_space_by_underscore_enabled;
@@ -289,7 +290,9 @@ namespace EspionSpotify
 
         private void ReloadExternalAPI()
         {
-            if (Settings.Default.settings_media_audio_format == (int) MediaFormat.Wav)
+            // On ne masque l'API QUE si c'est strictement du Wav.
+            // L'Ogg (index 2) doit continuer pour afficher les options d'API.
+            if (Settings.Default.settings_media_audio_format == (int)MediaFormat.Wav)
             {
                 SetExternalAPI(ExternalAPIType.None);
                 tlpAPI.Visible = false;
@@ -297,18 +300,19 @@ namespace EspionSpotify
                 return;
             }
 
+            // Le code continue ici pour MP3 et OGG
             tlpAPI.Visible = true;
             lblAPI.Visible = true;
+
             if (_userSettings.IsSpotifyAPISet &&
-                Settings.Default.app_selected_external_api_id == (int) ExternalAPIType.Spotify)
+                Settings.Default.app_selected_external_api_id == (int)ExternalAPIType.Spotify)
             {
                 SetExternalAPI(ExternalAPIType.Spotify, _userSettings.IsSpotifyAPISet);
                 return;
             }
-            
+
             SetExternalAPI(ExternalAPIType.LastFM);
         }
-
         private void SetExternalAPI(ExternalAPIType api, bool isSpotifyAPISet = false)
         {
             switch (api)
@@ -442,7 +446,8 @@ namespace EspionSpotify
             switch ((MediaFormat)Settings.Default.settings_media_audio_format)
             {
                 case MediaFormat.Mp3:
-                    SetLamePresetBitrateOptions();
+                case MediaFormat.Opus: // On ajoute ce cas ici
+                    SetLamePresetBitrateOptions(); // Cela remplit la liste des bitrates
                     cbBitRate.Visible = true;
                     lblBitRate.Visible = true;
                     break;
@@ -704,16 +709,30 @@ namespace EspionSpotify
         private void RbFormat_CheckedChanged(object sender, EventArgs e)
         {
             var rb = sender as RadioButton;
-            var mediaFormatIndex = (int) (rbMp3.Checked ? MediaFormat.Mp3 : MediaFormat.Wav);
-            if (Settings.Default.settings_media_audio_format == mediaFormatIndex || !rb.Checked) return;
+            if (rb == null || !rb.Checked) return;
 
-            var mediaFormat = rb?.Tag?.ToString().ToMediaFormat() ?? MediaFormat.Mp3;
+            // Déterminer le format choisi
+            MediaFormat mediaFormat;
+            if (rbMp3.Checked) mediaFormat = MediaFormat.Mp3;
+            else if (rbWav.Checked) mediaFormat = MediaFormat.Wav;
+            else if (rbOgg != null && rbOgg.Checked) mediaFormat = MediaFormat.Opus;
+            else mediaFormat = MediaFormat.Mp3;
+
+            int mediaFormatIndex = (int)mediaFormat;
+
+            // Si le réglage n'a pas changé, on ne fait rien
+            if (Settings.Default.settings_media_audio_format == mediaFormatIndex) return;
+
+            // Sauvegarde des nouveaux réglages
             _userSettings.MediaFormat = mediaFormat;
             Settings.Default.settings_media_audio_format = mediaFormatIndex;
             Settings.Default.Save();
+
+            // Mise à jour de l'interface
             ReloadExternalAPI();
             ReloadBitrateOptions();
-            
+
+            // Log analytique (optionnel)
             Task.Run(async () => await _analytics.LogAction($"media-format?type={mediaFormat.ToString()}"));
         }
 

@@ -3,6 +3,7 @@
     public enum MediaFormat
     {
         Mp3,
-        Wav
+        Wav,
+        Opus
     }
 }

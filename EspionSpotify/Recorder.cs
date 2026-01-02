@@ -206,7 +206,12 @@ namespace EspionSpotify
 
             try
             {
-                _tempEncodeFile = _fileManager.GetTempFile();
+                _tempEncodeFile = _fileManager.GetTempFile();                
+                if (_userSettings.MediaFormat == MediaFormat.Opus)
+                {
+                    _tempEncodeFile = Path.ChangeExtension(_tempEncodeFile, ".opus");
+                }
+
                 await WriteWaveFileToMediaFile();
             }
             catch (Exception ex)
@@ -275,8 +280,13 @@ namespace EspionSpotify
                 case MediaFormat.Mp3:
                     var supportedWaveFormat = GetWaveFormatMP3Supported(waveFormat);
                     return new LameMP3FileWriter(stream, supportedWaveFormat, _userSettings.Bitrate);
+
                 case MediaFormat.Wav:
+                case MediaFormat.Opus: // On ajoute le cas Ogg ici
+                                      // Pour l'Ogg, on écrit d'abord un fichier Wave standard.
+                                      // Il sera converti en .ogg par la méthode de fin d'enregistrement.
                     return new WaveFileWriter(stream, waveFormat);
+
                 default:
                     throw new Exception("Failed to get FileWriter");
             }
@@ -291,6 +301,7 @@ namespace EspionSpotify
             if (audioSession.AudioMMDevicesManager.AudioEndPointDevice == null) return false;
 
             var waveIn = new WasapiLoopbackCapture(audioSession.AudioMMDevicesManager.AudioEndPointDevice);
+
             switch (settings.MediaFormat)
             {
                 case MediaFormat.Mp3:
@@ -310,9 +321,12 @@ namespace EspionSpotify
                         LogLameMP3FileWriterException(form, ex);
                         return false;
                     }
+
                 case MediaFormat.Wav:
+                case MediaFormat.Opus: // Correction : On autorise le format Ogg à passer le test de validation
                     try
                     {
+                        // Pour l'Ogg, on teste la capacité à écrire un flux WAV (notre étape intermédiaire)
                         using (new WaveFileWriter(new MemoryStream(), waveIn.WaveFormat))
                         {
                             return true;
@@ -326,7 +340,9 @@ namespace EspionSpotify
                         Program.ReportException(ex);
                         return false;
                     }
+
                 default:
+                    // Si le format n'est ni Mp3, ni Wav, ni Ogg, le test échoue
                     return false;
             }
         }
@@ -337,15 +353,24 @@ namespace EspionSpotify
 
         private async Task WriteWaveFileToMediaFile()
         {
+            // Si c'est WAV ou OGG, on ne fait pas de traitement via NAudio (WAV est une copie, OGG est géré après)
             if (_userSettings.MediaFormat == MediaFormat.Wav)
-                // copy instead of moving to be able to keep using common code
                 _fileSystem.File.Copy(_tempOriginalFile, _tempEncodeFile);
             else
+                // Ici, cela lancera notre nouvelle logique (MP3 ou OGG via FFmpeg)
                 await EncodeWaveFileToMediaFile();
         }
 
         private async Task EncodeWaveFileToMediaFile()
         {
+            // --- NOUVEAU : Cas spécifique pour l'OGG via FFmpeg ---
+            if (_userSettings.MediaFormat == MediaFormat.Opus)
+            {
+                await EncodeWavToOggWithFFmpeg();
+                return; // On quitte la méthode une fois l'OGG terminé
+            }
+
+            // --- Logique d'origine pour le MP3 (NAudio) ---
             var restrictions = WaveFormat.GetMP3RestrictionCode();
             using (var tempFileStream = _fileSystem.File.OpenRead(_tempOriginalFile))
             {
@@ -354,7 +379,7 @@ namespace EspionSpotify
                 {
                     tempReader.Position = 0;
                     using (var mediaFileStream = _fileSystem.FileStream.Create(_tempEncodeFile, FileMode.Create,
-                               FileAccess.ReadWrite, FileShare.ReadWrite))
+                                FileAccess.ReadWrite, FileShare.ReadWrite))
                     {
                         using (var mediaWriter = GetMediaFileWriter(mediaFileStream, WaveFormat))
                         {
@@ -367,6 +392,48 @@ namespace EspionSpotify
                     }
                 }
             }
+        }
+
+        private async Task EncodeWavToOggWithFFmpeg()
+        {
+            var ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "binaries", "ffmpeg.exe");
+
+            // Traduction du LAMEPreset en valeur numérique pour FFmpeg
+            string bitrateValue = "256k"; // Valeur par défaut
+            var presetString = _userSettings.Bitrate.ToString(); // Ex: "ABR_256" ou "ABR_320"
+
+            if (presetString.Contains("128")) bitrateValue = "128k";
+            else if (presetString.Contains("160")) bitrateValue = "160k";
+            else if (presetString.Contains("192")) bitrateValue = "192k";
+            else if (presetString.Contains("256")) bitrateValue = "256k";
+            else if (presetString.Contains("320") || presetString.Contains("INSANE")) bitrateValue = "320k";
+
+            string title = (_track.Title ?? "Unknown").Replace("\"", "\\\"");
+            string artist = (_track.Artist ?? "Unknown").Replace("\"", "\\\"");
+            string album = (_track.Album ?? "Unknown").Replace("\"", "\\\"");
+
+            // On utilise bitrateValue ici
+            string args = $"-i \"{_tempOriginalFile}\" -c:a libopus -b:a {bitrateValue} " +
+                          $"-metadata title=\"{title}\" " +
+                          $"-metadata artist=\"{artist}\" " +
+                          $"-metadata album=\"{album}\" " +
+                          $"\"{_tempEncodeFile}\"";
+
+            await Task.Run(() =>
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = args,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (var process = System.Diagnostics.Process.Start(psi))
+                {
+                    process?.WaitForExit();
+                }
+            });
         }
 
         #endregion RecorderEncode
