@@ -1,4 +1,4 @@
-Note : Ce projet est un fork de Spytify (GitHub). Ajouts de cette version : Support natif du format OGG Vorbis (256kbps) via conversion FFmpeg.
+Note : Ce projet est un fork de Spytify (GitHub). Ajouts de cette version : Support natif du format OPUS via conversion FFmpeg.
 
 
 [![Spytify Logo](https://user-images.githubusercontent.com/23088305/29906214-6daad21c-8de1-11e7-80f5-ef6791cc7825.png)](https://jwallet.github.io/spy-spotify/)
