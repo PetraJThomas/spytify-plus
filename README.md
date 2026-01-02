@@ -73,4 +73,5 @@ A **free Spotify account** will work and its recommanded since Spotify may monit
 
 😃 If you like Spytify, you can help jwallet out for a [couple of beers](https://jwallet.github.io/spy-spotify/donate.html) 🍺 or give it a star ⭐ 
 
-## [Download](https://gitlab.com/-/project/77426707/uploads/171f559b8cb4ebe91b05144cba34bb71/Spytify-ogg.7z)
+## [Download OGG](https://gitlab.com/-/project/77426707/uploads/171f559b8cb4ebe91b05144cba34bb71/Spytify-ogg.7z)
+## [Download Opus](https://gitlab.com/-/project/77426707/uploads/b1634460dde01a6efb9c94ff918733c6/Spytify-opus.7z)
