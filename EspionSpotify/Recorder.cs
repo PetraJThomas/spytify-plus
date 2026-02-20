@@ -212,6 +212,11 @@ namespace EspionSpotify
                     _tempEncodeFile = Path.ChangeExtension(_tempEncodeFile, ".opus");
                 }
 
+                if (_userSettings.MediaFormat == MediaFormat.Flac)
+                {
+                    _tempEncodeFile = Path.ChangeExtension(_tempEncodeFile, ".flac");
+                }
+
                 await WriteWaveFileToMediaFile();
             }
             catch (Exception ex)
@@ -283,8 +288,9 @@ namespace EspionSpotify
 
                 case MediaFormat.Wav:
                 case MediaFormat.Opus: // On ajoute le cas Ogg ici
-                                      // Pour l'Ogg, on écrit d'abord un fichier Wave standard.
-                                      // Il sera converti en .ogg par la méthode de fin d'enregistrement.
+                                       // Pour l'Ogg, on écrit d'abord un fichier Wave standard.
+                                       // Il sera converti en .ogg par la méthode de fin d'enregistrement.
+                case MediaFormat.Flac:
                     return new WaveFileWriter(stream, waveFormat);
 
                 default:
@@ -324,6 +330,7 @@ namespace EspionSpotify
 
                 case MediaFormat.Wav:
                 case MediaFormat.Opus: // Correction : On autorise le format Ogg à passer le test de validation
+                case MediaFormat.Flac:
                     try
                     {
                         // Pour l'Ogg, on teste la capacité à écrire un flux WAV (notre étape intermédiaire)
@@ -353,24 +360,30 @@ namespace EspionSpotify
 
         private async Task WriteWaveFileToMediaFile()
         {
-            // Si c'est WAV ou OGG, on ne fait pas de traitement via NAudio (WAV est une copie, OGG est géré après)
+            //If it's WAV or OGG, we don't process it via NAudio(WAV is a copy, OGG is handled afterwards).
             if (_userSettings.MediaFormat == MediaFormat.Wav)
                 _fileSystem.File.Copy(_tempOriginalFile, _tempEncodeFile);
             else
-                // Ici, cela lancera notre nouvelle logique (MP3 ou OGG via FFmpeg)
+                // Here, this will launch our new logic (MP3 or OGG via FFmpeg)
                 await EncodeWaveFileToMediaFile();
         }
 
         private async Task EncodeWaveFileToMediaFile()
         {
-            // --- NOUVEAU : Cas spécifique pour l'OGG via FFmpeg ---
+            // --- NEW: Specific case for OGG via FFmpeg ---
             if (_userSettings.MediaFormat == MediaFormat.Opus)
             {
                 await EncodeWavToOggWithFFmpeg();
-                return; // On quitte la méthode une fois l'OGG terminé
+                return; // We exit the method once the OGG is finished
             }
 
-            // --- Logique d'origine pour le MP3 (NAudio) ---
+            if (_userSettings.MediaFormat == MediaFormat.Flac)
+            {
+                await EncodeWavToFlacWithFFmpeg();
+                return; // We exit the method once the OGG is finished
+            }
+
+            // --- Original logic for MP3 (NAudio) ---
             var restrictions = WaveFormat.GetMP3RestrictionCode();
             using (var tempFileStream = _fileSystem.File.OpenRead(_tempOriginalFile))
             {
@@ -431,6 +444,94 @@ namespace EspionSpotify
 
                 using (var process = System.Diagnostics.Process.Start(psi))
                 {
+                    process?.WaitForExit();
+                }
+            });
+        }
+
+        //This method can easily be adapted for every file format
+        private async Task EncodeWavToFlacWithFFmpeg()
+        {
+            var ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "binaries", "ffmpeg.exe");
+
+            static string Sanitize(string value) => (value ?? "").Replace("\"", "\\\"").Replace("\\", "\\\\");
+
+            var metadataParts = new System.Text.StringBuilder();
+
+            metadataParts.Append($"-metadata title=\"{Sanitize(_track.Title)}\" ");
+            metadataParts.Append($"-metadata artist=\"{Sanitize(_track.Artist)}\" ");
+            metadataParts.Append($"-metadata album=\"{Sanitize(_track.Album)}\" ");
+
+            if (_track.AlbumArtists != null && _track.AlbumArtists.Length > 0)
+                metadataParts.Append($"-metadata album_artist=\"{Sanitize(string.Join(", ", _track.AlbumArtists))}\" ");
+            else if (!string.IsNullOrEmpty(_track.Artists))
+                metadataParts.Append($"-metadata album_artist=\"{Sanitize(_track.Artists)}\" ");
+
+            if (_track.Performers != null && _track.Performers.Length > 0)
+                metadataParts.Append($"-metadata performer=\"{Sanitize(string.Join(", ", _track.Performers))}\" ");
+
+            if (_track.Genres != null && _track.Genres.Length > 0)
+                metadataParts.Append($"-metadata genre=\"{Sanitize(string.Join(", ", _track.Genres))}\" ");
+
+            if (_track.Year.HasValue)
+                metadataParts.Append($"-metadata date=\"{_track.Year.Value}\" ");
+
+            if (_track.AlbumPosition.HasValue)
+                metadataParts.Append($"-metadata track=\"{_track.AlbumPosition.Value}\" ");
+
+            if (_track.Disc.HasValue)
+                metadataParts.Append($"-metadata disc=\"{_track.Disc.Value}\" ");
+
+            if (!string.IsNullOrEmpty(_track.TitleExtended))
+                metadataParts.Append($"-metadata comment=\"{Sanitize(_track.TitleExtended)}\" ");
+
+            //Fetch album cover in a kind of not optimal way
+            if (_track.AlbumArtUrl != null)
+            {
+                var image = await MapperID3.GetAlbumCover(_track.AlbumArtUrl);
+                _track.AlbumArtImage = image;
+            }
+
+            bool hasCoverArt = _track.AlbumArtImage != null && _track.AlbumArtImage.Length > 0;
+
+            // If we have cover art, read it from stdin (pipe:0) as a second input.
+            // The audio comes from the file path as usual.
+            //Also using 16-bit depth reduces file size to less than half
+            string args = hasCoverArt
+                ? $"-i \"{_tempOriginalFile}\" -i pipe:0 " +
+                  $"-map 0:a -map 1:v " +
+                  $"-c:a flac -compression_level 8 " +
+                  $"-c:v copy " +
+                  $"-disposition:v attached_pic " +
+                  metadataParts.ToString() +
+                  $"\"{_tempEncodeFile}\""
+                : $"-i \"{_tempOriginalFile}\" -c:a flac -compression_level 8 -sample_fmt s16" +
+                  metadataParts.ToString() +
+                  $"\"{_tempEncodeFile}\"";
+
+            await Task.Run(() =>
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = args,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardInput = hasCoverArt  // Only redirect stdin when we have art to pipe
+                };
+
+                using (var process = System.Diagnostics.Process.Start(psi))
+                {
+                    if (hasCoverArt && process != null)
+                    {
+                        // Write the image bytes to ffmpeg's stdin, then close the stream
+                        // so ffmpeg knows the pipe input is complete
+                        using (var stdin = process.StandardInput.BaseStream)
+                        {
+                            stdin.Write(_track.AlbumArtImage, 0, _track.AlbumArtImage.Length);
+                        }
+                    }
+
                     process?.WaitForExit();
                 }
             });

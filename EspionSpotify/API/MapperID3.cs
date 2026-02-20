@@ -115,7 +115,7 @@ namespace EspionSpotify.API
             };
         }
 
-        private static async Task<byte[]> GetAlbumCover(string link)
+        public static async Task<byte[]> GetAlbumCover(string link)
         {
             if (string.IsNullOrWhiteSpace(link)) return null;
 

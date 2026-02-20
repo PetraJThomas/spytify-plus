@@ -4,6 +4,7 @@
     {
         Mp3,
         Wav,
-        Opus
+        Opus,
+        Flac
     }
 }

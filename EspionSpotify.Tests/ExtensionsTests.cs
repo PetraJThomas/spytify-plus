@@ -104,6 +104,8 @@ namespace EspionSpotify.Tests
         [InlineData("wav", MediaFormat.Wav)]
         [InlineData("opus", MediaFormat.Opus)]
         [InlineData("OPUS", MediaFormat.Opus)]
+        [InlineData("flac", MediaFormat.Flac)]
+        [InlineData("FLAC", MediaFormat.Flac)]
         internal void StringToMediaFormat_ReturnsExpectedFormat(string value, MediaFormat? expected)
         {
             var actual = value.ToMediaFormat();
