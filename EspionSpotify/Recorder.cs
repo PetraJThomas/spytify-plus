@@ -496,16 +496,17 @@ namespace EspionSpotify
 
             // If we have cover art, read it from stdin (pipe:0) as a second input.
             // The audio comes from the file path as usual.
-            //Also using 16-bit depth reduces file size to less than half
             string args = hasCoverArt
                 ? $"-i \"{_tempOriginalFile}\" -i pipe:0 " +
                   $"-map 0:a -map 1:v " +
                   $"-c:a flac -compression_level 8 " +
                   $"-c:v copy " +
                   $"-disposition:v attached_pic " +
+                  $"-metadata:s:v title=\"Album cover\" " +
+                  $"-metadata:s:v comment=\"Cover (front)\" " +
                   metadataParts.ToString() +
                   $"\"{_tempEncodeFile}\""
-                : $"-i \"{_tempOriginalFile}\" -c:a flac -compression_level 8 -sample_fmt s16" +
+                : $"-i \"{_tempOriginalFile}\" -c:a flac -compression_level 8 " +
                   metadataParts.ToString() +
                   $"\"{_tempEncodeFile}\"";
 
