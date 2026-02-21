@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -528,6 +528,12 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\NAudio.Lame.1.1.6\build\NAudio.Lame.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NAudio.Lame.1.1.6\build\NAudio.Lame.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>set LIBDIR="$(TargetDir)libs"
+if not exist %25LIBDIR%25 mkdir %25LIBDIR%25
+move "$(TargetDir)*.dll" %25LIBDIR%25
+move "$(TargetDir)*.xml" %25LIBDIR%25</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
