@@ -11,7 +11,6 @@ using EspionSpotify.Extensions;
 using EspionSpotify.Models.GitHub;
 using EspionSpotify.Properties;
 using EspionSpotify.Translations;
-using MetroFramework;
 using Newtonsoft.Json;
 
 namespace EspionSpotify
@@ -62,9 +61,11 @@ namespace EspionSpotify
                     if (githubTagVersion == null || githubTagVersion <= assemblyVersion) return;
                     if (Settings.Default.app_last_version_prompt.ToVersion() == githubTagVersion) return;
 
-                    var dialogTitle = string.Format(FrmEspionSpotify.Instance.Rm.GetString(I18NKeys.MsgNewVersionTitle),
-                        githubTagVersion);
-                    var dialogMessage = FrmEspionSpotify.Instance.Rm.GetString(I18NKeys.MsgNewVersionContent);
+                    var form = Spytify.Form;
+                    if (form?.Rm == null) return; // no UI registered to prompt the user
+
+                    var dialogTitle = string.Format(form.Rm.GetString(I18NKeys.MsgNewVersionTitle), githubTagVersion);
+                    var dialogMessage = form.Rm.GetString(I18NKeys.MsgNewVersionContent);
 
                     if (!string.IsNullOrEmpty(release.body))
                     {
@@ -74,15 +75,7 @@ namespace EspionSpotify
                             $"{releaseBodySplit.TakeWhile(x => x.StartsWith("- ")).Take(5).Aggregate((current, next) => $"{current}\n{next}")}\r\n\r\n{dialogMessage}";
                     }
 
-                    var dialogResult = MetroMessageBox.Show(
-                        FrmEspionSpotify.Instance,
-                        dialogMessage,
-                        dialogTitle,
-                        MessageBoxButtons.OKCancel,
-                        MessageBoxIcon.Question,
-                        260);
-
-                    if (dialogResult == DialogResult.OK) Update();
+                    if (form.AskUpdate(dialogTitle, dialogMessage)) Update();
 
                     Settings.Default.app_last_version_prompt = githubTagVersion.ToString();
                     Settings.Default.Save();

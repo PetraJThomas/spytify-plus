@@ -624,6 +624,12 @@ namespace EspionSpotify.Wpf
         // No Windows-volume slider surfaced in this UI yet.
         public void SetSoundVolume(int volume) { }
 
+        public bool AskUpdate(string title, string message)
+        {
+            return Dispatcher.Invoke(() => MessageBox.Show(this, message, title,
+                MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK);
+        }
+
         #endregion IFrmEspionSpotify
 
         #region Helpers / UI events

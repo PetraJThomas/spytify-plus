@@ -18,5 +18,6 @@ namespace EspionSpotify
         void ShowFailedToUseSpotifyAPIMessage();
         void UpdateAudioDevicesDataSource();
         void SetSoundVolume(int volume);
+        bool AskUpdate(string title, string message);
     }
 }
