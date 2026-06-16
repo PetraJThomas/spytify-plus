@@ -9,7 +9,12 @@
     <AssemblyName>Spytify.Wpf</AssemblyName>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <ApplicationIcon>Assets\spytify.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\spytify-logo.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />

@@ -3,7 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         ui:WindowHelper.UseModernWindowStyle="True"
+        Icon="Assets/spytify-logo.png" Opacity="0"
         Title="Spytify" Height="640" Width="1000" MinHeight="480" MinWidth="860">
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.35">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut" />
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -42,6 +57,13 @@
                        IsSettingsVisible="False"
                        OpenPaneLength="180"
                        SelectionChanged="Nav_SelectionChanged">
+        <ui:NavigationView.PaneHeader>
+            <StackPanel Orientation="Horizontal" Margin="4,10,4,10">
+                <Image Source="Assets/spytify-logo.png" Width="26" Height="26" />
+                <TextBlock Text="Spytify" FontSize="17" FontWeight="SemiBold"
+                           Margin="10,0,0,0" VerticalAlignment="Center" Foreground="#1ED760" />
+            </StackPanel>
+        </ui:NavigationView.PaneHeader>
         <ui:NavigationView.MenuItems>
             <ui:NavigationViewItem Content="Record" Tag="record" IsSelected="True">
                 <ui:NavigationViewItem.Icon>
@@ -81,7 +103,35 @@
                         </Grid.ColumnDefinitions>
 
                         <Ellipse Grid.Column="0" Width="14" Height="14" Margin="0,0,14,0"
-                                 VerticalAlignment="Center" Fill="{Binding StatusBrush}" />
+                                 VerticalAlignment="Center" Fill="{Binding StatusBrush}"
+                                 RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <ScaleTransform />
+                            </Ellipse.RenderTransform>
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard x:Name="PulseSb">
+                                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                         To="1.9" Duration="0:0:0.85" />
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                         To="1.9" Duration="0:0:0.85" />
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                         From="1" To="0.35" Duration="0:0:0.85" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <StopStoryboard BeginStoryboardName="PulseSb" />
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="{Binding NowPlaying}" FontSize="18" FontWeight="SemiBold"
@@ -97,7 +147,36 @@
                                 Command="{Binding StartStopCommand}"
                                 ui:ControlHelper.CornerRadius="6"
                                 Padding="20,8" FontWeight="SemiBold"
-                                Background="#1ED760" Foreground="#0A0A0A" BorderThickness="0" />
+                                Background="#1ED760" Foreground="#0A0A0A" BorderThickness="0"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Button.RenderTransform>
+                                <ScaleTransform />
+                            </Button.RenderTransform>
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Trigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.04" Duration="0:0:0.12" />
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.04" Duration="0:0:0.12" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.EnterActions>
+                                            <Trigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.12" />
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.12" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.ExitActions>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </Grid>
                 </Border>
 

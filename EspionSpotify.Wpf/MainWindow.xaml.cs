@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using EspionSpotify.API;
 using EspionSpotify.AudioSessions;
@@ -576,6 +577,22 @@ namespace EspionSpotify.Wpf
             RecordPanel.Visibility = tag == "record" ? Visibility.Visible : Visibility.Collapsed;
             SettingsPanel.Visibility = tag == "settings" ? Visibility.Visible : Visibility.Collapsed;
             AdvancedPanel.Visibility = tag == "advanced" ? Visibility.Visible : Visibility.Collapsed;
+
+            FrameworkElement active = tag == "settings" ? SettingsPanel : tag == "advanced" ? AdvancedPanel : RecordPanel;
+            AnimateIn(active);
+        }
+
+        private static void AnimateIn(FrameworkElement el)
+        {
+            if (el == null) return;
+            var slide = new TranslateTransform(0, 14);
+            el.RenderTransform = slide;
+
+            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            el.BeginAnimation(OpacityProperty,
+                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease });
+            slide.BeginAnimation(TranslateTransform.YProperty,
+                new DoubleAnimation(14, 0, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
         }
 
         private void BrowseOutput()
