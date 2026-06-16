@@ -329,6 +329,9 @@
     </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Recorder.cs" />
+    <Compile Include="IEncodeService.cs" />
+    <Compile Include="EncodeService.cs" />
+    <Compile Include="Models\EncodeJob.cs" />
     <Compile Include="frmEspionSpotify.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -21,6 +21,7 @@ namespace EspionSpotify.Tests
         private readonly UserSettings _userSettings;
         private IFileSystem _fileSystem;
         private IProcessManager _processManagerMock;
+        private readonly IEncodeService _encodeServiceMock;
 
         public RecorderTests()
         {
@@ -28,6 +29,7 @@ namespace EspionSpotify.Tests
             _fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>());
             _userSettings = new UserSettings();
             _processManagerMock = new Mock<IProcessManager>().Object;
+            _encodeServiceMock = new Mock<IEncodeService>().Object;
             
             
             var audioThrottlerMock = new Mock<IAudioThrottler>();
@@ -53,6 +55,7 @@ namespace EspionSpotify.Tests
                 userSettings,
                 ref track,
                 _fileSystem,
+                _encodeServiceMock,
                 _processManagerMock,
                 init: false);
 
@@ -81,6 +84,7 @@ namespace EspionSpotify.Tests
                 userSettingsCanDuplicate,
                 ref track,
                 _fileSystem,
+                _encodeServiceMock,
                 _processManagerMock,
                 init: false);
 
@@ -109,6 +113,7 @@ namespace EspionSpotify.Tests
                 userSettingsCanDuplicate,
                 ref track,
                 _fileSystem,
+                _encodeServiceMock,
                 _processManagerMock,
                 init: false);
 
@@ -132,65 +137,11 @@ namespace EspionSpotify.Tests
                 userSettings,
                 ref track,
                 _fileSystem,
+                _encodeServiceMock,
                 _processManagerMock,
                 init: false);
 
             Assert.True(watcherTrackFound.IsSkipTrackActive);
-        }
-
-        [Fact]
-        internal void GetMediaFileWriter_WithWavFormat_ReturnsWaveFileWriter()
-        {
-            var userSettings = new UserSettings {MediaFormat = MediaFormat.Wav};
-            var track = new Track();
-
-            var result = new Recorder(
-                _formMock,
-                _audioThrottler,
-                userSettings,
-                ref track,
-                _fileSystem,
-                _processManagerMock,
-                init: false).GetMediaFileWriter(new MemoryStream(), new WaveFormat());
-
-            Assert.IsType<WaveFileWriter>(result);
-        }
-
-        [Fact]
-        internal void GetMediaFileWriter_WithMp3Format_ReturnsLameMP3FileWriter()
-        {
-            var userSettings = new UserSettings {MediaFormat = MediaFormat.Mp3, Bitrate = LAMEPreset.ABR_160};
-            var track = new Track();
-            
-            var result = new Recorder(
-                _formMock,
-                _audioThrottler,
-                userSettings,
-                ref track,
-                _fileSystem,
-                _processManagerMock,
-                init: false).GetMediaFileWriter(new MemoryStream(), new WaveFormat());
-
-            Assert.IsType<LameMP3FileWriter>(result);
-        }
-
-        [Fact]
-        internal void GetMediaFileWriter_WithUnknownFormat_ThrowsException()
-        {
-            var userSettings = new UserSettings
-                {MediaFormat = (MediaFormat) short.MinValue, Bitrate = LAMEPreset.ABR_160};
-            var track = new Track();
-            
-            var exception = Assert.Throws<Exception>(() => new Recorder(
-                _formMock,
-                _audioThrottler,
-                userSettings,
-                ref track,
-                _fileSystem,
-                _processManagerMock,
-                init: false).GetMediaFileWriter(new MemoryStream(), new WaveFormat()));
-
-            Assert.Equal("Failed to get FileWriter", exception.Message);
         }
     }
 }

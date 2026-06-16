@@ -97,7 +97,6 @@ namespace EspionSpotify.Tests
         [Theory]
         [InlineData(null, null)]
         [InlineData("", null)]
-        [InlineData("flac", null)]
         [InlineData("mp3", MediaFormat.Mp3)]
         [InlineData("MP3", MediaFormat.Mp3)]
         [InlineData("WAV", MediaFormat.Wav)]

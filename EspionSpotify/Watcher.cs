@@ -23,6 +23,7 @@ namespace EspionSpotify
         private const int WATCHER_DELAY_MS = 500;
         private readonly IMainAudioSession _audioSession;
         private AudioThrottler _audioThrottler;
+        private IEncodeService _encodeService;
         private readonly IFileSystem _fileSystem;
 
         private readonly IFrmEspionSpotify _form;
@@ -150,11 +151,38 @@ namespace EspionSpotify
                 }
             }
 
+            // Let any in-flight recorder finish its final capture and enqueue its encode job...
+            await WaitForRecorderTasks();
+
             EndRecordingSession();
+
+            // ...then drain the background encoder so no captured song is dropped on stop.
+            if (_encodeService != null)
+            {
+                await _encodeService.CompleteAndDrainAsync();
+                _encodeService.Dispose();
+                _encodeService = null;
+            }
 
             _form.WriteIntoConsole(I18NKeys.LogStoping);
 
             NativeMethods.AllowSleep();
+        }
+
+        private async Task WaitForRecorderTasks()
+        {
+            try
+            {
+                var tasks = _recorderTasks
+                    .Where(x => x?.Task != null && !x.Task.IsCompleted)
+                    .Select(x => x.Task)
+                    .ToArray();
+
+                if (tasks.Length == 0) return;
+
+                await Task.WhenAll(tasks);
+            }
+            catch { /* per-recorder failures are already logged; snapshot races are harmless here */ }
         }
 
         private void OnPlayStateChanged(object sender, PlayStateEventArgs e)
@@ -285,11 +313,12 @@ namespace EspionSpotify
             CountSeconds = 0;
 
             var recorder = new Recorder(
-                form: _form, 
+                form: _form,
                 audioThrottler: _audioThrottler,
                 userSettings: _userSettings,
                 track: ref _currentTrack,
-                fileSystem: _fileSystem);
+                fileSystem: _fileSystem,
+                encodeService: _encodeService);
 
             _recorderTasks.Add(new RecorderTask
             {
@@ -318,6 +347,8 @@ namespace EspionSpotify
             }
 
             Spotify.ListenForEvents = true;
+
+            _encodeService = new EncodeService(_form, _fileSystem);
 
             _audioThrottler = new AudioThrottler(_audioSession);
 #pragma warning disable CS4014
@@ -442,6 +473,16 @@ namespace EspionSpotify
                         x.Task.Dispose();
                     }
                 });
+
+                // Safety net: drain and dispose the encoder if Run() didn't already
+                // (CompleteAndDrainAsync is idempotent). Finishes queued encodes before exit.
+                if (_encodeService != null)
+                {
+                    try { _encodeService.CompleteAndDrainAsync().GetAwaiter().GetResult(); }
+                    catch { /* ignored */ }
+                    _encodeService.Dispose();
+                    _encodeService = null;
+                }
 
                 if (_audioThrottler != null)
                 {
