@@ -41,6 +41,7 @@ namespace EspionSpotify.Wpf
         {
             InitializeComponent();
             DataContext = this;
+            Spytify.Form = this;
 
             EnsureDefaults();
 
@@ -551,6 +552,35 @@ namespace EspionSpotify.Wpf
                 Settings.Default.Save();
             });
         }
+
+        public void UpdateExternalAPIToggle(ExternalAPIType value) => RunOnUi(() =>
+        {
+            _isLastFmSelected = value == ExternalAPIType.LastFM;
+            _isSpotifySelected = value == ExternalAPIType.Spotify;
+            OnPropertyChanged(nameof(IsLastFmSelected));
+            OnPropertyChanged(nameof(IsSpotifySelected));
+            OnPropertyChanged(nameof(SpotifyCredentialsVisible));
+        });
+
+        public void ShowFailedToUseSpotifyAPIMessage() => RunOnUi(() =>
+            MessageBox.Show(this, "Couldn't use the Spotify API — falling back to Last.fm.",
+                "Spytify", MessageBoxButton.OK, MessageBoxImage.Information));
+
+        public void UpdateAudioDevicesDataSource() => RunOnUi(() =>
+        {
+            Devices = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceNames;
+            OnPropertyChanged(nameof(Devices));
+            var id = _audioSession.IsAudioEndPointDeviceIndexAvailable
+                ? _audioSession.AudioMMDevicesManager.AudioEndPointDeviceID
+                : _audioSession.AudioMMDevicesManager.DefaultAudioEndPointDeviceID;
+            _loading = true;
+            SelectedDeviceId = id;
+            _loading = false;
+            DeviceName = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceName;
+        });
+
+        // No Windows-volume slider surfaced in this UI yet.
+        public void SetSoundVolume(int volume) { }
 
         #endregion IFrmEspionSpotify
 

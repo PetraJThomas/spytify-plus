@@ -328,6 +328,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Spytify.cs" />
     <Compile Include="Recorder.cs" />
     <Compile Include="IEncodeService.cs" />
     <Compile Include="EncodeService.cs" />

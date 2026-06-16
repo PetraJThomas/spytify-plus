@@ -93,7 +93,7 @@ namespace EspionSpotify.API
                     Console.WriteLine(ex.Message);
                     if (_loggedSilentExceptionOnce == false)
                     {
-                        FrmEspionSpotify.Instance.WriteIntoConsole(I18NKeys.LogException, ex.Message);
+                        Spytify.Form?.WriteIntoConsole(I18NKeys.LogException, ex.Message);
                         _loggedSilentExceptionOnce = true;
                     }
 
@@ -104,7 +104,7 @@ namespace EspionSpotify.API
             {
                 // Silent other Web exception since it may be an issue on the user end.
                 Console.WriteLine(ex.Message);
-                FrmEspionSpotify.Instance.WriteIntoConsole(I18NKeys.LogException, ex.Message);
+                Spytify.Form?.WriteIntoConsole(I18NKeys.LogException, ex.Message);
                 return null;
             }
             catch (XmlException ex)

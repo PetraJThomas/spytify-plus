@@ -106,7 +106,7 @@ namespace EspionSpotify.AudioSessions
             if (!AudioEndPointDeviceNames.IncludesKey(AudioEndPointDeviceID))
                 AudioEndPointDeviceID = DefaultAudioEndPointDeviceID;
 
-            FrmEspionSpotify.Instance.UpdateAudioDevicesDataSource();
+            Spytify.Form?.UpdateAudioDevicesDataSource();
         }
 
         public void OnPropertyValueChanged(string deviceId, PropertyKey propertyKey)
@@ -122,7 +122,7 @@ namespace EspionSpotify.AudioSessions
         {
             if (AudioEndPointDeviceID != DefaultAudioEndPointDeviceID) return;
             var volume = (int) (data.MasterVolume * 100);
-            FrmEspionSpotify.Instance.SetSoundVolume(volume);
+            Spytify.Form?.SetSoundVolume(volume);
             VolumeNotificationEmitted = true;
         }
 

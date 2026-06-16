@@ -72,6 +72,7 @@ namespace EspionSpotify
                 Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
             Instance = this;
+            Spytify.Form = this;
             ResumeLayout();
 
             Init();

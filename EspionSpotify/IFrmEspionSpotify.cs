@@ -14,5 +14,9 @@ namespace EspionSpotify
         void UpdateNumUp();
         void UpdateNumDown();
         void WriteIntoConsole(TranslationKeys resource, params object[] args);
+        void UpdateExternalAPIToggle(ExternalAPIType value);
+        void ShowFailedToUseSpotifyAPIMessage();
+        void UpdateAudioDevicesDataSource();
+        void SetSoundVolume(int volume);
     }
 }

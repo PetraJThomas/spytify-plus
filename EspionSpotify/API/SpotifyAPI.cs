@@ -175,8 +175,8 @@ namespace EspionSpotify.API
 
                 _ = Task.Run(() =>
                 {
-                    FrmEspionSpotify.Instance.UpdateExternalAPIToggle(ExternalAPIType.LastFM);
-                    FrmEspionSpotify.Instance.ShowFailedToUseSpotifyAPIMessage();
+                    Spytify.Form?.UpdateExternalAPIToggle(ExternalAPIType.LastFM);
+                    Spytify.Form?.ShowFailedToUseSpotifyAPIMessage();
                 });
 
                 return await _lastFmApi.UpdateTrack(track);
