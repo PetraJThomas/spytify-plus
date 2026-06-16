@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>EspionSpotify.Wpf</RootNamespace>
-    <AssemblyName>Spytify.Wpf</AssemblyName>
+    <AssemblyName>Spytify</AssemblyName>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ApplicationIcon>Assets\spytify.ico</ApplicationIcon>
