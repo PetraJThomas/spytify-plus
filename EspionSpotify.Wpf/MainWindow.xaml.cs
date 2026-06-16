@@ -36,6 +36,7 @@ namespace EspionSpotify.Wpf
         private bool _watching;
         private bool _toggleStopRecordingDelayed;
         private bool _loading;
+        private System.Windows.Forms.NotifyIcon _tray;
 
         public MainWindow()
         {
@@ -59,7 +60,48 @@ namespace EspionSpotify.Wpf
 
             LoadState();
             ReloadExternalApi();
+            InitTray();
         }
+
+        #region System tray
+
+        private void InitTray()
+        {
+            _tray = new System.Windows.Forms.NotifyIcon { Text = "Spytify", Visible = false };
+            try
+            {
+                _tray.Icon = System.Drawing.Icon.ExtractAssociatedIcon(
+                    System.Reflection.Assembly.GetEntryAssembly().Location);
+            }
+            catch { /* fall back to no tray icon image */ }
+
+            var menu = new System.Windows.Forms.ContextMenuStrip();
+            menu.Items.Add("Open Spytify", null, (s, e) => RestoreFromTray());
+            menu.Items.Add("Exit", null, (s, e) => Close());
+            _tray.ContextMenuStrip = menu;
+            _tray.DoubleClick += (s, e) => RestoreFromTray();
+
+            StateChanged += (s, e) =>
+            {
+                if (MinimizeToTray && WindowState == WindowState.Minimized)
+                {
+                    Hide();
+                    _tray.Visible = true;
+                }
+            };
+
+            Closed += (s, e) => { _tray?.Dispose(); _tray = null; };
+        }
+
+        private void RestoreFromTray()
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
+            if (_tray != null) _tray.Visible = false;
+        }
+
+        #endregion System tray
 
         private static void EnsureDefaults()
         {
