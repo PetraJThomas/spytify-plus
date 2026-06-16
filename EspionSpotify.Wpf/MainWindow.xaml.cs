@@ -585,14 +585,17 @@ namespace EspionSpotify.Wpf
         private static void AnimateIn(FrameworkElement el)
         {
             if (el == null) return;
-            var slide = new TranslateTransform(0, 14);
+            var slide = new TranslateTransform(0, 10);
             el.RenderTransform = slide;
 
             var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            // Start from 0.55 (not 0): when you click around quickly, a panel that
+            // re-animates never blinks to fully transparent, so it reads as a smooth
+            // settle instead of a snap. The slide carries the "entrance" feel.
             el.BeginAnimation(OpacityProperty,
-                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease });
+                new DoubleAnimation(0.55, 1, TimeSpan.FromMilliseconds(150)) { EasingFunction = ease });
             slide.BeginAnimation(TranslateTransform.YProperty,
-                new DoubleAnimation(14, 0, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
+                new DoubleAnimation(10, 0, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease });
         }
 
         private void BrowseOutput()

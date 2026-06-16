@@ -57,13 +57,13 @@
                        IsSettingsVisible="False"
                        OpenPaneLength="180"
                        SelectionChanged="Nav_SelectionChanged">
-        <ui:NavigationView.PaneHeader>
-            <StackPanel Orientation="Horizontal" Margin="4,10,4,10">
-                <Image Source="Assets/spytify-logo.png" Width="26" Height="26" />
-                <TextBlock Text="Spytify" FontSize="17" FontWeight="SemiBold"
+        <ui:NavigationView.PaneFooter>
+            <StackPanel Orientation="Horizontal" Margin="4,12,4,14">
+                <Image Source="Assets/spytify-logo.png" Width="30" Height="30" />
+                <TextBlock Text="Spytify" FontSize="16" FontWeight="SemiBold"
                            Margin="10,0,0,0" VerticalAlignment="Center" Foreground="#1ED760" />
             </StackPanel>
-        </ui:NavigationView.PaneHeader>
+        </ui:NavigationView.PaneFooter>
         <ui:NavigationView.MenuItems>
             <ui:NavigationViewItem Content="Record" Tag="record" IsSelected="True">
                 <ui:NavigationViewItem.Icon>
