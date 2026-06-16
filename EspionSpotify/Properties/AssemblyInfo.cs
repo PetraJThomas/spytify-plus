@@ -1,5 +1,9 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
+// Expose internal types (Settings, translation resource classes) to the WPF UI assembly.
+[assembly: InternalsVisibleTo("Spytify.Wpf")]
 
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,

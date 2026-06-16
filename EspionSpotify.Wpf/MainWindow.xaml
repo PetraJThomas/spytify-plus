@@ -3,10 +3,264 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         ui:WindowHelper.UseModernWindowStyle="True"
-        Title="Spytify" Height="600" Width="980" MinHeight="460" MinWidth="820">
-    <Grid Margin="16">
-        <TextBlock Text="Spytify — WPF shell (scaffold)"
-                   FontSize="20" FontWeight="SemiBold"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-    </Grid>
+        Title="Spytify" Height="640" Width="1000" MinHeight="480" MinWidth="860">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="#16FFFFFF" />
+            <Setter Property="BorderBrush" Value="#22FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="18" />
+            <Setter Property="Margin" Value="0,0,0,14" />
+        </Style>
+
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#1ED760" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Width" Value="150" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#CCCCCC" />
+        </Style>
+
+        <Style x:Key="Row" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal" />
+            <Setter Property="Margin" Value="0,6,0,6" />
+        </Style>
+    </Window.Resources>
+
+    <ui:NavigationView x:Name="Nav"
+                       PaneDisplayMode="Left"
+                       IsBackButtonVisible="Collapsed"
+                       IsSettingsVisible="False"
+                       OpenPaneLength="180"
+                       SelectionChanged="Nav_SelectionChanged">
+        <ui:NavigationView.MenuItems>
+            <ui:NavigationViewItem Content="Record" Tag="record" IsSelected="True">
+                <ui:NavigationViewItem.Icon>
+                    <ui:FontIcon Glyph="&#xE7C8;" />
+                </ui:NavigationViewItem.Icon>
+            </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Settings" Tag="settings">
+                <ui:NavigationViewItem.Icon>
+                    <ui:FontIcon Glyph="&#xE713;" />
+                </ui:NavigationViewItem.Icon>
+            </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Advanced" Tag="advanced">
+                <ui:NavigationViewItem.Icon>
+                    <ui:FontIcon Glyph="&#xE9E9;" />
+                </ui:NavigationViewItem.Icon>
+            </ui:NavigationViewItem>
+        </ui:NavigationView.MenuItems>
+
+        <Grid Margin="24,16,24,20">
+
+            <!-- ===================== RECORD ===================== -->
+            <Grid x:Name="RecordPanel">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- now playing + start/stop -->
+                <Border Grid.Row="0" Style="{StaticResource Card}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Ellipse Grid.Column="0" Width="14" Height="14" Margin="0,0,14,0"
+                                 VerticalAlignment="Center" Fill="{Binding StatusBrush}" />
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding NowPlaying}" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="{Binding StatusBrush}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Now playing" FontSize="12" Foreground="#888" />
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="2" Text="{Binding RecordedTime}" FontSize="22"
+                                   FontFamily="Consolas" Foreground="#1ED760"
+                                   VerticalAlignment="Center" Margin="0,0,20,0" />
+
+                        <Button Grid.Column="3" Content="{Binding StartStopLabel}"
+                                Command="{Binding StartStopCommand}"
+                                ui:ControlHelper.CornerRadius="6"
+                                Padding="20,8" FontWeight="SemiBold"
+                                Background="#1ED760" Foreground="#0A0A0A" BorderThickness="0" />
+                    </Grid>
+                </Border>
+
+                <!-- console -->
+                <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
+                    <ListBox ItemsSource="{Binding Logs}" Background="#181818" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="2,1" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Time}" FontFamily="Consolas" Foreground="#777" />
+                                    <TextBlock Text="{Binding Type}" FontFamily="Consolas" FontWeight="Bold"
+                                               Foreground="{Binding TypeBrush}"
+                                               Visibility="{Binding HasType, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock Text="{Binding Message}" FontFamily="Consolas" Foreground="#B3B3B3"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+
+                <!-- footer -->
+                <Grid Grid.Row="2" Margin="2,2,2,0">
+                    <TextBlock Text="{Binding DeviceName}" Foreground="#999" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Clear" Command="{Binding ClearLogCommand}" Margin="0,0,8,0" />
+                        <Button Content="Open folder" Command="{Binding OpenOutputCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+            <!-- ===================== SETTINGS ===================== -->
+            <ScrollViewer x:Name="SettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="OUTPUT" />
+                            <StackPanel Style="{StaticResource Row}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Folder" />
+                                <TextBox Text="{Binding OutputPath, UpdateSourceTrigger=PropertyChanged}" Width="430" />
+                                <Button Content="Browse…" Command="{Binding BrowseOutputCommand}" Margin="8,0,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="AUDIO" />
+                            <StackPanel Style="{StaticResource Row}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Device" />
+                                <ComboBox ItemsSource="{Binding Devices}" SelectedValuePath="Key"
+                                          DisplayMemberPath="Value" SelectedValue="{Binding SelectedDeviceId, Mode=TwoWay}"
+                                          Width="430" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource Row}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Format" />
+                                <ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
+                                          Width="200" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource Row}"
+                                        Visibility="{Binding BitrateVisible, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Bitrate" />
+                                <ComboBox ItemsSource="{Binding Bitrates}" SelectedValuePath="Key"
+                                          DisplayMemberPath="Value" SelectedValue="{Binding SelectedBitrate, Mode=TwoWay}"
+                                          Width="280" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource Row}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Minimum length" />
+                                <Slider Minimum="0" Maximum="120" TickFrequency="5" IsSnapToTickEnabled="True"
+                                        Value="{Binding MinLengthSeconds, Mode=TwoWay}" Width="260"
+                                        VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding MinLengthDisplay}" Margin="12,0,0,0"
+                                           VerticalAlignment="Center" Foreground="#CCC" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}"
+                            Visibility="{Binding SpotifyOptionsVisible, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="METADATA SOURCE" />
+                            <StackPanel Style="{StaticResource Row}">
+                                <RadioButton GroupName="api" Content="Last.fm" Margin="0,0,20,0"
+                                             IsChecked="{Binding IsLastFmSelected, Mode=TwoWay}" />
+                                <RadioButton GroupName="api" Content="Spotify API"
+                                             IsChecked="{Binding IsSpotifySelected, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Visibility="{Binding SpotifyCredentialsVisible, Converter={StaticResource BoolToVis}}"
+                                        Margin="0,8,0,0">
+                                <StackPanel Style="{StaticResource Row}">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Client ID" />
+                                    <TextBox Text="{Binding SpotifyClientId, UpdateSourceTrigger=PropertyChanged}" Width="430" />
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource Row}">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Client secret" />
+                                    <TextBox Text="{Binding SpotifySecretId, UpdateSourceTrigger=PropertyChanged}" Width="430" />
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource Row}">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Redirect URL" />
+                                    <TextBox Text="{Binding SpotifyRedirectUrl, UpdateSourceTrigger=PropertyChanged}" Width="430" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="GENERAL" />
+                            <ui:ToggleSwitch Header="Mute ads while recording" IsOn="{Binding MuteAds, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Minimize to system tray" IsOn="{Binding MinimizeToTray, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ===================== ADVANCED ===================== -->
+            <ScrollViewer x:Name="AdvancedPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="SPY" />
+                            <ui:ToggleSwitch Header="Listen to Spotify playback" IsOn="{Binding ListenToPlayback, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Force Spotify to skip ads" IsOn="{Binding ForceSkip, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Record everything (incl. non-music)" IsOn="{Binding RecordEverything, Mode=TwoWay}" />
+                            <CheckBox Content="…also record ads" Margin="6,0,0,6"
+                                      IsChecked="{Binding RecordAds, Mode=TwoWay}"
+                                      Visibility="{Binding RecordAdsVisible, Converter={StaticResource BoolToVis}}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="RECORDER &amp; FILES" />
+                            <ui:ToggleSwitch Header="Group recordings into artist/album folders" IsOn="{Binding AddFolders, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Replace spaces with underscores" IsOn="{Binding AddSeparators, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Prefix filename with counter" IsOn="{Binding CounterToFilePrefix, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Prefix filename with album track number" IsOn="{Binding AlbumTrackNumberPrefix, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Record over existing recordings" IsOn="{Binding RecordOverRecordings, Mode=TwoWay}" />
+                            <CheckBox Content="…keep duplicates instead of overwriting" Margin="6,0,0,6"
+                                      IsChecked="{Binding DuplicateRecordings, Mode=TwoWay}"
+                                      Visibility="{Binding DuplicateVisible, Converter={StaticResource BoolToVis}}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="ID3 TAGS" />
+                            <ui:ToggleSwitch Header="Store counter as track number" IsOn="{Binding CounterToMediaTag, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Move extra title to subtitle" IsOn="{Binding ExtraTitleToSubtitle, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="Update ID3 tags on existing files" IsOn="{Binding UpdateId3Tags, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
+    </ui:NavigationView>
 </Window>
