@@ -218,9 +218,9 @@ namespace EspionSpotify.Wpf
             effect.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.15, maxOpacity, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
         }
 
-        // A comet head plus a trailing string of dots, all following the badge's rounded-rect outline
-        // on the same loop but progressively lagged and faded, so it reads as a glowing arc that
-        // circulates the border.
+        // A single continuous light streak that flows around the badge's rounded-rect border, drawn
+        // as a stroked path with one visible dash whose offset is animated (no rotating gradient, so
+        // no mirror/wobble). Two layers: a soft green glow body and a hard bright core inside it.
         private static readonly Color CometColor = Color.FromRgb(0x1E, 0xD7, 0x60);
         private static readonly Brush CometHeadBrush = Frozen(0xEA, 0xFF, 0xF2, 0xFF);
         private static readonly Brush CometTrailBrush = Frozen(0x1E, 0xD7, 0x60, 0xFF);
@@ -231,42 +231,42 @@ namespace EspionSpotify.Wpf
             double w = BadgeWrap.ActualWidth, h = BadgeWrap.ActualHeight;
             if (w < 4 || h < 4) return; // not measured yet; BadgeWrap_SizeChanged will retry
 
-            var path = PathGeometry.CreateFromGeometry(new RectangleGeometry(new Rect(0, 0, w, h), 9, 9));
-            path.Freeze();
+            const double r = 9;
+            var geo = PathGeometry.CreateFromGeometry(new RectangleGeometry(new Rect(0, 0, w, h), r, r));
+            geo.Freeze();
+            var perim = 2 * (w + h) - 8 * r + 2 * Math.PI * r;
+            var dur = new Duration(TimeSpan.FromSeconds(2.4));
 
-            const int count = 18;
-            var loop = TimeSpan.FromSeconds(2.6);
-            var lagTicks = TimeSpan.FromSeconds(0.04).Ticks; // spacing between trail dots
+            // soft glowing body, then a thinner hard-bright core on top, sharing the same flow
+            AddStreakLayer(geo, perim, 3.4, CometTrailBrush, 0.42, 0.9,
+                new DropShadowEffect { Color = CometColor, ShadowDepth = 0, BlurRadius = 11, Opacity = 0.9, RenderingBias = RenderingBias.Performance }, dur);
+            AddStreakLayer(geo, perim, 1.5, CometHeadBrush, 0.36, 1.0, null, dur);
+        }
 
-            for (var i = 0; i < count; i++)
+        // segment = fraction of the border the streak covers; offset animated by the full pattern so
+        // it loops seamlessly. Speed is perim/duration regardless of thickness (offset is in
+        // thickness units), so all layers travel together.
+        private void AddStreakLayer(PathGeometry geo, double perim, double thickness, Brush brush,
+            double segment, double opacity, DropShadowEffect glow, Duration dur)
+        {
+            var units = perim / thickness;
+            var dash = units * segment;
+            var path = new WShapes.Path
             {
-                var f = i / (double)(count - 1); // 0 = head, 1 = tail end
-                var size = 8.5 - f * 5.5;         // head ~8.5px tapering to ~3px
-                var dot = new WShapes.Ellipse
-                {
-                    Width = size, Height = size,
-                    Fill = i == 0 ? CometHeadBrush : CometTrailBrush,
-                    Opacity = 1.0 - f * 0.94,     // fade out along the trail
-                    IsHitTestVisible = false
-                };
-                if (i == 0)
-                    dot.Effect = new DropShadowEffect { Color = CometColor, ShadowDepth = 0, BlurRadius = 13, Opacity = 0.95, RenderingBias = RenderingBias.Performance };
-
-                Canvas.SetLeft(dot, -size / 2);
-                Canvas.SetTop(dot, -size / 2);
-                var xform = new MatrixTransform();
-                dot.RenderTransform = xform;
-                BadgeOrbit.Children.Add(dot);
-
-                xform.BeginAnimation(MatrixTransform.MatrixProperty, new MatrixAnimationUsingPath
-                {
-                    PathGeometry = path,
-                    Duration = new Duration(loop),
-                    RepeatBehavior = RepeatBehavior.Forever,
-                    BeginTime = TimeSpan.FromTicks(lagTicks * i),
-                    DoesRotateWithTangent = false
-                });
-            }
+                Data = geo,
+                Stroke = brush,
+                StrokeThickness = thickness,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round,
+                StrokeDashCap = PenLineCap.Round,
+                StrokeDashArray = new DoubleCollection { dash, units - dash },
+                Opacity = opacity,
+                IsHitTestVisible = false,
+                Effect = glow
+            };
+            BadgeOrbit.Children.Add(path);
+            path.BeginAnimation(WShapes.Shape.StrokeDashOffsetProperty,
+                new DoubleAnimation(units, 0, dur) { RepeatBehavior = RepeatBehavior.Forever });
         }
 
         private void BadgeWrap_SizeChanged(object sender, SizeChangedEventArgs e)
