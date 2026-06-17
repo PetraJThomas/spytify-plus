@@ -97,11 +97,11 @@ namespace EspionSpotify.API
 
             if (spotifyAlbum.Images?.Count > 0)
             {
+                // Spotify offers 640 / 300 / 64 px; take the largest (typically 640) instead of capping at 300.
                 track.AlbumArtUrl = spotifyAlbum.Images
                     .OrderByDescending(i => i.Width)
-                    .Where(i => i.Width <= 300)
+                    .Where(i => i.Width <= 640)
                     .Select(i => i.Url)
-                    .ToArray()
                     .FirstOrDefault();
             }
         }

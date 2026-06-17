@@ -202,7 +202,7 @@ namespace EspionSpotify.Tests
             Assert.Equal("Album Name", _track.Album);
             Assert.Equal(new[] {"Reggae", "Rock", "Jazz"}, _track.Genres);
             Assert.Equal(2010, _track.Year);
-            Assert.Equal("http://256x256.img", _track.AlbumArtUrl);
+            Assert.Equal("http://512x512.img", _track.AlbumArtUrl);
         }
 
         [Fact]
@@ -265,7 +265,7 @@ namespace EspionSpotify.Tests
             Assert.Equal("Album Name", _track.Album);
             Assert.Equal(new[] {"Reggae", "Rock", "Jazz"}, _track.Genres);
             Assert.Equal(2010, _track.Year);
-            Assert.Equal("http://300x300.img", _track.AlbumArtUrl);
+            Assert.Equal("http://512x512.img", _track.AlbumArtUrl);
         }
     }
 }

@@ -55,9 +55,9 @@ namespace EspionSpotify.API
             var artLargeUrl = trackExtra.Album?.LargeCoverUrl;
             var artMediumUrl = trackExtra.Album?.MediumCoverUrl;
             var artSmallUrl = trackExtra.Album?.SmallCoverUrl;
+            // Prefer the largest available cover (extralarge first) instead of the 300x300 variant.
             var urls = new[] {extraLarge, artLargeUrl, artMediumUrl, artSmallUrl}.Where(i => i != null).ToArray();
-            track.AlbumArtUrl = urls.FirstOrDefault(url => new Regex(@"\/300x300\/|\/300s\/").IsMatch(url)) ??
-                                urls.FirstOrDefault();
+            track.AlbumArtUrl = urls.FirstOrDefault();
 
             var extraPerformers = track.ToString().ToPerformers();
             var albumArtists = new[] {track.Artist};

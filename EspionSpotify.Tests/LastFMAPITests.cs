@@ -125,7 +125,7 @@ namespace EspionSpotify.Tests
         }
         
         [Fact]
-        internal void MapLastFMAPITrackToTrack_ReturnsExpectedDetailedTrackWithExpectedCover300()
+        internal void MapLastFMAPITrackToTrack_ReturnsExpectedDetailedTrackWithLargestCover()
         {
             var trackExtra = new LastFMTrack
             {
@@ -149,7 +149,7 @@ namespace EspionSpotify.Tests
 
             _lastFMAPI.MapLastFMTrackToTrack(_track, trackExtra);
 
-            Assert.Equal("http://300s/large-cover-url.local", _track.AlbumArtUrl);
+            Assert.Equal("http://512x512/xlarge-cover-url.local", _track.AlbumArtUrl);
         }
 
         [Fact]
