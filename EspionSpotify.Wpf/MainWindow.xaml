@@ -322,6 +322,24 @@
                             <CheckBox Content="…keep duplicates instead of overwriting" Margin="6,0,0,6"
                                       IsChecked="{Binding DuplicateRecordings, Mode=TwoWay}"
                                       Visibility="{Binding DuplicateVisible, Converter={StaticResource BoolToVis}}" />
+
+                            <Border Height="1" Background="#22FFFFFF" Margin="0,10,0,10" />
+
+                            <StackPanel Style="{StaticResource Row}"
+                                        ToolTip="Hold Ctrl while clicking − / + to change the number of digits">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Recording number" />
+                                <Button Content="−" Command="{Binding NumMinusCommand}" Width="34" />
+                                <TextBox Text="{Binding RecordingNumber, UpdateSourceTrigger=LostFocus}"
+                                         Width="80" Margin="6,0,6,0" TextAlignment="Center" />
+                                <Button Content="+" Command="{Binding NumPlusCommand}" Width="34" />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource Row}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Auto-stop after" />
+                                <TextBox Text="{Binding RecordingTimerText, UpdateSourceTrigger=LostFocus}"
+                                         Width="110" ui:ControlHelper.PlaceholderText="HH:MM:SS" />
+                                <TextBlock Text="(blank = off)" Foreground="#888" VerticalAlignment="Center" Margin="10,0,0,0" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

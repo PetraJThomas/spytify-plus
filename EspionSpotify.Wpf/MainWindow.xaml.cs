@@ -60,6 +60,8 @@ namespace EspionSpotify.Wpf
             CopyLogCommand = new RelayCommand(_ => CopyLog());
             BrowseOutputCommand = new RelayCommand(_ => BrowseOutput());
             OpenOutputCommand = new RelayCommand(_ => OpenOutputFolder());
+            NumPlusCommand = new RelayCommand(_ => NumAdjust(+1));
+            NumMinusCommand = new RelayCommand(_ => NumAdjust(-1));
 
             LoadState();
             ReloadExternalApi();
@@ -140,6 +142,8 @@ namespace EspionSpotify.Wpf
         public ICommand CopyLogCommand { get; }
         public ICommand BrowseOutputCommand { get; }
         public ICommand OpenOutputCommand { get; }
+        public ICommand NumPlusCommand { get; }
+        public ICommand NumMinusCommand { get; }
 
         private bool _isRecording;
         public bool IsRecording
@@ -165,7 +169,61 @@ namespace EspionSpotify.Wpf
         public string RecordedTime { get => _recordedTime; set => Set(ref _recordedTime, value); }
 
         private string _recordingNumber = "001";
-        public string RecordingNumber { get => _recordingNumber; set => Set(ref _recordingNumber, value); }
+        public string RecordingNumber
+        {
+            get => _recordingNumber;
+            set
+            {
+                if (_loading) { Set(ref _recordingNumber, value); return; }
+                // user-edited (LostFocus): keep the digits, clamp to the mask range, reformat
+                var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
+                if (int.TryParse(digits, out var n))
+                    _userSettings.InternalOrderNumber = Math.Max(0, Math.Min(n, _userSettings.OrderNumberMax));
+                Set(ref _recordingNumber, _userSettings.InternalOrderNumber.ToString(_userSettings.OrderNumberMask));
+            }
+        }
+
+        // Auto-stop timer, shown/edited as HH:MM:SS, stored as the engine's "HHMMSS" string.
+        private string _recordingTimerText = "";
+        public string RecordingTimerText
+        {
+            get => _recordingTimerText;
+            set
+            {
+                var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
+                if (digits.Length > 6) digits = digits.Substring(0, 6);
+                _userSettings.RecordingTimer = digits.Length == 0 ? null : digits.PadLeft(6, '0');
+                Set(ref _recordingTimerText, FormatTimer(_userSettings.RecordingTimer));
+            }
+        }
+
+        private static string FormatTimer(string hhmmss) =>
+            string.IsNullOrEmpty(hhmmss) || hhmmss.Length != 6
+                ? ""
+                : $"{hhmmss.Substring(0, 2)}:{hhmmss.Substring(2, 2)}:{hhmmss.Substring(4, 2)}";
+
+        private void NumAdjust(int dir)
+        {
+            var ctrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+            if (ctrl)
+            {
+                // Ctrl: grow/shrink the zero-pad width (e.g. "000" <-> "0000")
+                var mask = _userSettings.OrderNumberMask ?? "000";
+                if (dir > 0 && mask.Length < 6) mask += "0";
+                else if (dir < 0 && mask.Length > 1) mask = mask.Substring(1);
+                _userSettings.OrderNumberMask = mask;
+                Settings.Default.app_counter_number_mask = mask;
+                Settings.Default.Save();
+            }
+            else
+            {
+                var n = _userSettings.InternalOrderNumber + dir;
+                if (n >= 0 && n <= _userSettings.OrderNumberMax) _userSettings.InternalOrderNumber = n;
+            }
+
+            _recordingNumber = _userSettings.InternalOrderNumber.ToString(_userSettings.OrderNumberMask);
+            OnPropertyChanged(nameof(RecordingNumber));
+        }
 
         // --- Output ---
         private string _outputPath;
