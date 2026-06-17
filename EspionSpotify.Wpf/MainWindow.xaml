@@ -65,8 +65,8 @@
                        Width="170" HorizontalAlignment="Left" VerticalAlignment="Center"
                        Margin="14,0,12,0" Opacity="1" />
                 <Image x:Name="LogoIcon" Source="Assets/spytify-icon.png" Stretch="Uniform"
-                       Width="28" Height="28" HorizontalAlignment="Left" VerticalAlignment="Center"
-                       Margin="10,0,0,0" Opacity="0" />
+                       Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Opacity="0" />
             </Grid>
         </ui:NavigationView.PaneFooter>
         <ui:NavigationView.MenuItems>
