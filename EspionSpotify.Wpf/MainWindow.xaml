@@ -4,7 +4,7 @@
         xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:l="clr-namespace:EspionSpotify.Wpf"
         ui:WindowHelper.UseModernWindowStyle="True"
-        Icon="Assets/spytify-logo.png" Opacity="0"
+        Icon="Assets/spytify-icon.png" Opacity="0"
         Title="Spytify" Height="640" Width="1000" MinHeight="480" MinWidth="860">
 
     <Window.Triggers>
