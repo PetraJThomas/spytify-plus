@@ -553,8 +553,8 @@
                                 <StackPanel>
                                     <Button Content="Open another file" Click="Analyze_OpenFile_Click"
                                             HorizontalAlignment="Right" Padding="14,6" />
-                                    <TextBlock Text="or drag &amp; drop a file here" Foreground="#888888" FontSize="11"
-                                               HorizontalAlignment="Right" Margin="0,6,2,0" />
+                                    <TextBlock Text="or drag &amp; drop a file here" Foreground="#AAAAAA" FontSize="12.5"
+                                               HorizontalAlignment="Right" Margin="0,7,14,0" />
                                 </StackPanel>
                             </StackPanel>
                         </Grid>
@@ -563,11 +563,15 @@
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <Border x:Name="VerdictBadge" CornerRadius="6" Padding="12,5" Background="#1ED760"
-                                            VerticalAlignment="Center">
-                                        <TextBlock x:Name="VerdictTierText" Text="" FontWeight="Bold"
-                                                   FontSize="14" Foreground="#000000" />
-                                    </Border>
+                                    <Grid VerticalAlignment="Center">
+                                        <!-- circulating glow ring (behind the badge); inner badge is inset to reveal it -->
+                                        <Border x:Name="BadgeRing" CornerRadius="9" />
+                                        <Border x:Name="VerdictBadge" CornerRadius="6" Padding="12,5" Margin="3"
+                                                Background="#1ED760">
+                                            <TextBlock x:Name="VerdictTierText" Text="" FontWeight="Bold"
+                                                       FontSize="14" Foreground="#000000" />
+                                        </Border>
+                                    </Grid>
                                     <TextBlock x:Name="VerdictText" VerticalAlignment="Center" Margin="14,0,0,0"
                                                FontSize="15" Foreground="#FFFFFF" TextWrapping="Wrap" />
                                 </StackPanel>

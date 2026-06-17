@@ -182,56 +182,65 @@ namespace EspionSpotify.Wpf
                 new DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(340)) { EasingFunction = ease });
         }
 
-        // Tier-reactive pulse: a coloured glow + gentle breathing scale on the verdict badge whose
-        // rhythm and intensity track quality (lossless pulses fast and bright, low-bitrate slow and dim).
+        // Tier pulse lives on the ring *behind* the badge, so the badge itself never scales or glows.
+        // Lossless gets a circulating rotating-gradient border; lossy tiers get a static coloured ring
+        // whose glow pulses slower and dimmer the lower the bitrate.
         private void StartTierPulse(QualityTier tier, Color glow)
         {
-            double seconds, maxOpacity, maxBlur, maxScale;
-            switch (tier)
-            {
-                case QualityTier.Lossless: seconds = 1.0; maxOpacity = 1.00; maxBlur = 28; maxScale = 1.05; break;
-                case QualityTier.Kbps320: seconds = 1.3; maxOpacity = 0.85; maxBlur = 24; maxScale = 1.04; break;
-                case QualityTier.Kbps256: seconds = 1.5; maxOpacity = 0.75; maxBlur = 21; maxScale = 1.035; break;
-                case QualityTier.Kbps192: seconds = 1.8; maxOpacity = 0.65; maxBlur = 18; maxScale = 1.03; break;
-                case QualityTier.Kbps128: seconds = 2.1; maxOpacity = 0.55; maxBlur = 16; maxScale = 1.025; break;
-                default: seconds = 2.6; maxOpacity = 0.45; maxBlur = 14; maxScale = 1.02; break;
-            }
-
+            StopTierPulse();
             var ease = new SineEase { EasingMode = EasingMode.EaseInOut };
-            var dur = new Duration(TimeSpan.FromSeconds(seconds));
 
-            var effect = new DropShadowEffect
+            if (tier == QualityTier.Lossless)
             {
-                Color = glow, ShadowDepth = 0, BlurRadius = 8, Opacity = 0.15,
-                RenderingBias = RenderingBias.Performance
-            };
-            VerdictBadge.Effect = effect;
-            effect.BeginAnimation(DropShadowEffect.BlurRadiusProperty,
-                new DoubleAnimation(8, maxBlur, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
-            effect.BeginAnimation(DropShadowEffect.OpacityProperty,
-                new DoubleAnimation(0.15, maxOpacity, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+                var rot = new RotateTransform(0) { CenterX = 0.5, CenterY = 0.5 };
+                var sweep = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(1, 1), RelativeTransform = rot };
+                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x0C, 0x4F, 0x26), 0.00));
+                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x9C, 0xFF, 0xC4), 0.25));
+                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x1E, 0xD7, 0x60), 0.50));
+                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x9C, 0xFF, 0xC4), 0.75));
+                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x0C, 0x4F, 0x26), 1.00));
+                BadgeRing.Background = sweep;
+                rot.BeginAnimation(RotateTransform.AngleProperty,
+                    new DoubleAnimation(0, 360, new Duration(TimeSpan.FromSeconds(2.4))) { RepeatBehavior = RepeatBehavior.Forever });
 
-            VerdictBadge.RenderTransformOrigin = new Point(0.5, 0.5);
-            var scale = new ScaleTransform(1, 1);
-            VerdictBadge.RenderTransform = scale;
-            var scaleAnim = new DoubleAnimation(1, maxScale, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease };
-            scale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnim);
-            scale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnim);
+                var effect = new DropShadowEffect { Color = glow, ShadowDepth = 0, BlurRadius = 10, Opacity = 0.4, RenderingBias = RenderingBias.Performance };
+                BadgeRing.Effect = effect;
+                var dur = new Duration(TimeSpan.FromSeconds(1.0));
+                effect.BeginAnimation(DropShadowEffect.BlurRadiusProperty, new DoubleAnimation(9, 26, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+                effect.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.4, 1.0, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+            }
+            else
+            {
+                double seconds, maxOpacity, maxBlur;
+                switch (tier)
+                {
+                    case QualityTier.Kbps320: seconds = 1.4; maxOpacity = 0.80; maxBlur = 22; break;
+                    case QualityTier.Kbps256: seconds = 1.6; maxOpacity = 0.70; maxBlur = 20; break;
+                    case QualityTier.Kbps192: seconds = 1.9; maxOpacity = 0.60; maxBlur = 18; break;
+                    case QualityTier.Kbps128: seconds = 2.2; maxOpacity = 0.50; maxBlur = 16; break;
+                    default: seconds = 2.6; maxOpacity = 0.42; maxBlur = 14; break;
+                }
+
+                BadgeRing.Background = new SolidColorBrush(glow);
+                var effect = new DropShadowEffect { Color = glow, ShadowDepth = 0, BlurRadius = 8, Opacity = 0.15, RenderingBias = RenderingBias.Performance };
+                BadgeRing.Effect = effect;
+                var dur = new Duration(TimeSpan.FromSeconds(seconds));
+                effect.BeginAnimation(DropShadowEffect.BlurRadiusProperty, new DoubleAnimation(8, maxBlur, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+                effect.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.15, maxOpacity, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+            }
         }
 
         private void StopTierPulse()
         {
-            if (VerdictBadge.Effect is DropShadowEffect e)
+            if (BadgeRing.Effect is DropShadowEffect e)
             {
                 e.BeginAnimation(DropShadowEffect.BlurRadiusProperty, null);
                 e.BeginAnimation(DropShadowEffect.OpacityProperty, null);
             }
-            if (VerdictBadge.RenderTransform is ScaleTransform s)
-            {
-                s.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-                s.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-            }
-            VerdictBadge.Effect = null;
+            if (BadgeRing.Background is LinearGradientBrush lg && lg.RelativeTransform is RotateTransform rt)
+                rt.BeginAnimation(RotateTransform.AngleProperty, null);
+            BadgeRing.Effect = null;
+            BadgeRing.Background = null;
         }
 
         private static Color TierGlow(QualityTier tier, bool transcode)
