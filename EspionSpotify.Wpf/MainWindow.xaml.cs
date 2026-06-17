@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -28,6 +28,8 @@ namespace EspionSpotify.Wpf
     {
         private static readonly Brush GreenBrush = new SolidColorBrush(Color.FromRgb(0x1E, 0xD7, 0x60));
         private static readonly Brush GrayBrush = new SolidColorBrush(Color.FromRgb(0xB3, 0xB3, 0xB3));
+        private static readonly Brush MsgBrush = new SolidColorBrush(Color.FromRgb(0xB3, 0xB3, 0xB3));
+        private static readonly Brush TimeBrush = new SolidColorBrush(Color.FromRgb(0x77, 0x77, 0x77));
 
         private readonly IMainAudioSession _audioSession;
         private readonly UserSettings _userSettings = new UserSettings();
@@ -54,7 +56,8 @@ namespace EspionSpotify.Wpf
             _timer.Tick += OnTimerTick;
 
             StartStopCommand = new RelayCommand(_ => ToggleRecording());
-            ClearLogCommand = new RelayCommand(_ => Logs.Clear());
+            ClearLogCommand = new RelayCommand(_ => LogBox.Document.Blocks.Clear());
+            CopyLogCommand = new RelayCommand(_ => CopyLog());
             BrowseOutputCommand = new RelayCommand(_ => BrowseOutput());
             OpenOutputCommand = new RelayCommand(_ => OpenOutputFolder());
 
@@ -115,10 +118,9 @@ namespace EspionSpotify.Wpf
 
         #region Bindable state
 
-        public ObservableCollection<LogLine> Logs { get; } = new ObservableCollection<LogLine>();
-
         public ICommand StartStopCommand { get; }
         public ICommand ClearLogCommand { get; }
+        public ICommand CopyLogCommand { get; }
         public ICommand BrowseOutputCommand { get; }
         public ICommand OpenOutputCommand { get; }
 
@@ -571,26 +573,43 @@ namespace EspionSpotify.Wpf
             var time = $"[{DateTime.Now:HH:mm:ss}] ";
             var isStatus = resource.Equals(I18NKeys.LogRecording) || resource.Equals(I18NKeys.LogRecorded)
                         || resource.Equals(I18NKeys.LogDeleting) || resource.Equals(I18NKeys.LogTrackExists);
-
-            var line = new LogLine { Time = time };
             var colon = text.IndexOf(": ", StringComparison.Ordinal);
-            if (isStatus && colon > 0)
-            {
-                line.Type = text.Substring(0, colon);
-                line.Message = text.Substring(colon);
-                line.TypeBrush = resource.Equals(I18NKeys.LogRecording) ? GreenBrush : GrayBrush;
-            }
-            else
-            {
-                line.Message = text;
-            }
+            var typeBrush = resource.Equals(I18NKeys.LogRecording) ? GreenBrush : GrayBrush;
 
             RunOnUi(() =>
             {
-                Logs.Add(line);
+                var atBottom = IsScrolledToBottom();
+                var p = new Paragraph { Margin = new Thickness(0) };
+                p.Inlines.Add(new Run(time) { Foreground = TimeBrush });
+                if (isStatus && colon > 0)
+                {
+                    p.Inlines.Add(new Run(text.Substring(0, colon)) { Foreground = typeBrush, FontWeight = FontWeights.Bold });
+                    p.Inlines.Add(new Run(text.Substring(colon)) { Foreground = MsgBrush });
+                }
+                else
+                {
+                    p.Inlines.Add(new Run(text) { Foreground = MsgBrush });
+                }
+
+                LogBox.Document.Blocks.Add(p);
+                if (atBottom) LogBox.ScrollToEnd(); // don't yank the view if the user scrolled up to select
+
                 Settings.Default.app_console_logs += $";{time}{text}";
                 Settings.Default.Save();
             });
+        }
+
+        private bool IsScrolledToBottom()
+        {
+            // VerticalOffset+ViewportHeight ~= ExtentHeight when the caret view is at the bottom.
+            return LogBox.VerticalOffset + LogBox.ViewportHeight >= LogBox.ExtentHeight - 2.0;
+        }
+
+        private void CopyLog()
+        {
+            var text = new TextRange(LogBox.Document.ContentStart, LogBox.Document.ContentEnd).Text;
+            if (string.IsNullOrWhiteSpace(text)) return;
+            try { Clipboard.SetText(text); } catch { /* clipboard can be transiently locked */ }
         }
 
         public void UpdateExternalAPIToggle(ExternalAPIType value) => RunOnUi(() =>
