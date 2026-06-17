@@ -122,18 +122,6 @@
     <Reference Include="Instances, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Instances.3.0.2\lib\netstandard2.0\Instances.dll</HintPath>
     </Reference>
-    <Reference Include="MetroFramework, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MetroFramework.Design, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.Design.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MetroFramework.Fonts, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.Fonts.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.10, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.10\lib\netstandard2.0\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -222,7 +210,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Analytics.cs" />
     <Compile Include="API\NoneAPI.cs" />
     <Compile Include="AudioSessions\AudioCircularBuffer.cs" />
     <Compile Include="AudioSessions\AudioLoopback.cs" />
@@ -256,7 +243,6 @@
     <Compile Include="Enums\WaveFormatMP3Restriction.cs" />
     <Compile Include="Exceptions\SourceFileNotFoundException.cs" />
     <Compile Include="Exceptions\DestinationPathNotFoundException.cs" />
-    <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\ClassPropertyExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\LinqExtensions.cs" />
