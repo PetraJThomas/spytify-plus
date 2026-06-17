@@ -119,7 +119,7 @@ namespace EspionSpotify
                 return; // intentionally NOT deleting job.TempOriginalFile
             }
 
-            // Encode succeeded — the raw WAV is no longer needed.
+            // Encode succeeded, the raw WAV is no longer needed.
             fileManager.DeleteFile(job.TempOriginalFile);
 
             var outputFile = fileManager.GetOutputFileAndInitDirectories();

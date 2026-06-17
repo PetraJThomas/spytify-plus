@@ -88,6 +88,11 @@
                     <ui:FontIcon Glyph="&#xE9E9;" />
                 </ui:NavigationViewItem.Icon>
             </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Analyze" Tag="analyze">
+                <ui:NavigationViewItem.Icon>
+                    <ui:FontIcon Glyph="&#xE9D9;" />
+                </ui:NavigationViewItem.Icon>
+            </ui:NavigationViewItem>
         </ui:NavigationView.MenuItems>
 
         <Grid Margin="24,16,24,20">
@@ -392,6 +397,386 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
+
+            <!-- ===================== ANALYZE ===================== -->
+            <Grid x:Name="AnalyzePanel" Visibility="Collapsed"
+                  AllowDrop="True" DragOver="Analyze_DragOver" DragLeave="Analyze_DragLeave" Drop="Analyze_Drop">
+
+                <!-- Empty state: drop zone -->
+                <Border x:Name="AnalyzeDropZone" CornerRadius="10" Background="#10FFFFFF"
+                        BorderBrush="#33FFFFFF" BorderThickness="1.5" Margin="0,4,0,4">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ui:FontIcon Glyph="&#xEC4F;" FontSize="46" Foreground="#1ED760"
+                                     HorizontalAlignment="Center" />
+                        <TextBlock Text="Drag &amp; drop an audio file here" FontSize="18"
+                                   Foreground="#EEEEEE" HorizontalAlignment="Center" Margin="0,16,0,4" />
+                        <TextBlock Text="FLAC · WAV · MP3 · Opus · M4A · analyzed for true quality"
+                                   Foreground="#888888" HorizontalAlignment="Center" Margin="0,0,0,20" />
+                        <Button Content="Open file…" Click="Analyze_OpenFile_Click"
+                                Padding="22,8" FontSize="14" HorizontalAlignment="Center"
+                                Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000"
+                                BorderThickness="0" Cursor="Hand" />
+                        <Button Content="How to read this analysis" Click="InfoButton_Click"
+                                HorizontalAlignment="Center" Margin="0,18,0,0" Padding="6,2"
+                                Background="Transparent" BorderThickness="0"
+                                Foreground="#1ED760" Cursor="Hand" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Busy: custom equalizer-pulse loader (each bar animates its own transform) -->
+                <StackPanel x:Name="AnalyzeBusy" Visibility="Collapsed"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="Border" x:Key="EqBar">
+                            <Setter Property="Width" Value="9" />
+                            <Setter Property="Height" Value="44" />
+                            <Setter Property="CornerRadius" Value="4" />
+                            <Setter Property="Margin" Value="4,0" />
+                            <Setter Property="VerticalAlignment" Value="Bottom" />
+                            <Setter Property="Background" Value="{StaticResource SpotifyGreenBrush}" />
+                            <Setter Property="RenderTransformOrigin" Value="0.5,1" />
+                            <Setter Property="RenderTransform">
+                                <Setter.Value><ScaleTransform ScaleY="0.28" /></Setter.Value>
+                            </Setter>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <StackPanel Orientation="Horizontal" Height="48" HorizontalAlignment="Center">
+                        <Border Style="{StaticResource EqBar}">
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                             From="0.28" To="1" Duration="0:0:0.46" AutoReverse="True"
+                                                             RepeatBehavior="Forever" BeginTime="0:0:0.00">
+                                                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut" /></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                        <Border Style="{StaticResource EqBar}">
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                             From="0.28" To="1" Duration="0:0:0.46" AutoReverse="True"
+                                                             RepeatBehavior="Forever" BeginTime="0:0:0.12">
+                                                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut" /></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                        <Border Style="{StaticResource EqBar}">
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                             From="0.28" To="1" Duration="0:0:0.46" AutoReverse="True"
+                                                             RepeatBehavior="Forever" BeginTime="0:0:0.24">
+                                                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut" /></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                        <Border Style="{StaticResource EqBar}">
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                             From="0.28" To="1" Duration="0:0:0.46" AutoReverse="True"
+                                                             RepeatBehavior="Forever" BeginTime="0:0:0.16">
+                                                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut" /></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                        <Border Style="{StaticResource EqBar}">
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                             From="0.28" To="1" Duration="0:0:0.46" AutoReverse="True"
+                                                             RepeatBehavior="Forever" BeginTime="0:0:0.06">
+                                                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut" /></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="Analyzing" Foreground="#CCCCCC" FontSize="13" Margin="0,18,0,0"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Error -->
+                <Border x:Name="AnalyzeError" Visibility="Collapsed" CornerRadius="8"
+                        Background="#22FF5555" BorderBrush="#55FF5555" BorderThickness="1"
+                        Padding="18" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520">
+                    <StackPanel>
+                        <TextBlock x:Name="AnalyzeErrorText" Foreground="#FFD0D0" TextWrapping="Wrap"
+                                   HorizontalAlignment="Center" TextAlignment="Center" />
+                        <Button Content="Try another file" Click="Analyze_OpenFile_Click"
+                                Margin="0,14,0,0" HorizontalAlignment="Center" Padding="16,6" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Results -->
+                <ScrollViewer x:Name="AnalyzeResults" Visibility="Collapsed"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock x:Name="AnalyzeFileName" FontSize="16" FontWeight="SemiBold"
+                                           Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
+                                <TextBlock x:Name="AnalyzeMeta" Foreground="#999999" Margin="0,2,0,0" />
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+                                <Button Click="InfoButton_Click" Width="34" Height="34" Padding="0"
+                                        VerticalAlignment="Top" Margin="0,0,10,0"
+                                        ToolTip="How to read this analysis">
+                                    <ui:FontIcon Glyph="&#xE946;" FontSize="16" />
+                                </Button>
+                                <StackPanel>
+                                    <Button Content="Open another file" Click="Analyze_OpenFile_Click"
+                                            HorizontalAlignment="Right" Padding="14,6" />
+                                    <TextBlock Text="or drag &amp; drop a file here" Foreground="#AAAAAA" FontSize="12.5"
+                                               HorizontalAlignment="Right" Margin="0,7,14,0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Verdict -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Grid x:Name="BadgeWrap" VerticalAlignment="Center" SizeChanged="BadgeWrap_SizeChanged">
+                                        <!-- coloured ring behind the badge; inner badge is inset to reveal it -->
+                                        <Border x:Name="BadgeRing" CornerRadius="9" />
+                                        <Border x:Name="VerdictBadge" CornerRadius="6" Padding="12,5" Margin="3"
+                                                Background="#1ED760">
+                                            <TextBlock x:Name="VerdictTierText" Text="" FontWeight="Bold"
+                                                       FontSize="14" Foreground="#000000" />
+                                        </Border>
+                                        <!-- lossless: a glowing comet + trailing falloff orbits the border (built in code) -->
+                                        <Canvas x:Name="BadgeOrbit" IsHitTestVisible="False" ClipToBounds="False" />
+                                    </Grid>
+                                    <TextBlock x:Name="VerdictText" VerticalAlignment="Center" Margin="14,0,0,0"
+                                               FontSize="15" Foreground="#FFFFFF" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <TextBlock x:Name="VerdictDetail" Foreground="#BBBBBB" Margin="0,12,0,0"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Waveform -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionHeader}" Text="Waveform" />
+                                <Border Background="#0CFFFFFF" CornerRadius="6" Padding="2">
+                                    <Canvas x:Name="WaveformCanvas" Height="120" Background="Transparent"
+                                            SizeChanged="WaveformCanvas_SizeChanged" ClipToBounds="True" />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Frequency response & cut-off -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Style="{StaticResource SectionHeader}"
+                                               Text="Frequency response &amp; cut-off" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="FreqResponseCutoffLabel" Foreground="#FFD54F"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                </Grid>
+                                <Grid Height="160">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="18" />
+                                    </Grid.RowDefinitions>
+
+                                    <Canvas x:Name="FreqDbAxis" Grid.Row="0" Grid.Column="0" />
+
+                                    <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" ClipToBounds="True"
+                                            Background="#0CFFFFFF">
+                                        <Canvas x:Name="FreqResponseCanvas" SizeChanged="FreqResponseCanvas_SizeChanged" />
+                                    </Border>
+
+                                    <Canvas x:Name="FreqHzAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
+                                </Grid>
+
+                                <!-- explainer -->
+                                <Border CornerRadius="6" Background="#14FFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1"
+                                        Padding="14,12" Margin="0,14,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <ui:FontIcon Grid.Column="0" Glyph="&#xE946;" FontSize="16" Foreground="#1ED760"
+                                                     VerticalAlignment="Top" Margin="0,2,12,0" />
+                                        <TextBlock Grid.Column="1" Foreground="#DCDCDC" TextWrapping="Wrap"
+                                                   FontSize="13" LineHeight="21"
+                                                   Text="Average loudness at each frequency across the whole track. A lossy MP3 usually low-passes the top end, leaving a sharp cut-off cliff whose position hints at the bitrate (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). But high-bitrate AAC or Opus can reach the very top with no cliff, so a full spectrum does not prove lossless: the file format decides that. The amber line marks the detected cut-off." />
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Spectrogram -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Style="{StaticResource SectionHeader}"
+                                               Text="Spectrogram" VerticalAlignment="Center" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                                        <TextBlock Text="Heatmap colour theme" Foreground="#C8C8C8"
+                                                   VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" />
+                                        <ComboBox x:Name="PaletteCombo" Width="112" Height="30"
+                                                  VerticalAlignment="Center" FontSize="13"
+                                                  SelectionChanged="PaletteCombo_SelectionChanged">
+                                            <ComboBoxItem Content="Inferno" IsSelected="True" />
+                                            <ComboBoxItem Content="Magma" />
+                                            <ComboBoxItem Content="Viridis" />
+                                            <ComboBoxItem Content="Heat" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Height="500">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="56" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="18" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- frequency axis -->
+                                    <Canvas x:Name="SpecFreqAxis" Grid.Row="0" Grid.Column="0" />
+
+                                    <!-- heatmap + overlay (cut-off line) -->
+                                    <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" ClipToBounds="True"
+                                            Background="#000000">
+                                        <Grid>
+                                            <Image x:Name="SpectrogramImageControl" Stretch="Fill"
+                                                   RenderOptions.BitmapScalingMode="Linear" />
+                                            <Canvas x:Name="SpecOverlay" SizeChanged="SpecOverlay_SizeChanged" />
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- dB colour legend -->
+                                    <Grid Grid.Row="0" Grid.Column="2" Margin="10,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="14" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle x:Name="LegendRect" Grid.Column="0" RadiusX="2" RadiusY="2" />
+                                        <Grid Grid.Column="1" Margin="4,0,0,0">
+                                            <TextBlock Text="0 dB" VerticalAlignment="Top" FontSize="10" Foreground="#999999" />
+                                            <TextBlock Text="-60" VerticalAlignment="Center" FontSize="10" Foreground="#999999" />
+                                            <TextBlock Text="-120" VerticalAlignment="Bottom" FontSize="10" Foreground="#999999" />
+                                        </Grid>
+                                    </Grid>
+
+                                    <!-- time axis (under heatmap) -->
+                                    <Canvas x:Name="SpecTimeAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Drag-over highlight (shown while a file is dragged over the pane) -->
+                <Border x:Name="AnalyzeDragOverlay" Visibility="Collapsed" IsHitTestVisible="False"
+                        Panel.ZIndex="20" CornerRadius="10" Background="#D40A0A0A"
+                        BorderBrush="{StaticResource SpotifyGreenBrush}" BorderThickness="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#1ED760" ShadowDepth="0" BlurRadius="26" Opacity="0.55" />
+                    </Border.Effect>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ui:FontIcon Glyph="&#xE896;" FontSize="46" Foreground="#1ED760" HorizontalAlignment="Center" />
+                        <TextBlock Text="Drop to analyze" FontSize="20" Foreground="#FFFFFF"
+                                   Margin="0,14,0,0" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Info modal: how to read the analysis -->
+                <Grid x:Name="InfoOverlay" Visibility="Collapsed" Panel.ZIndex="30" Background="#B3000000"
+                      MouseLeftButtonDown="InfoOverlay_BackdropClick">
+                    <Border MaxWidth="680" MaxHeight="620" Margin="24" VerticalAlignment="Center"
+                            Background="#1C1C1C" CornerRadius="12" BorderBrush="#33FFFFFF" BorderThickness="1"
+                            MouseLeftButtonDown="InfoCard_Click">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="22,18,12,10">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:FontIcon Glyph="&#xE946;" FontSize="18" Foreground="#1ED760" VerticalAlignment="Center" />
+                                    <TextBlock Text="How to read the analysis" FontSize="18" FontWeight="SemiBold"
+                                               Foreground="#FFFFFF" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Button Click="InfoClose_Click" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Width="30" Height="30" Padding="0" ToolTip="Close">
+                                    <ui:FontIcon Glyph="&#xE711;" FontSize="13" />
+                                </Button>
+                            </Grid>
+
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,0,22,20">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Quality verdict" />
+                                    <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
+                                               Text="The coloured badge shows the verdict and animates by tier: a flowing light border for true lossless, a pulsing glow for lossy. The file format settles lossy versus lossless: MP3, AAC and Opus are lossy by definition and can never be truly lossless, however clean they look; only FLAC, ALAC and WAV are. 'Lossy source in a lossless container' means a FLAC or ALAC actually built from an MP3, so the wrapper claims lossless but the audio underneath is not." />
+
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Waveform" />
+                                    <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
+                                               Text="Loudness over time. Tall sections are loud, thin sections are quiet. Handy for spotting silence, fade-outs, or a brick-walled master that fills the whole height with no dynamics left." />
+
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Frequency response &amp; cut-off" />
+                                    <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,8"
+                                               Text="Average loudness at each frequency across the whole track (there is no time on this graph). A lossy MP3 usually discards the highest frequencies, leaving a sharp cliff whose position hints at the bitrate:" />
+                                    <Border Background="#14FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="6"
+                                            Padding="14,10" Margin="0,0,0,8">
+                                        <TextBlock Foreground="#DCDCDC" FontSize="13" LineHeight="21"
+                                                   Text="~16 kHz  &#8776;  128 kbps&#x0a;~19 kHz  &#8776;  256 kbps&#x0a;~20 kHz  &#8776;  320 kbps&#x0a;(MP3 guides; AAC and Opus keep more)" />
+                                    </Border>
+                                    <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
+                                               Text="High-bitrate AAC and Opus can reach the very top with no cliff, so full bandwidth does not prove lossless. The amber line marks the detected cut-off." />
+
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Spectrogram" />
+                                    <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
+                                               Text="The same frequencies, but over time: left to right is time, bottom to top is frequency, and colour is loudness (see the legend on the right). A lossy file shows a hard dark ceiling where the encoder cut the highs; lossless fills right to the top. Use the colour-theme dropdown to pick whichever reads clearest for you." />
+
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Good to know" />
+                                    <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,4"
+                                               Text="The format has the final word on lossy versus lossless; the spectrum only describes bandwidth. A full spectrum does not prove lossless (a good lossy encoder reaches the top too), and a sparse acoustic track or old master can lack highs without being lossy. The spectrogram shows which is which: a hard, flat cliff is a filter (lossy), a gentle natural roll-off is just the music." />
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
 
         </Grid>
     </ui:NavigationView>
