@@ -103,8 +103,11 @@ namespace EspionSpotify.Wpf
         {
             using (var dlg = new System.Windows.Forms.OpenFileDialog
             {
-                Title = "Choose an audio file to analyze",
-                Filter = "Audio files|*.flac;*.wav;*.mp3;*.m4a;*.aac;*.opus;*.ogg;*.wma;*.aiff;*.aif|All files|*.*",
+                Title = "Choose an audio or video file to analyze",
+                Filter = "Audio & video|*.flac;*.wav;*.mp3;*.m4a;*.aac;*.opus;*.ogg;*.wma;*.aiff;*.aif;*.mp4;*.mkv;*.mov;*.webm;*.avi;*.m4v;*.ts;*.flv;*.wmv"
+                       + "|Audio|*.flac;*.wav;*.mp3;*.m4a;*.aac;*.opus;*.ogg;*.wma;*.aiff;*.aif"
+                       + "|Video|*.mp4;*.mkv;*.mov;*.webm;*.avi;*.m4v;*.ts;*.flv;*.wmv"
+                       + "|All files|*.*",
                 InitialDirectory = Directory.Exists(OutputPath) ? OutputPath : ""
             })
             {
