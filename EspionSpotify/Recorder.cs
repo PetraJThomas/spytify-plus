@@ -13,7 +13,6 @@ using EspionSpotify.Models;
 using EspionSpotify.Native;
 using EspionSpotify.Spotify;
 using EspionSpotify.Translations;
-using NAudio.Lame;
 using NAudio.Wave;
 
 namespace EspionSpotify
@@ -236,29 +235,13 @@ namespace EspionSpotify
             switch (settings.MediaFormat)
             {
                 case MediaFormat.Mp3:
-                    try
-                    {
-                        using (new LameMP3FileWriter(new MemoryStream(), waveIn.WaveFormat, settings.Bitrate))
-                        {
-                            return true;
-                        }
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        return LogLameMP3FileWriterArgumentException(form, ex, waveIn.WaveFormat);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogLameMP3FileWriterException(form, ex);
-                        return false;
-                    }
-
                 case MediaFormat.Wav:
-                case MediaFormat.Opus: // Correction : On autorise le format Ogg � passer le test de validation
+                case MediaFormat.Opus:
                 case MediaFormat.Flac:
+                    // Every format records to a temp WAV first (then ffmpeg encodes), so validating the
+                    // WAV writer is enough — ffmpeg handles any sample rate / channel count downstream.
                     try
                     {
-                        // Pour l'Ogg, on teste la capacit� � �crire un flux WAV (notre �tape interm�diaire)
                         using (new WaveFileWriter(new MemoryStream(), waveIn.WaveFormat))
                         {
                             return true;
@@ -274,7 +257,6 @@ namespace EspionSpotify
                     }
 
                 default:
-                    // Si le format n'est ni Mp3, ni Wav, ni Ogg, le test �choue
                     return false;
             }
         }
@@ -311,44 +293,6 @@ namespace EspionSpotify
         }
 
         #endregion RecorderUpdateMp3MataData
-
-        #region MP3ConverterReducer
-
-        private static bool LogLameMP3FileWriterArgumentException(IFrmEspionSpotify form, ArgumentException ex,
-            WaveFormat waveFormat)
-        {
-            var restrictions = waveFormat.GetMP3RestrictionCode().ToList();
-            if (restrictions.Any())
-            {
-                if (restrictions.Contains(WaveFormatMP3Restriction.Channel))
-                    form.WriteIntoConsole(I18NKeys.LogUnsupportedNumberChannels, waveFormat.Channels);
-                if (restrictions.Contains(WaveFormatMP3Restriction.SampleRate))
-                    form.WriteIntoConsole(I18NKeys.LogUnsupportedRate, waveFormat.SampleRate);
-                return true;
-            }
-
-            form.UpdateIconSpotify(true);
-            form.WriteIntoConsole(I18NKeys.LogUnknownException, ex.Message);
-            return false;
-        }
-
-        private static void LogLameMP3FileWriterException(IFrmEspionSpotify form, Exception ex)
-        {
-            if (ex.Message.Contains("Unable to load DLL"))
-            {
-                form.WriteIntoConsole(I18NKeys.LogMissingDlls);
-            }
-            else
-            {
-                Program.ReportException(ex);
-                form.WriteIntoConsole(I18NKeys.LogUnknownException, ex.Message);
-            }
-
-            form.UpdateIconSpotify(true);
-            Console.WriteLine(ex.Message);
-        }
-
-        #endregion MP3ConverterReducer
 
         #region DisposeRecorder
 

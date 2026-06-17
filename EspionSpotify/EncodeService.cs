@@ -100,6 +100,8 @@ namespace EspionSpotify
                 tempEncodeFile = Path.ChangeExtension(tempEncodeFile, ".opus");
             else if (job.UserSettings.MediaFormat == MediaFormat.Flac)
                 tempEncodeFile = Path.ChangeExtension(tempEncodeFile, ".flac");
+            else if (job.UserSettings.MediaFormat == MediaFormat.Mp3)
+                tempEncodeFile = Path.ChangeExtension(tempEncodeFile, ".mp3");
 
             try
             {
@@ -370,77 +372,30 @@ namespace EspionSpotify
 
         #endregion FFmpeg
 
-        #region MP3 (LAME)
+        #region MP3 (FFmpeg libmp3lame)
 
         private async Task EncodeWaveToMp3Async(EncodeJob job, string tempEncodeFile)
         {
-            using (var tempFileStream = _fileSystem.File.OpenRead(job.TempOriginalFile))
+            // libmp3lame is LAME; ffmpeg natively handles any sample rate / channel count, so the old
+            // resampler/channel "reducer" code is gone. ID3 tags + cover are applied afterwards via
+            // TagLib (UpdateMediaTagsAsync), so the encode itself is audio-only.
+            var ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "binaries", "ffmpeg.exe");
+            var args = $"-y -i \"{job.TempOriginalFile}\" -c:a libmp3lame {GetMp3QualityArgs(job.UserSettings.Bitrate)} " +
+                       $"\"{tempEncodeFile}\"";
+            await RunFFmpegAsync(ffmpegPath, args, null).ConfigureAwait(false);
+        }
+
+        private static string GetMp3QualityArgs(LAMEPreset preset)
+        {
+            switch (preset)
             {
-                tempFileStream.Position = 0;
-                using (var tempReader = new WaveFileReader(tempFileStream))
-                {
-                    tempReader.Position = 0;
-                    var waveFormat = tempReader.WaveFormat;
-                    var restrictions = waveFormat.GetMP3RestrictionCode().ToList();
-
-                    using (var mediaFileStream = _fileSystem.FileStream.Create(tempEncodeFile, FileMode.Create,
-                               FileAccess.ReadWrite, FileShare.ReadWrite))
-                    using (var mediaWriter = GetMp3FileWriter(mediaFileStream, waveFormat, job.UserSettings))
-                    {
-                        if (restrictions.Any())
-                            await WriteWaveProviderReducerToMP3FileWriter(mediaWriter,
-                                GetMp3WaveProvider(tempReader, waveFormat), waveFormat).ConfigureAwait(false);
-                        else
-                            await tempReader.CopyToAsync(mediaWriter, 81920).ConfigureAwait(false);
-                    }
-                }
+                case LAMEPreset.ABR_128: return "-b:a 128k -abr 1";
+                case LAMEPreset.ABR_160: return "-b:a 160k -abr 1";
+                case LAMEPreset.ABR_256: return "-b:a 256k -abr 1";
+                case LAMEPreset.ABR_320: return "-b:a 320k -abr 1";
+                case LAMEPreset.INSANE:  return "-b:a 320k"; // clean constant 320 CBR
+                default:                 return "-b:a 320k";
             }
-        }
-
-        private static Stream GetMp3FileWriter(Stream stream, WaveFormat waveFormat, UserSettings userSettings)
-        {
-            var supportedWaveFormat = GetWaveFormatMP3Supported(waveFormat);
-            return new LameMP3FileWriter(stream, supportedWaveFormat, userSettings.Bitrate);
-        }
-
-        private static WaveFormat GetWaveFormatMP3Supported(WaveFormat waveFormat)
-        {
-            return WaveFormat.CreateIeeeFloatWaveFormat(
-                Math.Min(Recorder.MP3_MAX_SAMPLE_RATE, waveFormat.SampleRate),
-                Math.Min(Recorder.MP3_MAX_NUMBER_CHANNELS, waveFormat.Channels));
-        }
-
-        private static IWaveProvider GetWaveProviderMP3ChannelReducer(IWaveProvider stream)
-        {
-            var waveProvider = new MultiplexingWaveProvider(new[] {stream}, Recorder.MP3_MAX_NUMBER_CHANNELS);
-            waveProvider.ConnectInputToOutput(0, 0);
-            waveProvider.ConnectInputToOutput(1, 1);
-            return waveProvider;
-        }
-
-        private static IWaveProvider GetWaveProviderMP3SamplerReducer(IWaveProvider stream)
-        {
-            return new MediaFoundationResampler(stream, Recorder.MP3_MAX_SAMPLE_RATE);
-        }
-
-        private static IWaveProvider GetMp3WaveProvider(IWaveProvider stream, WaveFormat waveFormat)
-        {
-            var restrictions = waveFormat.GetMP3RestrictionCode().ToList();
-            if (restrictions.Contains(WaveFormatMP3Restriction.Channel))
-                stream = GetWaveProviderMP3ChannelReducer(stream);
-            if (restrictions.Contains(WaveFormatMP3Restriction.SampleRate))
-                stream = GetWaveProviderMP3SamplerReducer(stream);
-            return stream;
-        }
-
-        private static async Task WriteWaveProviderReducerToMP3FileWriter(Stream mediaWriter, IWaveProvider stream,
-            WaveFormat waveFormat)
-        {
-            var mp3WaveFormat = GetWaveFormatMP3Supported(waveFormat);
-            var data = new byte[mp3WaveFormat.Channels * mp3WaveFormat.SampleRate * waveFormat.Channels];
-            int bytesRead;
-            while ((bytesRead = stream.Read(data, 0, data.Length)) > 0)
-                await mediaWriter.WriteAsync(data, 0, bytesRead).ConfigureAwait(false);
         }
 
         #endregion MP3
