@@ -27,6 +27,14 @@ namespace EspionSpotify.Wpf.Analysis
             if (!File.Exists(FfmpegPath)) throw new FileNotFoundException("Bundled ffmpeg.exe is missing.", FfmpegPath);
 
             var info = await ProbeAsync(path, ct).ConfigureAwait(false);
+
+            // ffmpeg only prints a per-stream bitrate for some codecs (e.g. MP3); for the rest
+            // (notably FLAC) measure the real audio-stream size so the figure isn't the cover-art-
+            // inflated container number.
+            var audioBitrate = info.AudioBitrateKbps;
+            if (audioBitrate == null && info.Duration.TotalSeconds >= 0.5)
+                audioBitrate = await MeasureAudioBitrateAsync(path, info.Duration, ct).ConfigureAwait(false);
+
             var pcm = await DecodePcmAsync(path, ct).ConfigureAwait(false);
 
             var mono = new float[pcm.Length / 4];
@@ -38,9 +46,42 @@ namespace EspionSpotify.Wpf.Analysis
                 SampleRate = info.SampleRate > 0 ? info.SampleRate : 44100,
                 Codec = info.Codec,
                 ContainerBitrateKbps = info.BitrateKbps,
-                AudioBitrateKbps = info.AudioBitrateKbps,
+                AudioBitrateKbps = audioBitrate,
                 Duration = info.Duration
             };
+        }
+
+        // Exact audio bitrate from the real audio-stream byte size: stream-copy the audio to the null
+        // muxer and read ffmpeg's "audio:NkB" summary. Excludes embedded cover art, so unlike the
+        // container figure it isn't inflated, and it works for FLAC where no bitrate is stored.
+        private static async Task<int?> MeasureAudioBitrateAsync(string path, TimeSpan duration, CancellationToken ct)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = FfmpegPath,
+                Arguments = $"-hide_banner -i \"{path}\" -map 0:a:0 -c copy -f null -",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            using (var p = new Process { StartInfo = psi })
+            {
+                try { p.Start(); }
+                catch { return null; }
+
+                var stderrTask = p.StandardError.ReadToEndAsync();
+                await p.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                var stderr = await stderrTask.ConfigureAwait(false);
+                await Task.Run(() => p.WaitForExit(), ct).ConfigureAwait(false);
+
+                // ffmpeg reports the stream size as "audio:NkB" (older) or "audio:NKiB" (newer);
+                // both count 1024-byte units.
+                var m = Regex.Match(stderr ?? string.Empty, @"audio:\s*(\d+)\s*[kK]i?B");
+                if (!m.Success || !long.TryParse(m.Groups[1].Value, out var kib)) return null;
+                return (int)Math.Round(kib * 1024.0 * 8.0 / duration.TotalSeconds / 1000.0);
+            }
         }
 
         private struct ProbeInfo
