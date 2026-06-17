@@ -238,9 +238,9 @@ namespace EspionSpotify.Wpf
             var dur = new Duration(TimeSpan.FromSeconds(2.4));
 
             // soft glowing body, then a thinner hard-bright core on top, sharing the same flow
-            AddStreakLayer(geo, perim, 3.4, CometTrailBrush, 0.42, 0.9,
+            AddStreakLayer(geo, perim, 3.4, CometTrailBrush, 0.483, 0.9,
                 new DropShadowEffect { Color = CometColor, ShadowDepth = 0, BlurRadius = 11, Opacity = 0.9, RenderingBias = RenderingBias.Performance }, dur);
-            AddStreakLayer(geo, perim, 1.5, CometHeadBrush, 0.36, 1.0, null, dur);
+            AddStreakLayer(geo, perim, 1.5, CometHeadBrush, 0.414, 1.0, null, dur);
         }
 
         // segment = fraction of the border the streak covers; offset animated by the full pattern so
