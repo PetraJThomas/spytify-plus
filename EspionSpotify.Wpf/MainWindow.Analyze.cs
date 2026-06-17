@@ -322,9 +322,16 @@ namespace EspionSpotify.Wpf
             VerdictText.Text = result.Verdict;
             VerdictDetail.Text = result.Detail;
 
-            FreqResponseCutoffLabel.Text = result.Tier == QualityTier.Unknown
-                ? ""
-                : $"cut-off ~{result.CutoffHz / 1000.0:0.0} kHz";
+            if (result.Tier == QualityTier.Unknown)
+            {
+                FreqResponseCutoffLabel.Text = "";
+            }
+            else
+            {
+                // Near Nyquist there is no real cliff, just a natural roll-off, so say "extends to".
+                var nearTop = result.CutoffHz >= result.NyquistHz - 1000;
+                FreqResponseCutoffLabel.Text = $"{(nearTop ? "extends to" : "cut-off")} ~{result.CutoffHz / 1000.0:0.0} kHz";
+            }
 
             StartTierPulse(result.Tier, TierGlow(result.Tier, result.IsTranscode));
         }
