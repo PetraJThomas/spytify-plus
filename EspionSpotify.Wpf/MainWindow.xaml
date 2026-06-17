@@ -290,7 +290,7 @@
                                     <Grid Width="430">
                                         <TextBox Text="{Binding SpotifyClientId, UpdateSourceTrigger=LostFocus}"
                                                  Visibility="{Binding ShowClientId, Converter={StaticResource BoolToVis}}" />
-                                        <TextBox Text="{Binding ClientIdMasked}" IsReadOnly="True" Focusable="False"
+                                        <TextBox Text="{Binding ClientIdMasked, Mode=OneWay}" IsReadOnly="True" Focusable="False"
                                                  Visibility="{Binding ShowClientId, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
                                     <ToggleButton IsChecked="{Binding ShowClientId, Mode=TwoWay}" Width="36" Margin="6,0,0,0"
@@ -303,7 +303,7 @@
                                     <Grid Width="430">
                                         <TextBox Text="{Binding SpotifySecretId, UpdateSourceTrigger=LostFocus}"
                                                  Visibility="{Binding ShowSecret, Converter={StaticResource BoolToVis}}" />
-                                        <TextBox Text="{Binding SecretMasked}" IsReadOnly="True" Focusable="False"
+                                        <TextBox Text="{Binding SecretMasked, Mode=OneWay}" IsReadOnly="True" Focusable="False"
                                                  Visibility="{Binding ShowSecret, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
                                     <ToggleButton IsChecked="{Binding ShowSecret, Mode=TwoWay}" Width="36" Margin="6,0,0,0"
