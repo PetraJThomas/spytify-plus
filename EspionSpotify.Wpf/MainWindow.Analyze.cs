@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
@@ -58,6 +59,27 @@ namespace EspionSpotify.Wpf
             ShowDragOverlay(false);
             var path = SingleFileFrom(e);
             if (path != null) _ = AnalyzeFileAsync(path);
+        }
+
+        private void InfoButton_Click(object sender, RoutedEventArgs e) => ShowInfoOverlay(true);
+        private void InfoClose_Click(object sender, RoutedEventArgs e) => ShowInfoOverlay(false);
+        private void InfoOverlay_BackdropClick(object sender, MouseButtonEventArgs e) => ShowInfoOverlay(false);
+        private void InfoCard_Click(object sender, MouseButtonEventArgs e) => e.Handled = true; // clicks inside the card don't dismiss
+
+        private void ShowInfoOverlay(bool show)
+        {
+            if (show)
+            {
+                InfoOverlay.Visibility = Visibility.Visible;
+                InfoOverlay.BeginAnimation(OpacityProperty,
+                    new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(140)));
+            }
+            else
+            {
+                var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(140));
+                fade.Completed += (s, e2) => InfoOverlay.Visibility = Visibility.Collapsed;
+                InfoOverlay.BeginAnimation(OpacityProperty, fade);
+            }
         }
 
         private void ShowDragOverlay(bool show)
