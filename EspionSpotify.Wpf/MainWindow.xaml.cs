@@ -890,6 +890,7 @@ namespace EspionSpotify.Wpf
             SetPanelActive(RecordPanel, tag == "record");
             SetPanelActive(SettingsPanel, tag == "settings");
             SetPanelActive(AdvancedPanel, tag == "advanced");
+            SetPanelActive(AnalyzePanel, tag == "analyze");
         }
 
         private static TranslateTransform SlideOf(FrameworkElement el)

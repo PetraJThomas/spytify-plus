@@ -88,6 +88,11 @@
                     <ui:FontIcon Glyph="&#xE9E9;" />
                 </ui:NavigationViewItem.Icon>
             </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Analyze" Tag="analyze">
+                <ui:NavigationViewItem.Icon>
+                    <ui:FontIcon Glyph="&#xE9D9;" />
+                </ui:NavigationViewItem.Icon>
+            </ui:NavigationViewItem>
         </ui:NavigationView.MenuItems>
 
         <Grid Margin="24,16,24,20">
@@ -392,6 +397,110 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
+
+            <!-- ===================== ANALYZE ===================== -->
+            <Grid x:Name="AnalyzePanel" Visibility="Collapsed"
+                  AllowDrop="True" DragOver="Analyze_DragOver" Drop="Analyze_Drop">
+
+                <!-- Empty state: drop zone -->
+                <Border x:Name="AnalyzeDropZone" CornerRadius="10" Background="#10FFFFFF"
+                        BorderBrush="#33FFFFFF" BorderThickness="1.5" Margin="0,4,0,4">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ui:FontIcon Glyph="&#xEC4F;" FontSize="46" Foreground="#1ED760"
+                                     HorizontalAlignment="Center" />
+                        <TextBlock Text="Drag &amp; drop an audio file here" FontSize="18"
+                                   Foreground="#EEEEEE" HorizontalAlignment="Center" Margin="0,16,0,4" />
+                        <TextBlock Text="FLAC · WAV · MP3 · Opus · M4A — analyzed for true quality"
+                                   Foreground="#888888" HorizontalAlignment="Center" Margin="0,0,0,20" />
+                        <Button Content="Open file…" Click="Analyze_OpenFile_Click"
+                                Padding="22,8" FontSize="14" HorizontalAlignment="Center"
+                                Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000"
+                                BorderThickness="0" Cursor="Hand" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Busy -->
+                <StackPanel x:Name="AnalyzeBusy" Visibility="Collapsed"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ui:ProgressRing IsActive="True" Width="46" Height="46" />
+                    <TextBlock Text="Analyzing…" Foreground="#CCCCCC" Margin="0,14,0,0"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Error -->
+                <Border x:Name="AnalyzeError" Visibility="Collapsed" CornerRadius="8"
+                        Background="#22FF5555" BorderBrush="#55FF5555" BorderThickness="1"
+                        Padding="18" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520">
+                    <StackPanel>
+                        <TextBlock x:Name="AnalyzeErrorText" Foreground="#FFD0D0" TextWrapping="Wrap"
+                                   HorizontalAlignment="Center" TextAlignment="Center" />
+                        <Button Content="Try another file" Click="Analyze_OpenFile_Click"
+                                Margin="0,14,0,0" HorizontalAlignment="Center" Padding="16,6" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Results -->
+                <ScrollViewer x:Name="AnalyzeResults" Visibility="Collapsed"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock x:Name="AnalyzeFileName" FontSize="16" FontWeight="SemiBold"
+                                           Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
+                                <TextBlock x:Name="AnalyzeMeta" Foreground="#999999" Margin="0,2,0,0" />
+                            </StackPanel>
+                            <Button Content="Open another…" Click="Analyze_OpenFile_Click"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Padding="14,6" />
+                        </Grid>
+
+                        <!-- Verdict -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border x:Name="VerdictBadge" CornerRadius="6" Padding="12,5" Background="#1ED760"
+                                            VerticalAlignment="Center">
+                                        <TextBlock x:Name="VerdictTierText" Text="—" FontWeight="Bold"
+                                                   FontSize="14" Foreground="#000000" />
+                                    </Border>
+                                    <TextBlock x:Name="VerdictText" VerticalAlignment="Center" Margin="14,0,0,0"
+                                               FontSize="15" Foreground="#FFFFFF" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <TextBlock x:Name="VerdictDetail" Foreground="#BBBBBB" Margin="0,12,0,0"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Waveform -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionHeader}" Text="Waveform" />
+                                <Border Background="#0CFFFFFF" CornerRadius="6" Padding="2">
+                                    <Canvas x:Name="WaveformCanvas" Height="120" Background="Transparent"
+                                            SizeChanged="WaveformCanvas_SizeChanged" ClipToBounds="True" />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Spectrum -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Style="{StaticResource SectionHeader}"
+                                               Text="Frequency spectrum (average)" />
+                                    <TextBlock x:Name="SpectrumCutoffLabel" Foreground="#1ED760"
+                                               HorizontalAlignment="Right" FontWeight="SemiBold" />
+                                </Grid>
+                                <Border Background="#0CFFFFFF" CornerRadius="6" Padding="2">
+                                    <Canvas x:Name="SpectrumCanvas" Height="170" Background="Transparent"
+                                            SizeChanged="SpectrumCanvas_SizeChanged" ClipToBounds="True" />
+                                </Border>
+                                <TextBlock x:Name="SpectrumAxis" Foreground="#777777" FontSize="11"
+                                           Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
 
         </Grid>
     </ui:NavigationView>
