@@ -6,7 +6,6 @@ using EspionSpotify.Enums;
 using EspionSpotify.Exceptions;
 using EspionSpotify.Models;
 using EspionSpotify.Native;
-using NAudio.Lame;
 using Xunit;
 
 namespace EspionSpotify.Tests
@@ -29,7 +28,7 @@ namespace EspionSpotify.Tests
             _userSettings = new UserSettings
             {
                 OutputPath = PATH,
-                Bitrate = LAMEPreset.ABR_128,
+                Bitrate = Bitrate.Kbps128,
                 MediaFormat = MediaFormat.Mp3,
                 MinimumRecordedLengthSeconds = 30,
                 GroupByFoldersEnabled = false,

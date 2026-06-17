@@ -20,7 +20,6 @@ using EspionSpotify.Extensions;
 using EspionSpotify.Models;
 using EspionSpotify.Native;
 using EspionSpotify.Translations;
-using NAudio.Lame;
 using Settings = EspionSpotify.Properties.Settings;
 
 namespace EspionSpotify.Wpf
@@ -349,10 +348,10 @@ namespace EspionSpotify.Wpf
         private bool _bitrateVisible = true;
         public bool BitrateVisible { get => _bitrateVisible; set => Set(ref _bitrateVisible, value); }
 
-        public List<KeyValuePair<LAMEPreset, string>> Bitrates { get; private set; }
+        public List<KeyValuePair<Bitrate, string>> Bitrates { get; private set; }
 
-        private LAMEPreset _selectedBitrate = LAMEPreset.ABR_320;
-        public LAMEPreset SelectedBitrate
+        private Bitrate _selectedBitrate = Bitrate.Kbps320;
+        public Bitrate SelectedBitrate
         {
             get => _selectedBitrate;
             set
@@ -528,9 +527,9 @@ namespace EspionSpotify.Wpf
 
             Bitrates = BuildBitrates();
             OnPropertyChanged(nameof(Bitrates));
-            SelectedBitrate = Enum.IsDefined(typeof(LAMEPreset), Settings.Default.settings_media_bitrate_quality)
-                ? (LAMEPreset)Settings.Default.settings_media_bitrate_quality
-                : LAMEPreset.ABR_320;
+            SelectedBitrate = Enum.IsDefined(typeof(Bitrate), Settings.Default.settings_media_bitrate_quality)
+                ? (Bitrate)Settings.Default.settings_media_bitrate_quality
+                : Bitrate.Kbps320;
             _userSettings.Bitrate = SelectedBitrate;
 
             MinLengthSeconds = Settings.Default.settings_media_minimum_recorded_length_in_seconds;
@@ -597,13 +596,13 @@ namespace EspionSpotify.Wpf
             }) OnPropertyChanged(p);
         }
 
-        private List<KeyValuePair<LAMEPreset, string>> BuildBitrates() => new List<KeyValuePair<LAMEPreset, string>>
+        private List<KeyValuePair<Bitrate, string>> BuildBitrates() => new List<KeyValuePair<Bitrate, string>>
         {
-            new KeyValuePair<LAMEPreset, string>(LAMEPreset.ABR_128, "128 kbps"),
-            new KeyValuePair<LAMEPreset, string>(LAMEPreset.ABR_160, "160 kbps (Spotify Free)"),
-            new KeyValuePair<LAMEPreset, string>(LAMEPreset.ABR_256, "256 kbps"),
-            new KeyValuePair<LAMEPreset, string>(LAMEPreset.ABR_320, "320 kbps (Spotify Premium)"),
-            new KeyValuePair<LAMEPreset, string>(LAMEPreset.INSANE, "320 kbps (Insane, CBR)")
+            new KeyValuePair<Bitrate, string>(Bitrate.Kbps128, "128 kbps"),
+            new KeyValuePair<Bitrate, string>(Bitrate.Kbps160, "160 kbps (Spotify Free)"),
+            new KeyValuePair<Bitrate, string>(Bitrate.Kbps256, "256 kbps"),
+            new KeyValuePair<Bitrate, string>(Bitrate.Kbps320, "320 kbps (Spotify Premium)"),
+            new KeyValuePair<Bitrate, string>(Bitrate.Insane, "320 kbps (Insane, CBR)")
         };
 
         private void BuildResourceManager()

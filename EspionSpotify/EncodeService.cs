@@ -14,7 +14,6 @@ using EspionSpotify.Extensions;
 using EspionSpotify.Models;
 using EspionSpotify.Native;
 using EspionSpotify.Translations;
-using NAudio.Lame;
 using NAudio.Wave;
 
 namespace EspionSpotify
@@ -238,7 +237,7 @@ namespace EspionSpotify
                 }
                 else // OPUS
                 {
-                    var bitrate = GetOpusBitrate(job.UserSettings);
+                    var bitrate = GetOpusBitrate(job.UserSettings.Bitrate);
                     args = $"-y -i \"{job.TempOriginalFile}\" -i \"{ffmetaPath}\" -map_metadata 1 " +
                            $"-c:a libopus -b:a {bitrate} \"{tempEncodeFile}\"";
                 }
@@ -359,15 +358,17 @@ namespace EspionSpotify
             return sb.ToString();
         }
 
-        private static string GetOpusBitrate(UserSettings userSettings)
+        private static string GetOpusBitrate(Bitrate bitrate)
         {
-            var preset = userSettings.Bitrate.ToString();
-            if (preset.Contains("128")) return "128k";
-            if (preset.Contains("160")) return "160k";
-            if (preset.Contains("192")) return "192k";
-            if (preset.Contains("256")) return "256k";
-            if (preset.Contains("320") || preset.Contains("INSANE")) return "320k";
-            return "256k";
+            switch (bitrate)
+            {
+                case Bitrate.Kbps128: return "128k";
+                case Bitrate.Kbps160: return "160k";
+                case Bitrate.Kbps256: return "256k";
+                case Bitrate.Kbps320:
+                case Bitrate.Insane: return "320k";
+                default: return "256k";
+            }
         }
 
         #endregion FFmpeg
@@ -385,16 +386,16 @@ namespace EspionSpotify
             await RunFFmpegAsync(ffmpegPath, args, null).ConfigureAwait(false);
         }
 
-        private static string GetMp3QualityArgs(LAMEPreset preset)
+        private static string GetMp3QualityArgs(Bitrate bitrate)
         {
-            switch (preset)
+            switch (bitrate)
             {
-                case LAMEPreset.ABR_128: return "-b:a 128k -abr 1";
-                case LAMEPreset.ABR_160: return "-b:a 160k -abr 1";
-                case LAMEPreset.ABR_256: return "-b:a 256k -abr 1";
-                case LAMEPreset.ABR_320: return "-b:a 320k -abr 1";
-                case LAMEPreset.INSANE:  return "-b:a 320k"; // clean constant 320 CBR
-                default:                 return "-b:a 320k";
+                case Bitrate.Kbps128: return "-b:a 128k -abr 1";
+                case Bitrate.Kbps160: return "-b:a 160k -abr 1";
+                case Bitrate.Kbps256: return "-b:a 256k -abr 1";
+                case Bitrate.Kbps320: return "-b:a 320k -abr 1";
+                case Bitrate.Insane:  return "-b:a 320k"; // clean constant 320 CBR
+                default:              return "-b:a 320k";
             }
         }
 

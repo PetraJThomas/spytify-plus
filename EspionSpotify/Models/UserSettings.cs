@@ -1,13 +1,12 @@
 ﻿using System;
 using EspionSpotify.Enums;
-using NAudio.Lame;
 
 namespace EspionSpotify.Models
 {
     public class UserSettings
     {
         public string OutputPath { get; set; }
-        public LAMEPreset Bitrate { get; set; }
+        public Bitrate Bitrate { get; set; }
         public MediaFormat MediaFormat { get; set; }
         public int MinimumRecordedLengthSeconds { get; set; }
         public bool GroupByFoldersEnabled { get; set; }

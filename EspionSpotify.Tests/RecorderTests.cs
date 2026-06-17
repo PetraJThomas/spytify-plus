@@ -8,7 +8,6 @@ using EspionSpotify.Enums;
 using EspionSpotify.Models;
 using EspionSpotify.Native;
 using Moq;
-using NAudio.Lame;
 using NAudio.Wave;
 using Xunit;
 
