@@ -242,11 +242,11 @@ namespace EspionSpotify.Wpf
                 if (f + 5000 > nyquist) AddFreqLabel(nyquist, nyquist, h); // top tick
             }
 
-            // dashed cut-off line across the heatmap
+            // dashed cut-off line across the heatmap (shown even at Nyquist for full-band lossless)
             var cutoff = _analyzeResult?.CutoffHz ?? 0;
-            if (w >= 2 && cutoff > 0 && cutoff < nyquist - 200)
+            if (w >= 2 && cutoff > 0 && cutoff <= nyquist)
             {
-                var y = h * (1 - cutoff / nyquist);
+                var y = Math.Max(0.75, h * (1 - cutoff / nyquist));
                 SpecOverlay.Children.Add(new WShapes.Line
                 {
                     X1 = 0, Y1 = y, X2 = w, Y2 = y,
@@ -355,10 +355,10 @@ namespace EspionSpotify.Wpf
             geo.Freeze();
             canvas.Children.Add(new WShapes.Path { Data = geo, Fill = ProfileFill, Stroke = ProfileStroke, StrokeThickness = 1.2 });
 
-            // detected cut-off
-            if (result.CutoffHz > 0 && result.CutoffHz < nyquist - 200)
+            // detected cut-off (drawn even when it sits at Nyquist, i.e. full-band lossless)
+            if (result.CutoffHz > 0 && result.CutoffHz <= nyquist)
             {
-                var cx = X(result.CutoffHz);
+                var cx = Math.Min(w - 1, X(result.CutoffHz));
                 canvas.Children.Add(new WShapes.Line
                 {
                     X1 = cx, Y1 = 0, X2 = cx, Y2 = h,

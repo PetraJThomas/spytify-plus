@@ -481,6 +481,53 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Frequency response & cut-off -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Style="{StaticResource SectionHeader}"
+                                               Text="Frequency response &amp; cut-off" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="FreqResponseCutoffLabel" Foreground="#FFD54F"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                </Grid>
+                                <Grid Height="160">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="18" />
+                                    </Grid.RowDefinitions>
+
+                                    <Canvas x:Name="FreqDbAxis" Grid.Row="0" Grid.Column="0" />
+
+                                    <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" ClipToBounds="True"
+                                            Background="#0CFFFFFF">
+                                        <Canvas x:Name="FreqResponseCanvas" SizeChanged="FreqResponseCanvas_SizeChanged" />
+                                    </Border>
+
+                                    <Canvas x:Name="FreqHzAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
+                                </Grid>
+
+                                <!-- explainer -->
+                                <Border CornerRadius="6" Background="#14FFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1"
+                                        Padding="14,12" Margin="0,14,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <ui:FontIcon Grid.Column="0" Glyph="&#xE946;" FontSize="16" Foreground="#1ED760"
+                                                     VerticalAlignment="Top" Margin="0,2,12,0" />
+                                        <TextBlock Grid.Column="1" Foreground="#DCDCDC" TextWrapping="Wrap"
+                                                   FontSize="13" LineHeight="21"
+                                                   Text="Average loudness at each frequency across the whole track. Lossy formats (MP3 / AAC / Opus) discard the highest frequencies to save space, leaving a sharp cut-off cliff — its position reveals the bitrate:  ~16 kHz ≈ 128 kbps,  ~19 kHz ≈ 256 kbps,  ~20 kHz ≈ 320 kbps.  True lossless keeps energy all the way to ~22 kHz with no cliff. The amber line marks the detected cut-off." />
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Spectrogram -->
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
@@ -488,10 +535,10 @@
                                     <TextBlock Style="{StaticResource SectionHeader}"
                                                Text="Spectrogram" VerticalAlignment="Center" />
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-                                        <TextBlock Text="Heatmap colour theme" Foreground="#AAAAAA"
-                                                   VerticalAlignment="Center" Margin="0,0,10,0" FontSize="12" />
-                                        <ComboBox x:Name="PaletteCombo" Width="104" Height="28"
-                                                  VerticalAlignment="Center" FontSize="12"
+                                        <TextBlock Text="Heatmap colour theme" Foreground="#C8C8C8"
+                                                   VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" />
+                                        <ComboBox x:Name="PaletteCombo" Width="112" Height="30"
+                                                  VerticalAlignment="Center" FontSize="13"
                                                   SelectionChanged="PaletteCombo_SelectionChanged">
                                             <ComboBoxItem Content="Inferno" IsSelected="True" />
                                             <ComboBoxItem Content="Magma" />
@@ -500,7 +547,7 @@
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
-                                <Grid Height="300">
+                                <Grid Height="420">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40" />
                                         <ColumnDefinition Width="*" />
@@ -541,39 +588,6 @@
                                     <!-- time axis (under heatmap) -->
                                     <Canvas x:Name="SpecTimeAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
                                 </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Frequency response & cut-off -->
-                        <Border Style="{StaticResource Card}">
-                            <StackPanel>
-                                <Grid>
-                                    <TextBlock Style="{StaticResource SectionHeader}"
-                                               Text="Frequency response &amp; cut-off" VerticalAlignment="Center" />
-                                    <TextBlock x:Name="FreqResponseCutoffLabel" Foreground="#FFD54F"
-                                               HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" />
-                                </Grid>
-                                <Grid Height="160">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="40" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="18" />
-                                    </Grid.RowDefinitions>
-
-                                    <Canvas x:Name="FreqDbAxis" Grid.Row="0" Grid.Column="0" />
-
-                                    <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" ClipToBounds="True"
-                                            Background="#0CFFFFFF">
-                                        <Canvas x:Name="FreqResponseCanvas" SizeChanged="FreqResponseCanvas_SizeChanged" />
-                                    </Border>
-
-                                    <Canvas x:Name="FreqHzAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
-                                </Grid>
-                                <TextBlock Foreground="#999999" TextWrapping="Wrap" Margin="0,10,0,0" FontSize="12"
-                                           Text="Average loudness at each frequency across the whole track. Lossy formats (MP3/AAC/Opus) discard the highest frequencies to save space, leaving a sharp cut-off cliff whose position reveals the bitrate (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). True lossless keeps energy all the way to ~22 kHz with no cliff. The amber line marks the detected cut-off." />
                             </StackPanel>
                         </Border>
                     </StackPanel>
