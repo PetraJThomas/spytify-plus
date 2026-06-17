@@ -64,6 +64,23 @@ namespace EspionSpotify.Wpf
             LoadState();
             ReloadExternalApi();
             InitTray();
+
+            Loaded += (s, e) =>
+            {
+                var dpd = System.ComponentModel.DependencyPropertyDescriptor.FromProperty(
+                    ModernWpf.Controls.NavigationView.IsPaneOpenProperty,
+                    typeof(ModernWpf.Controls.NavigationView));
+                dpd?.AddValueChanged(Nav, (s2, e2) => UpdateLogo(Nav.IsPaneOpen));
+                UpdateLogo(Nav.IsPaneOpen);
+            };
+        }
+
+        // Cross-fade the wordmark logo (expanded pane) and the icon logo (collapsed pane).
+        private void UpdateLogo(bool paneOpen)
+        {
+            var dur = new Duration(TimeSpan.FromMilliseconds(180));
+            LogoFull.BeginAnimation(OpacityProperty, new DoubleAnimation(paneOpen ? 1 : 0, dur) { EasingFunction = EaseOut() });
+            LogoIcon.BeginAnimation(OpacityProperty, new DoubleAnimation(paneOpen ? 0 : 1, dur) { EasingFunction = EaseOut() });
         }
 
         #region System tray

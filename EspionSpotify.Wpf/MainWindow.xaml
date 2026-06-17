@@ -58,9 +58,16 @@
                        OpenPaneLength="180"
                        SelectionChanged="Nav_SelectionChanged">
         <ui:NavigationView.PaneFooter>
-            <!-- Logo is a wide ~5.4:1 banner (includes the wordmark); keep its aspect ratio. -->
-            <Image Source="Assets/spytify-logo.png" Stretch="Uniform"
-                   Width="150" HorizontalAlignment="Left" Margin="14,12,12,16" />
+            <!-- Two logos cross-faded by pane state: the wide wordmark when expanded,
+                 the square icon when collapsed (see UpdateLogo in code-behind). -->
+            <Grid Height="34" Margin="0,12,0,16">
+                <Image x:Name="LogoFull" Source="Assets/spytify-logo.png" Stretch="Uniform"
+                       Width="170" HorizontalAlignment="Left" VerticalAlignment="Center"
+                       Margin="14,0,12,0" Opacity="1" />
+                <Image x:Name="LogoIcon" Source="Assets/spytify.ico" Stretch="Uniform"
+                       Width="28" Height="28" HorizontalAlignment="Left" VerticalAlignment="Center"
+                       Margin="10,0,0,0" Opacity="0" />
+            </Grid>
         </ui:NavigationView.PaneFooter>
         <ui:NavigationView.MenuItems>
             <ui:NavigationViewItem Content="Record" Tag="record" IsSelected="True">
