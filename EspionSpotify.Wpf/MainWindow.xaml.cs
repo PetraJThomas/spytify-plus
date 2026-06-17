@@ -130,8 +130,12 @@ namespace EspionSpotify.Wpf
         {
             if (string.IsNullOrEmpty(Settings.Default.settings_output_path))
             {
-                Settings.Default.settings_output_path =
-                    Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                // Default to <Music>\Spytify rather than the Music root, so recordings don't
+                // scatter artist/album folders all over the user's library.
+                var music = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                var spytify = Path.Combine(music, "Spytify");
+                try { Directory.CreateDirectory(spytify); } catch { /* fall back to the path string */ }
+                Settings.Default.settings_output_path = spytify;
                 Settings.Default.Save();
             }
         }
