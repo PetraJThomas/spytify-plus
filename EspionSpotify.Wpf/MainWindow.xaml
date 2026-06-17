@@ -540,8 +540,12 @@
                                            Foreground="#FFFFFF" TextTrimming="CharacterEllipsis" />
                                 <TextBlock x:Name="AnalyzeMeta" Foreground="#999999" Margin="0,2,0,0" />
                             </StackPanel>
-                            <Button Content="Open another…" Click="Analyze_OpenFile_Click"
-                                    HorizontalAlignment="Right" VerticalAlignment="Top" Padding="14,6" />
+                            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top">
+                                <Button Content="Open another file" Click="Analyze_OpenFile_Click"
+                                        HorizontalAlignment="Right" Padding="14,6" />
+                                <TextBlock Text="or drag &amp; drop a file here" Foreground="#888888" FontSize="11"
+                                           HorizontalAlignment="Right" Margin="0,6,2,0" />
+                            </StackPanel>
                         </Grid>
 
                         <!-- Verdict -->
