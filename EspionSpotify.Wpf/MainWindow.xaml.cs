@@ -126,7 +126,7 @@ namespace EspionSpotify.Wpf
         public bool IsRecording
         {
             get => _isRecording;
-            set { if (Set(ref _isRecording, value)) { OnPropertyChanged(nameof(StartStopLabel)); OnPropertyChanged(nameof(SettingsEnabled)); } }
+            set { if (Set(ref _isRecording, value)) { OnPropertyChanged(nameof(StartStopLabel)); OnPropertyChanged(nameof(SettingsEnabled)); OnPropertyChanged(nameof(StatusBrush)); } }
         }
 
         public bool SettingsEnabled => !IsRecording;
@@ -135,8 +135,9 @@ namespace EspionSpotify.Wpf
         private string _statusGlyph = ""; // pause
         public string StatusGlyph { get => _statusGlyph; set => Set(ref _statusGlyph, value); }
 
-        private Brush _statusBrush = GrayBrush;
-        public Brush StatusBrush { get => _statusBrush; set => Set(ref _statusBrush, value); }
+        // Dot + now-playing title are green while a recording session is active and grey when
+        // idle/stopped — driven by the same session flag as the pulse so they never disagree.
+        public Brush StatusBrush => IsRecording ? GreenBrush : GrayBrush;
 
         private string _nowPlaying = "Spotify";
         public string NowPlaying { get => _nowPlaying; set => Set(ref _nowPlaying, value); }
@@ -528,12 +529,9 @@ namespace EspionSpotify.Wpf
 
         public void UpdateStartButton() => RunOnUi(() => IsRecording = false);
 
-        public void UpdateIconSpotify(bool isSpotifyPlaying, bool isRecording = false) => RunOnUi(() =>
-        {
-            if (isRecording) { StatusGlyph = ""; StatusBrush = GreenBrush; }       // record
-            else if (isSpotifyPlaying) { StatusGlyph = ""; StatusBrush = GrayBrush; } // play
-            else { StatusGlyph = ""; StatusBrush = GrayBrush; }                        // pause
-        });
+        // Status dot/title colour follows the recording session (see StatusBrush);
+        // the engine's per-track playing/recording flags no longer toggle it.
+        public void UpdateIconSpotify(bool isSpotifyPlaying, bool isRecording = false) { }
 
         public void UpdatePlayingTitle(string text) => RunOnUi(() => NowPlaying = text);
 
