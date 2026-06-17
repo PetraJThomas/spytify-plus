@@ -2,25 +2,28 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using EspionSpotify.Wpf.Analysis;
 using WShapes = System.Windows.Shapes;
 
 namespace EspionSpotify.Wpf
 {
-    // Analyze tab: decode any audio file via the bundled ffmpeg, draw its waveform + averaged
-    // spectrum, and estimate the real quality tier (incl. lossy-in-a-lossless-container).
+    // Analyze tab: decode any audio file via the bundled ffmpeg, draw its waveform, a Spek-style
+    // spectrogram and a vertical frequency profile, and estimate the real quality tier
+    // (including lossy audio hidden inside a lossless container).
     public partial class MainWindow
     {
         private AudioSample _analyzeSample;
         private QualityResult _analyzeResult;
+        private SpectrogramImage _spectrogram;
 
         private static readonly Brush WaveBrush = Frozen(0x1E, 0xD7, 0x60, 0xFF);
         private static readonly Brush WaveMidBrush = Frozen(0xFF, 0xFF, 0xFF, 0x22);
-        private static readonly Brush SpecBrush = Frozen(0x1E, 0xD7, 0x60, 0xFF);
-        private static readonly Brush SpecFillBrush = Frozen(0x1E, 0xD7, 0x60, 0x33);
-        private static readonly Brush GridBrush = Frozen(0xFF, 0xFF, 0xFF, 0x18);
-        private static readonly Brush GridTextBrush = Frozen(0x88, 0x88, 0x88, 0xFF);
+        private static readonly Brush ProfileStroke = Frozen(0x1E, 0xD7, 0x60, 0xFF);
+        private static readonly Brush ProfileFill = Frozen(0x1E, 0xD7, 0x60, 0x44);
+        private static readonly Brush AxisTextBrush = Frozen(0x99, 0x99, 0x99, 0xFF);
         private static readonly Brush CutoffBrush = Frozen(0xFF, 0xD5, 0x4F, 0xFF);
 
         private enum AnalyzeState { Empty, Busy, Results, Error }
@@ -63,19 +66,24 @@ namespace EspionSpotify.Wpf
             {
                 var sample = await FfmpegDecoder.DecodeAsync(path).ConfigureAwait(true);
                 var result = await Task.Run(() => QualityAnalyzer.Analyze(sample)).ConfigureAwait(true);
+                var spectrogram = await Task.Run(() => Spectrogram.Compute(sample, 1600)).ConfigureAwait(true);
 
                 _analyzeSample = sample;
                 _analyzeResult = result;
+                _spectrogram = spectrogram;
 
                 PopulateAnalyzeResults(path, sample, result);
                 RenderWaveform();
-                RenderSpectrum();
+                RenderSpectrogram();
+                RenderSpectrogramAxes();
+                RenderSpectrumProfile();
                 SetAnalyzeState(AnalyzeState.Results);
             }
             catch (Exception ex)
             {
                 _analyzeSample = null;
                 _analyzeResult = null;
+                _spectrogram = null;
                 AnalyzeErrorText.Text = "Couldn't analyze this file.\n" + ex.Message;
                 SetAnalyzeState(AnalyzeState.Error);
             }
@@ -106,10 +114,9 @@ namespace EspionSpotify.Wpf
             VerdictText.Text = result.Verdict;
             VerdictDetail.Text = result.Detail;
 
-            SpectrumCutoffLabel.Text = result.Tier == QualityTier.Unknown
+            SpectrogramCutoffLabel.Text = result.Tier == QualityTier.Unknown
                 ? ""
                 : $"cut-off ~{result.CutoffHz / 1000.0:0.0} kHz";
-            SpectrumAxis.Text = $"0 to {result.NyquistHz / 1000.0:0.#} kHz  ·  gridlines every 5 kHz  ·  amber line = detected cut-off";
         }
 
         private static (Brush bg, Brush fg) TierColors(QualityTier tier)
@@ -127,7 +134,8 @@ namespace EspionSpotify.Wpf
         }
 
         private void WaveformCanvas_SizeChanged(object sender, SizeChangedEventArgs e) => RenderWaveform();
-        private void SpectrumCanvas_SizeChanged(object sender, SizeChangedEventArgs e) => RenderSpectrum();
+        private void SpecOverlay_SizeChanged(object sender, SizeChangedEventArgs e) => RenderSpectrogramAxes();
+        private void SpecProfileCanvas_SizeChanged(object sender, SizeChangedEventArgs e) => RenderSpectrumProfile();
 
         private void RenderWaveform()
         {
@@ -163,65 +171,131 @@ namespace EspionSpotify.Wpf
             canvas.Children.Add(new WShapes.Path { Data = geo, Stroke = WaveBrush, StrokeThickness = 1 });
         }
 
-        private void RenderSpectrum()
+        private void RenderSpectrogram()
         {
-            var canvas = SpectrumCanvas;
+            var spec = _spectrogram;
+            if (spec == null) { SpectrogramImageControl.Source = null; return; }
+
+            var wb = new WriteableBitmap(spec.Width, spec.Height, 96, 96, PixelFormats.Bgra32, null);
+            wb.WritePixels(new Int32Rect(0, 0, spec.Width, spec.Height), spec.Bgra, spec.Width * 4, 0);
+            wb.Freeze();
+            SpectrogramImageControl.Source = wb;
+        }
+
+        // Frequency axis (left), time axis (bottom) and the dashed cut-off line over the heatmap.
+        private void RenderSpectrogramAxes()
+        {
+            SpecFreqAxis.Children.Clear();
+            SpecTimeAxis.Children.Clear();
+            SpecOverlay.Children.Clear();
+            if (_analyzeSample == null) return;
+
+            double w = SpecOverlay.ActualWidth, h = SpecOverlay.ActualHeight;
+            if (h < 2) return;
+
+            var nyquist = _analyzeSample.NyquistHz <= 0 ? 22050 : _analyzeSample.NyquistHz;
+
+            // frequency labels every 5 kHz + Nyquist
+            for (var f = 0.0; f <= nyquist; f += 5000)
+            {
+                AddFreqLabel(f, nyquist, h);
+                if (f + 5000 > nyquist) AddFreqLabel(nyquist, nyquist, h); // top tick
+            }
+
+            // dashed cut-off line across the heatmap
+            var cutoff = _analyzeResult?.CutoffHz ?? 0;
+            if (w >= 2 && cutoff > 0 && cutoff < nyquist - 200)
+            {
+                var y = h * (1 - cutoff / nyquist);
+                SpecOverlay.Children.Add(new WShapes.Line
+                {
+                    X1 = 0, Y1 = y, X2 = w, Y2 = y,
+                    Stroke = CutoffBrush, StrokeThickness = 1.5,
+                    StrokeDashArray = new DoubleCollection { 4, 3 }
+                });
+            }
+
+            // time axis
+            if (w >= 2)
+            {
+                var seconds = _analyzeSample.SampleRate > 0
+                    ? _analyzeSample.Mono.Length / (double)_analyzeSample.SampleRate
+                    : _analyzeSample.Duration.TotalSeconds;
+                if (seconds > 0)
+                {
+                    const int ticks = 6;
+                    for (var k = 0; k <= ticks; k++)
+                    {
+                        var x = w * k / ticks;
+                        var label = new TextBlock
+                        {
+                            Text = TimeSpan.FromSeconds(seconds * k / ticks).ToString(@"m\:ss"),
+                            Foreground = AxisTextBrush, FontSize = 10
+                        };
+                        var left = k == ticks ? x - 26 : (k == 0 ? x : x - 13);
+                        Canvas.SetLeft(label, Math.Max(0, left));
+                        Canvas.SetTop(label, 0);
+                        SpecTimeAxis.Children.Add(label);
+                    }
+                }
+            }
+        }
+
+        private void AddFreqLabel(double f, double nyquist, double h)
+        {
+            var y = h * (1 - f / nyquist);
+            var label = new TextBlock
+            {
+                Text = f >= 1000 ? $"{f / 1000:0.#}k" : "0",
+                Foreground = AxisTextBrush, FontSize = 10, Width = 34, TextAlignment = TextAlignment.Right
+            };
+            Canvas.SetLeft(label, 2);
+            Canvas.SetTop(label, Math.Min(h - 12, Math.Max(0, y - 7)));
+            SpecFreqAxis.Children.Add(label);
+        }
+
+        // Vertical averaged-spectrum profile: Y = frequency (aligned to the heatmap), X = level.
+        private void RenderSpectrumProfile()
+        {
+            var canvas = SpecProfileCanvas;
             canvas.Children.Clear();
             var result = _analyzeResult;
             if (result?.Spectrum == null || result.Spectrum.Length == 0) return;
 
-            double width = canvas.ActualWidth, height = canvas.ActualHeight;
-            if (width < 2 || height < 2) return;
+            double w = canvas.ActualWidth, h = canvas.ActualHeight;
+            if (w < 2 || h < 2) return;
 
             var nyquist = result.NyquistHz <= 0 ? 22050 : result.NyquistHz;
-            const double minDb = -90, maxDb = 0;
+            const double minDb = -100, maxDb = 0;
 
-            double X(double f) => f / nyquist * width;
-            double Y(double db)
+            double X(double db)
             {
                 var t = (db - minDb) / (maxDb - minDb);
                 if (t < 0) t = 0; else if (t > 1) t = 1;
-                return height - t * height;
+                return t * (w - 1);
             }
+            double Y(double f) => h * (1 - f / nyquist);
 
-            // Frequency gridlines + labels every 5 kHz.
-            for (var f = 5000; f < nyquist; f += 5000)
+            var geo = new StreamGeometry();
+            using (var ctx = geo.Open())
             {
-                var gx = X(f);
+                ctx.BeginFigure(new Point(0, h), true, false); // bottom-left (0 Hz, silent)
+                foreach (var p in result.Spectrum)
+                    ctx.LineTo(new Point(X(p.Db), Y(p.FrequencyHz)), true, false);
+                ctx.LineTo(new Point(0, 0), true, false);      // back down the left edge at the top
+            }
+            geo.Freeze();
+            canvas.Children.Add(new WShapes.Path { Data = geo, Fill = ProfileFill, Stroke = ProfileStroke, StrokeThickness = 1 });
+
+            // cut-off line, aligned with the heatmap's
+            if (result.CutoffHz > 0 && result.CutoffHz < nyquist - 200)
+            {
+                var y = Y(result.CutoffHz);
                 canvas.Children.Add(new WShapes.Line
                 {
-                    X1 = gx, Y1 = 0, X2 = gx, Y2 = height, Stroke = GridBrush, StrokeThickness = 0.5
-                });
-                var label = new System.Windows.Controls.TextBlock
-                {
-                    Text = $"{f / 1000}k", Foreground = GridTextBrush, FontSize = 10
-                };
-                System.Windows.Controls.Canvas.SetLeft(label, gx + 2);
-                System.Windows.Controls.Canvas.SetTop(label, height - 14);
-                canvas.Children.Add(label);
-            }
-
-            // Spectrum curve (filled to the baseline).
-            var fill = new StreamGeometry();
-            using (var ctx = fill.Open())
-            {
-                ctx.BeginFigure(new Point(0, height), true, false);
-                for (var i = 1; i < result.Spectrum.Length; i++)
-                    ctx.LineTo(new Point(X(result.Spectrum[i].FrequencyHz), Y(result.Spectrum[i].Db)), true, false);
-                ctx.LineTo(new Point(width, height), true, false);
-            }
-            fill.Freeze();
-            canvas.Children.Add(new WShapes.Path { Data = fill, Fill = SpecFillBrush, Stroke = SpecBrush, StrokeThickness = 1 });
-
-            // Detected cut-off marker.
-            if (result.CutoffHz > 0 && result.CutoffHz < nyquist)
-            {
-                var cx = X(result.CutoffHz);
-                canvas.Children.Add(new WShapes.Line
-                {
-                    X1 = cx, Y1 = 0, X2 = cx, Y2 = height,
+                    X1 = 0, Y1 = y, X2 = w, Y2 = y,
                     Stroke = CutoffBrush, StrokeThickness = 1.5,
-                    StrokeDashArray = new DoubleCollection { 3, 3 }
+                    StrokeDashArray = new DoubleCollection { 4, 3 }
                 });
             }
         }

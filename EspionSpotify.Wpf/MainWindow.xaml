@@ -481,21 +481,73 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Spectrum -->
+                        <!-- Spectrogram + vertical frequency profile -->
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
                                 <Grid>
                                     <TextBlock Style="{StaticResource SectionHeader}"
-                                               Text="Frequency spectrum (average)" />
-                                    <TextBlock x:Name="SpectrumCutoffLabel" Foreground="#1ED760"
+                                               Text="Spectrogram &amp; frequency profile" />
+                                    <TextBlock x:Name="SpectrogramCutoffLabel" Foreground="#FFD54F"
                                                HorizontalAlignment="Right" FontWeight="SemiBold" />
                                 </Grid>
-                                <Border Background="#0CFFFFFF" CornerRadius="6" Padding="2">
-                                    <Canvas x:Name="SpectrumCanvas" Height="170" Background="Transparent"
-                                            SizeChanged="SpectrumCanvas_SizeChanged" ClipToBounds="True" />
-                                </Border>
-                                <TextBlock x:Name="SpectrumAxis" Foreground="#777777" FontSize="11"
-                                           Margin="0,6,0,0" />
+                                <Grid Height="300">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="92" />
+                                        <ColumnDefinition Width="56" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="18" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- frequency axis (shared by heatmap + profile) -->
+                                    <Canvas x:Name="SpecFreqAxis" Grid.Row="0" Grid.Column="0" />
+
+                                    <!-- heatmap + overlay (cut-off line) -->
+                                    <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" ClipToBounds="True"
+                                            Background="#000000">
+                                        <Grid>
+                                            <Image x:Name="SpectrogramImageControl" Stretch="Fill"
+                                                   RenderOptions.BitmapScalingMode="Linear" />
+                                            <Canvas x:Name="SpecOverlay" SizeChanged="SpecOverlay_SizeChanged" />
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- vertical averaged-spectrum profile (Y = frequency, aligned to heatmap) -->
+                                    <Border Grid.Row="0" Grid.Column="2" Margin="6,0,0,0" CornerRadius="4"
+                                            Background="#0CFFFFFF" ClipToBounds="True">
+                                        <Canvas x:Name="SpecProfileCanvas" SizeChanged="SpecProfileCanvas_SizeChanged" />
+                                    </Border>
+
+                                    <!-- dB colour legend -->
+                                    <Grid Grid.Row="0" Grid.Column="3" Margin="10,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="14" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle Grid.Column="0" RadiusX="2" RadiusY="2">
+                                            <Rectangle.Fill>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Offset="0.0"  Color="#FDE725" />
+                                                    <GradientStop Offset="0.25" Color="#5DC863" />
+                                                    <GradientStop Offset="0.5"  Color="#21908C" />
+                                                    <GradientStop Offset="0.75" Color="#3B528B" />
+                                                    <GradientStop Offset="1.0"  Color="#440154" />
+                                                </LinearGradientBrush>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <Grid Grid.Column="1" Margin="4,0,0,0">
+                                            <TextBlock Text="0 dB" VerticalAlignment="Top" FontSize="10" Foreground="#999999" />
+                                            <TextBlock Text="-60" VerticalAlignment="Center" FontSize="10" Foreground="#999999" />
+                                            <TextBlock Text="-120" VerticalAlignment="Bottom" FontSize="10" Foreground="#999999" />
+                                        </Grid>
+                                    </Grid>
+
+                                    <!-- time axis (under heatmap) -->
+                                    <Canvas x:Name="SpecTimeAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
+                                </Grid>
                             </StackPanel>
                         </Border>
                     </StackPanel>
