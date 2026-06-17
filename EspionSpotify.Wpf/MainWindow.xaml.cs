@@ -577,8 +577,27 @@ namespace EspionSpotify.Wpf
 
         private void BuildResourceManager()
         {
-            var languageType = Settings.Default.settings_language.ToLanguageType() ?? LanguageType.en;
-            Rm = new ResourceManager(Languages.GetResourcesManagerLanguageType(languageType));
+            var lang = Settings.Default.settings_language.ToLanguageType() ?? LanguageType.en;
+            _selectedLanguage = lang;
+            Rm = new ResourceManager(Languages.GetResourcesManagerLanguageType(lang));
+            Loc.Instance.SetLanguage(lang);
+        }
+
+        public List<KeyValuePair<LanguageType, string>> LanguageOptions { get; } =
+            Languages.DropdownListValues.ToList();
+
+        private LanguageType _selectedLanguage;
+        public LanguageType SelectedLanguage
+        {
+            get => _selectedLanguage;
+            set
+            {
+                if (!Set(ref _selectedLanguage, value) || _loading) return;
+                Settings.Default.settings_language = value.ToString();
+                Settings.Default.Save();
+                Rm = new ResourceManager(Languages.GetResourcesManagerLanguageType(value));
+                Loc.Instance.SetLanguage(value);
+            }
         }
 
         #endregion Load
