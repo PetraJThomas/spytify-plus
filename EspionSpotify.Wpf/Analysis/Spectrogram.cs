@@ -41,8 +41,11 @@ namespace EspionSpotify.Wpf.Analysis
             var window = Hann(FftSize);
             var fft = new Complex[FftSize];
             var maxStart = samples.Length - FftSize;
-            var refMag = FftSize / 4.0; // ~0 dBFS for a full-scale tone through a Hann window
 
+            // Pass 1: store linear magnitudes and track the loudest bin in the whole file.
+            // (NAudio's FFT applies its own scaling, so an absolute dB reference is unreliable —
+            // normalising to the file's own peak is what gives a Spek-like image.)
+            var peak = 1e-12;
             for (var c = 0; c < columns; c++)
             {
                 var start = columns == 1 ? 0 : (int)((long)c * maxStart / (columns - 1));
@@ -58,10 +61,15 @@ namespace EspionSpotify.Wpf.Analysis
                 for (var b = 0; b < bins; b++)
                 {
                     double re = fft[b].X, im = fft[b].Y;
-                    var db = 20.0 * Math.Log10((Math.Sqrt(re * re + im * im) + 1e-12) / refMag);
-                    img.Db[(bins - 1 - b) * columns + c] = (float)db; // flip: low freq at the bottom
+                    var mag = Math.Sqrt(re * re + im * im);
+                    img.Db[(bins - 1 - b) * columns + c] = (float)mag; // flip: low freq at the bottom
+                    if (mag > peak) peak = mag;
                 }
             }
+
+            // Pass 2: convert to dB relative to that peak (loudest bin == 0 dB).
+            for (var i = 0; i < img.Db.Length; i++)
+                img.Db[i] = (float)(20.0 * Math.Log10((img.Db[i] + 1e-12) / peak));
 
             return img;
         }
