@@ -26,8 +26,8 @@ namespace EspionSpotify.Wpf
         private static readonly Brush ProfileFill = Frozen(0x1E, 0xD7, 0x60, 0x44);
         private static readonly Brush AxisTextBrush = Frozen(0x99, 0x99, 0x99, 0xFF);
         private static readonly Brush GridLineBrush = Frozen(0xFF, 0xFF, 0xFF, 0x14);
-        private static readonly Brush CutoffBrush = Frozen(0xFF, 0xD5, 0x4F, 0xFF);
-        private static readonly Brush CutoffHaloBrush = Frozen(0x00, 0x00, 0x00, 0xB0);
+        private static readonly Brush CutoffBrush = Frozen(0xFF, 0xE4, 0x5C, 0xFF);
+        private static readonly Brush CutoffHaloBrush = Frozen(0x00, 0x00, 0x00, 0xCC);
 
         private enum AnalyzeState { Empty, Busy, Results, Error }
 
@@ -378,13 +378,13 @@ namespace EspionSpotify.Wpf
         {
             canvas.Children.Add(new WShapes.Line
             {
-                X1 = x1, Y1 = y1, X2 = x2, Y2 = y2, Stroke = CutoffHaloBrush, StrokeThickness = 4
+                X1 = x1, Y1 = y1, X2 = x2, Y2 = y2, Stroke = CutoffHaloBrush, StrokeThickness = 7
             });
             canvas.Children.Add(new WShapes.Line
             {
                 X1 = x1, Y1 = y1, X2 = x2, Y2 = y2,
-                Stroke = CutoffBrush, StrokeThickness = 1.8,
-                StrokeDashArray = new DoubleCollection { 4, 3 }
+                Stroke = CutoffBrush, StrokeThickness = 2.6,
+                StrokeDashArray = new DoubleCollection { 4, 2.5 }
             });
         }
 
