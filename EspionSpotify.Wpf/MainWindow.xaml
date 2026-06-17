@@ -486,9 +486,19 @@
                             <StackPanel>
                                 <Grid>
                                     <TextBlock Style="{StaticResource SectionHeader}"
-                                               Text="Spectrogram &amp; frequency profile" />
-                                    <TextBlock x:Name="SpectrogramCutoffLabel" Foreground="#FFD54F"
-                                               HorizontalAlignment="Right" FontWeight="SemiBold" />
+                                               Text="Spectrogram &amp; frequency profile" VerticalAlignment="Center" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                                        <ComboBox x:Name="PaletteCombo" Width="104" Height="28"
+                                                  VerticalAlignment="Center" FontSize="12"
+                                                  SelectionChanged="PaletteCombo_SelectionChanged">
+                                            <ComboBoxItem Content="Inferno" IsSelected="True" />
+                                            <ComboBoxItem Content="Magma" />
+                                            <ComboBoxItem Content="Viridis" />
+                                            <ComboBoxItem Content="Heat" />
+                                        </ComboBox>
+                                        <TextBlock x:Name="SpectrogramCutoffLabel" Foreground="#FFD54F"
+                                                   VerticalAlignment="Center" FontWeight="SemiBold" Margin="14,0,0,0" />
+                                    </StackPanel>
                                 </Grid>
                                 <Grid Height="300">
                                     <Grid.ColumnDefinitions>
@@ -527,17 +537,7 @@
                                             <ColumnDefinition Width="14" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <Rectangle Grid.Column="0" RadiusX="2" RadiusY="2">
-                                            <Rectangle.Fill>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                    <GradientStop Offset="0.0"  Color="#FDE725" />
-                                                    <GradientStop Offset="0.25" Color="#5DC863" />
-                                                    <GradientStop Offset="0.5"  Color="#21908C" />
-                                                    <GradientStop Offset="0.75" Color="#3B528B" />
-                                                    <GradientStop Offset="1.0"  Color="#440154" />
-                                                </LinearGradientBrush>
-                                            </Rectangle.Fill>
-                                        </Rectangle>
+                                        <Rectangle x:Name="LegendRect" Grid.Column="0" RadiusX="2" RadiusY="2" />
                                         <Grid Grid.Column="1" Margin="4,0,0,0">
                                             <TextBlock Text="0 dB" VerticalAlignment="Top" FontSize="10" Foreground="#999999" />
                                             <TextBlock Text="-60" VerticalAlignment="Center" FontSize="10" Foreground="#999999" />

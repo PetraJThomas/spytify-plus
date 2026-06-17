@@ -18,6 +18,7 @@ namespace EspionSpotify.Wpf
         private AudioSample _analyzeSample;
         private QualityResult _analyzeResult;
         private SpectrogramImage _spectrogram;
+        private SpectrogramPalette _palette = SpectrogramPalette.Inferno;
 
         private static readonly Brush WaveBrush = Frozen(0x1E, 0xD7, 0x60, 0xFF);
         private static readonly Brush WaveMidBrush = Frozen(0xFF, 0xFF, 0xFF, 0x22);
@@ -66,13 +67,19 @@ namespace EspionSpotify.Wpf
             {
                 var sample = await FfmpegDecoder.DecodeAsync(path).ConfigureAwait(true);
                 var result = await Task.Run(() => QualityAnalyzer.Analyze(sample)).ConfigureAwait(true);
-                var spectrogram = await Task.Run(() => Spectrogram.Compute(sample, 1600)).ConfigureAwait(true);
+                var spectrogram = await Task.Run(() =>
+                {
+                    var s = Spectrogram.Compute(sample, 1600);
+                    Spectrogram.Colorize(s, _palette);
+                    return s;
+                }).ConfigureAwait(true);
 
                 _analyzeSample = sample;
                 _analyzeResult = result;
                 _spectrogram = spectrogram;
 
                 PopulateAnalyzeResults(path, sample, result);
+                UpdateLegend();
                 RenderWaveform();
                 RenderSpectrogram();
                 RenderSpectrogramAxes();
@@ -136,6 +143,37 @@ namespace EspionSpotify.Wpf
         private void WaveformCanvas_SizeChanged(object sender, SizeChangedEventArgs e) => RenderWaveform();
         private void SpecOverlay_SizeChanged(object sender, SizeChangedEventArgs e) => RenderSpectrogramAxes();
         private void SpecProfileCanvas_SizeChanged(object sender, SizeChangedEventArgs e) => RenderSpectrumProfile();
+
+        private async void PaletteCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _palette = (PaletteCombo?.SelectedItem as ComboBoxItem)?.Content as string == "Magma" ? SpectrogramPalette.Magma
+                : (PaletteCombo?.SelectedItem as ComboBoxItem)?.Content as string == "Viridis" ? SpectrogramPalette.Viridis
+                : (PaletteCombo?.SelectedItem as ComboBoxItem)?.Content as string == "Heat" ? SpectrogramPalette.Heat
+                : SpectrogramPalette.Inferno;
+
+            UpdateLegend();
+            if (_spectrogram == null) return; // initial selection during InitializeComponent
+
+            await Task.Run(() => Spectrogram.Colorize(_spectrogram, _palette)).ConfigureAwait(true);
+            RenderSpectrogram();
+        }
+
+        // Vertical dB legend gradient for the current palette (top = 0 dB / brightest).
+        private void UpdateLegend()
+        {
+            if (LegendRect == null) return;
+
+            var anchors = Spectrogram.GetAnchors(_palette);
+            var brush = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
+            for (var i = 0; i < anchors.Length; i++)
+            {
+                var c = anchors[anchors.Length - 1 - i]; // reverse: brightest at the top
+                brush.GradientStops.Add(new GradientStop(
+                    Color.FromRgb(c[0], c[1], c[2]), (double)i / (anchors.Length - 1)));
+            }
+            brush.Freeze();
+            LegendRect.Fill = brush;
+        }
 
         private void RenderWaveform()
         {
