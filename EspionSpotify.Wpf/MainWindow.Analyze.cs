@@ -195,7 +195,6 @@ namespace EspionSpotify.Wpf
             {
                 _pulseLossless = true;
                 BadgeRing.Background = new SolidColorBrush(Color.FromRgb(0x1E, 0xD7, 0x60));
-                BadgeComet.Visibility = Visibility.Visible;
                 StartCometOrbit();
                 return;
             }
@@ -219,21 +218,55 @@ namespace EspionSpotify.Wpf
             effect.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.15, maxOpacity, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
         }
 
-        // Animate the comet around the badge's actual rounded-rectangle outline.
+        // A comet head plus a trailing string of dots, all following the badge's rounded-rect outline
+        // on the same loop but progressively lagged and faded, so it reads as a glowing arc that
+        // circulates the border.
+        private static readonly Color CometColor = Color.FromRgb(0x1E, 0xD7, 0x60);
+        private static readonly Brush CometHeadBrush = Frozen(0xEA, 0xFF, 0xF2, 0xFF);
+        private static readonly Brush CometTrailBrush = Frozen(0x1E, 0xD7, 0x60, 0xFF);
+
         private void StartCometOrbit()
         {
+            BadgeOrbit.Children.Clear();
             double w = BadgeWrap.ActualWidth, h = BadgeWrap.ActualHeight;
             if (w < 4 || h < 4) return; // not measured yet; BadgeWrap_SizeChanged will retry
 
             var path = PathGeometry.CreateFromGeometry(new RectangleGeometry(new Rect(0, 0, w, h), 9, 9));
             path.Freeze();
-            CometXform.BeginAnimation(MatrixTransform.MatrixProperty, new MatrixAnimationUsingPath
+
+            const int count = 18;
+            var loop = TimeSpan.FromSeconds(2.6);
+            var lagTicks = TimeSpan.FromSeconds(0.04).Ticks; // spacing between trail dots
+
+            for (var i = 0; i < count; i++)
             {
-                PathGeometry = path,
-                Duration = new Duration(TimeSpan.FromSeconds(2.6)),
-                RepeatBehavior = RepeatBehavior.Forever,
-                DoesRotateWithTangent = false
-            });
+                var f = i / (double)(count - 1); // 0 = head, 1 = tail end
+                var size = 8.5 - f * 5.5;         // head ~8.5px tapering to ~3px
+                var dot = new WShapes.Ellipse
+                {
+                    Width = size, Height = size,
+                    Fill = i == 0 ? CometHeadBrush : CometTrailBrush,
+                    Opacity = 1.0 - f * 0.94,     // fade out along the trail
+                    IsHitTestVisible = false
+                };
+                if (i == 0)
+                    dot.Effect = new DropShadowEffect { Color = CometColor, ShadowDepth = 0, BlurRadius = 13, Opacity = 0.95, RenderingBias = RenderingBias.Performance };
+
+                Canvas.SetLeft(dot, -size / 2);
+                Canvas.SetTop(dot, -size / 2);
+                var xform = new MatrixTransform();
+                dot.RenderTransform = xform;
+                BadgeOrbit.Children.Add(dot);
+
+                xform.BeginAnimation(MatrixTransform.MatrixProperty, new MatrixAnimationUsingPath
+                {
+                    PathGeometry = path,
+                    Duration = new Duration(loop),
+                    RepeatBehavior = RepeatBehavior.Forever,
+                    BeginTime = TimeSpan.FromTicks(lagTicks * i),
+                    DoesRotateWithTangent = false
+                });
+            }
         }
 
         private void BadgeWrap_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -251,8 +284,7 @@ namespace EspionSpotify.Wpf
             }
             BadgeRing.Effect = null;
             BadgeRing.Background = null;
-            CometXform.BeginAnimation(MatrixTransform.MatrixProperty, null);
-            BadgeComet.Visibility = Visibility.Collapsed;
+            BadgeOrbit.Children.Clear();
         }
 
         private static Color TierGlow(QualityTier tier, bool transcode)

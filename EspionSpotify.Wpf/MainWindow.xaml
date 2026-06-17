@@ -571,18 +571,8 @@
                                             <TextBlock x:Name="VerdictTierText" Text="" FontWeight="Bold"
                                                        FontSize="14" Foreground="#000000" />
                                         </Border>
-                                        <!-- lossless: a glowing comet orbits the border (set up in code) -->
-                                        <Canvas x:Name="BadgeOrbit" IsHitTestVisible="False" ClipToBounds="False">
-                                            <Ellipse x:Name="BadgeComet" Width="9" Height="9" Visibility="Collapsed"
-                                                     Fill="#EAFFF2" Canvas.Left="-4.5" Canvas.Top="-4.5">
-                                                <Ellipse.Effect>
-                                                    <DropShadowEffect Color="#1ED760" ShadowDepth="0" BlurRadius="13" Opacity="0.95" />
-                                                </Ellipse.Effect>
-                                                <Ellipse.RenderTransform>
-                                                    <MatrixTransform x:Name="CometXform" />
-                                                </Ellipse.RenderTransform>
-                                            </Ellipse>
-                                        </Canvas>
+                                        <!-- lossless: a glowing comet + trailing falloff orbits the border (built in code) -->
+                                        <Canvas x:Name="BadgeOrbit" IsHitTestVisible="False" ClipToBounds="False" />
                                     </Grid>
                                     <TextBlock x:Name="VerdictText" VerticalAlignment="Center" Margin="14,0,0,0"
                                                FontSize="15" Foreground="#FFFFFF" TextWrapping="Wrap" />
