@@ -56,7 +56,8 @@
                        IsBackButtonVisible="Collapsed"
                        IsSettingsVisible="False"
                        OpenPaneLength="180"
-                       SelectionChanged="Nav_SelectionChanged">
+                       SelectionChanged="Nav_SelectionChanged"
+                       ItemInvoked="Nav_ItemInvoked">
         <ui:NavigationView.PaneFooter>
             <!-- Two logos cross-faded by pane state: the wide wordmark when expanded,
                  the square icon when collapsed (see UpdateLogo in code-behind). -->

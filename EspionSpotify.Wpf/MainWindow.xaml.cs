@@ -688,10 +688,31 @@ namespace EspionSpotify.Wpf
 
         private static IEasingFunction EaseOut() => new CubicEase { EasingMode = EasingMode.EaseOut };
 
+        private string _activeTag;
+
+        // ItemInvoked fires immediately on click, decoupled from the NavigationView's
+        // selection-indicator animation, so the content switches without waiting on the pane.
+        private void Nav_ItemInvoked(ModernWpf.Controls.NavigationView sender,
+            ModernWpf.Controls.NavigationViewItemInvokedEventArgs args)
+        {
+            var tag = (args.InvokedItemContainer as ModernWpf.Controls.NavigationViewItem)?.Tag as string;
+            if (tag != null) ApplySection(tag);
+        }
+
+        // SelectionChanged covers keyboard and programmatic selection (e.g. switching to the
+        // Record tab when recording starts). The _activeTag guard makes it idempotent, so a
+        // click that raises both ItemInvoked and SelectionChanged only animates once.
         private void Nav_SelectionChanged(ModernWpf.Controls.NavigationView sender,
             ModernWpf.Controls.NavigationViewSelectionChangedEventArgs args)
         {
             var tag = (args.SelectedItem as ModernWpf.Controls.NavigationViewItem)?.Tag as string ?? "record";
+            ApplySection(tag);
+        }
+
+        private void ApplySection(string tag)
+        {
+            if (tag == _activeTag) return;
+            _activeTag = tag;
             SetPanelActive(RecordPanel, tag == "record");
             SetPanelActive(SettingsPanel, tag == "settings");
             SetPanelActive(AdvancedPanel, tag == "advanced");
