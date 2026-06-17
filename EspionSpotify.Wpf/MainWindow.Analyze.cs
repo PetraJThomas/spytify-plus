@@ -27,6 +27,7 @@ namespace EspionSpotify.Wpf
         private static readonly Brush AxisTextBrush = Frozen(0x99, 0x99, 0x99, 0xFF);
         private static readonly Brush GridLineBrush = Frozen(0xFF, 0xFF, 0xFF, 0x14);
         private static readonly Brush CutoffBrush = Frozen(0xFF, 0xD5, 0x4F, 0xFF);
+        private static readonly Brush CutoffHaloBrush = Frozen(0x00, 0x00, 0x00, 0xB0);
 
         private enum AnalyzeState { Empty, Busy, Results, Error }
 
@@ -247,12 +248,7 @@ namespace EspionSpotify.Wpf
             if (w >= 2 && cutoff > 0 && cutoff <= nyquist)
             {
                 var y = Math.Max(0.75, h * (1 - cutoff / nyquist));
-                SpecOverlay.Children.Add(new WShapes.Line
-                {
-                    X1 = 0, Y1 = y, X2 = w, Y2 = y,
-                    Stroke = CutoffBrush, StrokeThickness = 1.5,
-                    StrokeDashArray = new DoubleCollection { 4, 3 }
-                });
+                AddCutoffLine(SpecOverlay, 0, y, w, y);
             }
 
             // time axis
@@ -359,12 +355,7 @@ namespace EspionSpotify.Wpf
             if (result.CutoffHz > 0 && result.CutoffHz <= nyquist)
             {
                 var cx = Math.Min(w - 1, X(result.CutoffHz));
-                canvas.Children.Add(new WShapes.Line
-                {
-                    X1 = cx, Y1 = 0, X2 = cx, Y2 = h,
-                    Stroke = CutoffBrush, StrokeThickness = 1.5,
-                    StrokeDashArray = new DoubleCollection { 4, 3 }
-                });
+                AddCutoffLine(canvas, cx, 0, cx, h);
             }
         }
 
@@ -379,6 +370,22 @@ namespace EspionSpotify.Wpf
             Canvas.SetLeft(label, f <= 0 ? 0 : x - 8);
             Canvas.SetTop(label, 0);
             FreqHzAxis.Children.Add(label);
+        }
+
+        // Cut-off marker drawn with a dark solid halo under the amber dashes, so it stays legible
+        // over any heatmap palette (bright orange/yellow tops as well as dark regions).
+        private static void AddCutoffLine(Canvas canvas, double x1, double y1, double x2, double y2)
+        {
+            canvas.Children.Add(new WShapes.Line
+            {
+                X1 = x1, Y1 = y1, X2 = x2, Y2 = y2, Stroke = CutoffHaloBrush, StrokeThickness = 4
+            });
+            canvas.Children.Add(new WShapes.Line
+            {
+                X1 = x1, Y1 = y1, X2 = x2, Y2 = y2,
+                Stroke = CutoffBrush, StrokeThickness = 1.8,
+                StrokeDashArray = new DoubleCollection { 4, 3 }
+            });
         }
 
         private static SolidColorBrush Frozen(byte r, byte g, byte b, byte a)
