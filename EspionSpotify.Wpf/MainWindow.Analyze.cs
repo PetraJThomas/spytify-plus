@@ -182,65 +182,77 @@ namespace EspionSpotify.Wpf
                 new DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(340)) { EasingFunction = ease });
         }
 
-        // Tier pulse lives on the ring *behind* the badge, so the badge itself never scales or glows.
-        // Lossless gets a circulating rotating-gradient border; lossy tiers get a static coloured ring
-        // whose glow pulses slower and dimmer the lower the bitrate.
+        private bool _pulseLossless;
+
+        // Tier indicator lives on/around the ring behind the badge, so the badge never scales or glows.
+        // Lossless gets a glowing comet that orbits the border (a single light travelling the perimeter).
+        // Lossy tiers get a static coloured ring whose glow pulses slower and dimmer the lower the bitrate.
         private void StartTierPulse(QualityTier tier, Color glow)
         {
             StopTierPulse();
-            var ease = new SineEase { EasingMode = EasingMode.EaseInOut };
 
             if (tier == QualityTier.Lossless)
             {
-                var rot = new RotateTransform(0) { CenterX = 0.5, CenterY = 0.5 };
-                var sweep = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(1, 1), RelativeTransform = rot };
-                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x0C, 0x4F, 0x26), 0.00));
-                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x9C, 0xFF, 0xC4), 0.25));
-                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x1E, 0xD7, 0x60), 0.50));
-                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x9C, 0xFF, 0xC4), 0.75));
-                sweep.GradientStops.Add(new GradientStop(Color.FromRgb(0x0C, 0x4F, 0x26), 1.00));
-                BadgeRing.Background = sweep;
-                rot.BeginAnimation(RotateTransform.AngleProperty,
-                    new DoubleAnimation(0, 360, new Duration(TimeSpan.FromSeconds(2.4))) { RepeatBehavior = RepeatBehavior.Forever });
-
-                var effect = new DropShadowEffect { Color = glow, ShadowDepth = 0, BlurRadius = 10, Opacity = 0.4, RenderingBias = RenderingBias.Performance };
-                BadgeRing.Effect = effect;
-                var dur = new Duration(TimeSpan.FromSeconds(1.0));
-                effect.BeginAnimation(DropShadowEffect.BlurRadiusProperty, new DoubleAnimation(9, 26, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
-                effect.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.4, 1.0, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+                _pulseLossless = true;
+                BadgeRing.Background = new SolidColorBrush(Color.FromRgb(0x1E, 0xD7, 0x60));
+                BadgeComet.Visibility = Visibility.Visible;
+                StartCometOrbit();
+                return;
             }
-            else
+
+            double seconds, maxOpacity, maxBlur;
+            switch (tier)
             {
-                double seconds, maxOpacity, maxBlur;
-                switch (tier)
-                {
-                    case QualityTier.Kbps320: seconds = 1.4; maxOpacity = 0.80; maxBlur = 22; break;
-                    case QualityTier.Kbps256: seconds = 1.6; maxOpacity = 0.70; maxBlur = 20; break;
-                    case QualityTier.Kbps192: seconds = 1.9; maxOpacity = 0.60; maxBlur = 18; break;
-                    case QualityTier.Kbps128: seconds = 2.2; maxOpacity = 0.50; maxBlur = 16; break;
-                    default: seconds = 2.6; maxOpacity = 0.42; maxBlur = 14; break;
-                }
-
-                BadgeRing.Background = new SolidColorBrush(glow);
-                var effect = new DropShadowEffect { Color = glow, ShadowDepth = 0, BlurRadius = 8, Opacity = 0.15, RenderingBias = RenderingBias.Performance };
-                BadgeRing.Effect = effect;
-                var dur = new Duration(TimeSpan.FromSeconds(seconds));
-                effect.BeginAnimation(DropShadowEffect.BlurRadiusProperty, new DoubleAnimation(8, maxBlur, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
-                effect.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.15, maxOpacity, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+                case QualityTier.Kbps320: seconds = 1.4; maxOpacity = 0.80; maxBlur = 22; break;
+                case QualityTier.Kbps256: seconds = 1.6; maxOpacity = 0.70; maxBlur = 20; break;
+                case QualityTier.Kbps192: seconds = 1.9; maxOpacity = 0.60; maxBlur = 18; break;
+                case QualityTier.Kbps128: seconds = 2.2; maxOpacity = 0.50; maxBlur = 16; break;
+                default: seconds = 2.6; maxOpacity = 0.42; maxBlur = 14; break;
             }
+
+            var ease = new SineEase { EasingMode = EasingMode.EaseInOut };
+            BadgeRing.Background = new SolidColorBrush(glow);
+            var effect = new DropShadowEffect { Color = glow, ShadowDepth = 0, BlurRadius = 8, Opacity = 0.15, RenderingBias = RenderingBias.Performance };
+            BadgeRing.Effect = effect;
+            var dur = new Duration(TimeSpan.FromSeconds(seconds));
+            effect.BeginAnimation(DropShadowEffect.BlurRadiusProperty, new DoubleAnimation(8, maxBlur, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+            effect.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.15, maxOpacity, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+        }
+
+        // Animate the comet around the badge's actual rounded-rectangle outline.
+        private void StartCometOrbit()
+        {
+            double w = BadgeWrap.ActualWidth, h = BadgeWrap.ActualHeight;
+            if (w < 4 || h < 4) return; // not measured yet; BadgeWrap_SizeChanged will retry
+
+            var path = PathGeometry.CreateFromGeometry(new RectangleGeometry(new Rect(0, 0, w, h), 9, 9));
+            path.Freeze();
+            CometXform.BeginAnimation(MatrixTransform.MatrixProperty, new MatrixAnimationUsingPath
+            {
+                PathGeometry = path,
+                Duration = new Duration(TimeSpan.FromSeconds(2.6)),
+                RepeatBehavior = RepeatBehavior.Forever,
+                DoesRotateWithTangent = false
+            });
+        }
+
+        private void BadgeWrap_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (_pulseLossless) StartCometOrbit();
         }
 
         private void StopTierPulse()
         {
+            _pulseLossless = false;
             if (BadgeRing.Effect is DropShadowEffect e)
             {
                 e.BeginAnimation(DropShadowEffect.BlurRadiusProperty, null);
                 e.BeginAnimation(DropShadowEffect.OpacityProperty, null);
             }
-            if (BadgeRing.Background is LinearGradientBrush lg && lg.RelativeTransform is RotateTransform rt)
-                rt.BeginAnimation(RotateTransform.AngleProperty, null);
             BadgeRing.Effect = null;
             BadgeRing.Background = null;
+            CometXform.BeginAnimation(MatrixTransform.MatrixProperty, null);
+            BadgeComet.Visibility = Visibility.Collapsed;
         }
 
         private static Color TierGlow(QualityTier tier, bool transcode)
