@@ -113,43 +113,85 @@ namespace EspionSpotify.Wpf.Analysis
 
         private static void AssignTier(QualityResult r, double cutoff, double nyquist, string codec, int? bitrateKbps)
         {
-            QualityTier tier;
-            string label;
-
-            if (cutoff >= nyquist - 1000 && nyquist >= 21000) { tier = QualityTier.Lossless; label = "Lossless (full-band)"; }
-            else if (cutoff >= 20000) { tier = QualityTier.Kbps320; label = "~320 kbps"; }
-            else if (cutoff >= 18500) { tier = QualityTier.Kbps256; label = "~256 kbps"; }
-            else if (cutoff >= 17000) { tier = QualityTier.Kbps192; label = "~192 kbps"; }
-            else if (cutoff >= 15500) { tier = QualityTier.Kbps128; label = "~128 kbps"; }
-            else { tier = QualityTier.Low; label = "≤96 kbps / heavily compressed"; }
-
-            r.Tier = tier;
-            r.TierLabel = label;
-
-            var losslessContainer = IsLosslessCodec(codec);
-            r.IsTranscode = losslessContainer && tier != QualityTier.Lossless;
-
             var cutoffKHz = cutoff / 1000.0;
             var nyqKHz = nyquist / 1000.0;
             var codecUp = string.IsNullOrEmpty(codec) ? "?" : codec.ToUpperInvariant();
+            var fullBand = cutoff >= nyquist - 1000 && nyquist >= 21000;
+            var (cTier, cLabel) = CutoffTier(cutoff, nyquist);
+            r.IsTranscode = false;
 
-            if (tier == QualityTier.Lossless)
+            // A lossy codec is never lossless, however much bandwidth it kept (high-bitrate AAC/Opus
+            // at 48 kHz often reach Nyquist with no cliff). The codec is authoritative; the spectrum
+            // only describes the bandwidth.
+            if (IsLossyCodec(codec))
             {
-                r.Verdict = losslessContainer ? "True lossless" : "Full-band (lossless-grade)";
-                var rate = bitrateKbps.HasValue ? $" Actual bitrate ~{bitrateKbps} kbps." : "";
-                r.Detail = $"Content reaches ~{cutoffKHz:0.0} kHz (Nyquist {nyqKHz:0.0} kHz) with no early roll-off.{rate}";
+                r.Tier = bitrateKbps.HasValue ? BitrateColor(bitrateKbps.Value) : cTier;
+                r.TierLabel = bitrateKbps.HasValue ? $"{codecUp} {bitrateKbps} kbps" : $"Lossy {codecUp}";
+                r.Verdict = bitrateKbps.HasValue ? $"Lossy: {codecUp} {bitrateKbps} kbps" : $"Lossy: {codecUp}";
+                r.Detail = fullBand
+                    ? $"{codecUp} keeps energy up to ~{cutoffKHz:0.0} kHz (full bandwidth), but it is a lossy codec, so this is not lossless."
+                    : $"{codecUp} with a spectral cut-off at ~{cutoffKHz:0.0} kHz.";
+                return;
             }
-            else if (r.IsTranscode)
+
+            // A lossless codec: full-band is genuinely lossless; an early cut-off means a lossy source
+            // was re-wrapped (transcode).
+            if (IsLosslessCodec(codec))
             {
-                r.Verdict = $"Lossy source in a lossless container ({label})";
-                r.Detail = $"Container is {codecUp} but the spectrum cuts off at ~{cutoffKHz:0.0} kHz: " +
-                           "re-encoded from a lossy file, not true lossless.";
+                if (fullBand)
+                {
+                    r.Tier = QualityTier.Lossless;
+                    r.TierLabel = "Lossless (full-band)";
+                    r.Verdict = "True lossless";
+                    var rate = bitrateKbps.HasValue ? $" Actual bitrate ~{bitrateKbps} kbps." : "";
+                    r.Detail = $"Content reaches ~{cutoffKHz:0.0} kHz (Nyquist {nyqKHz:0.0} kHz) with no early roll-off.{rate}";
+                }
+                else
+                {
+                    r.Tier = cTier;
+                    r.TierLabel = cLabel;
+                    r.IsTranscode = true;
+                    r.Verdict = $"Lossy source in a lossless container ({cLabel})";
+                    r.Detail = $"Container is {codecUp} but the spectrum cuts off at ~{cutoffKHz:0.0} kHz: " +
+                               "re-encoded from a lossy file, not true lossless.";
+                }
+                return;
+            }
+
+            // Unknown codec: fall back to the spectral estimate (and say so).
+            r.Tier = cTier;
+            r.TierLabel = cLabel;
+            if (cTier == QualityTier.Lossless)
+            {
+                r.Verdict = "Full-band (lossless-grade)";
+                var rate = bitrateKbps.HasValue ? $" Actual bitrate ~{bitrateKbps} kbps." : "";
+                r.Detail = $"Content reaches ~{cutoffKHz:0.0} kHz with no early roll-off.{rate} Codec '{codecUp}' is unrecognised, so this is a spectral estimate.";
             }
             else
             {
-                r.Verdict = $"Lossy: {label}";
+                r.Verdict = $"Lossy: {cLabel}";
                 r.Detail = $"Spectral cut-off at ~{cutoffKHz:0.0} kHz.";
             }
+        }
+
+        private static (QualityTier tier, string label) CutoffTier(double cutoff, double nyquist)
+        {
+            if (cutoff >= nyquist - 1000 && nyquist >= 21000) return (QualityTier.Lossless, "Lossless (full-band)");
+            if (cutoff >= 20000) return (QualityTier.Kbps320, "~320 kbps");
+            if (cutoff >= 18500) return (QualityTier.Kbps256, "~256 kbps");
+            if (cutoff >= 17000) return (QualityTier.Kbps192, "~192 kbps");
+            if (cutoff >= 15500) return (QualityTier.Kbps128, "~128 kbps");
+            return (QualityTier.Low, "≤96 kbps / heavily compressed");
+        }
+
+        // Badge colour for a lossy file, from its actual bitrate (codec-agnostic, rough).
+        private static QualityTier BitrateColor(int kbps)
+        {
+            if (kbps >= 256) return QualityTier.Kbps320;
+            if (kbps >= 192) return QualityTier.Kbps256;
+            if (kbps >= 144) return QualityTier.Kbps192;
+            if (kbps >= 96) return QualityTier.Kbps128;
+            return QualityTier.Low;
         }
 
         private static bool IsLosslessCodec(string codec)
@@ -159,6 +201,19 @@ namespace EspionSpotify.Wpf.Analysis
             return codec.Contains("flac") || codec.Contains("alac") || codec.StartsWith("pcm") ||
                    codec.Contains("wav") || codec.Contains("wmalossless") || codec.Contains("ape") ||
                    codec.Contains("tak") || codec.Contains("truehd") || codec.Contains("wavpack");
+        }
+
+        private static bool IsLossyCodec(string codec)
+        {
+            if (string.IsNullOrEmpty(codec)) return false;
+            codec = codec.ToLowerInvariant();
+            if (codec.Contains("wmalossless")) return false; // lossless WMA is handled as lossless
+            return codec.Contains("aac") || codec.Contains("mp3") || codec.Contains("mp2") ||
+                   codec.Contains("mpeg") || codec.Contains("opus") || codec.Contains("vorbis") ||
+                   codec.Contains("ogg") || codec.Contains("ac3") || codec.Contains("eac3") ||
+                   codec.Contains("wma") || codec.Contains("dts") || codec.Contains("amr") ||
+                   codec.Contains("atrac") || codec.Contains("musepack") || codec.Contains("speex") ||
+                   codec.Contains("cook") || codec.Contains("sipr");
         }
 
         // Sharper drop just above the cut-off => more confident it's a deliberate low-pass.
