@@ -634,7 +634,7 @@
                                                      VerticalAlignment="Top" Margin="0,2,12,0" />
                                         <TextBlock Grid.Column="1" Foreground="#DCDCDC" TextWrapping="Wrap"
                                                    FontSize="13" LineHeight="21"
-                                                   Text="Average loudness at each frequency across the whole track. Lossy formats (MP3 / AAC / Opus) discard the highest frequencies to save space, leaving a sharp cut-off cliff whose position reveals the bitrate:  ~16 kHz ≈ 128 kbps,  ~19 kHz ≈ 256 kbps,  ~20 kHz ≈ 320 kbps.  True lossless keeps energy all the way to ~22 kHz with no cliff. The amber line marks the detected cut-off." />
+                                                   Text="Average loudness at each frequency across the whole track. A lossy MP3 usually low-passes the top end, leaving a sharp cut-off cliff whose position hints at the bitrate (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). But high-bitrate AAC or Opus can reach the very top with no cliff, so a full spectrum does not prove lossless: the file format decides that. The amber line marks the detected cut-off." />
                                     </Grid>
                                 </Border>
                             </StackPanel>
@@ -747,7 +747,7 @@
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource SectionHeader}" Text="Quality verdict" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
-                                               Text="The coloured badge is the detected quality tier, and it pulses to match: lossless beats fast and bright, low bitrate slow and dim. 'Lossy source in a lossless container' means a FLAC or ALAC that was actually built from an MP3, so the wrapper claims lossless but the audio underneath is not." />
+                                               Text="The coloured badge shows the verdict and animates by tier: a flowing light border for true lossless, a pulsing glow for lossy. The file format settles lossy versus lossless: MP3, AAC and Opus are lossy by definition and can never be truly lossless, however clean they look; only FLAC, ALAC and WAV are. 'Lossy source in a lossless container' means a FLAC or ALAC actually built from an MP3, so the wrapper claims lossless but the audio underneath is not." />
 
                                     <TextBlock Style="{StaticResource SectionHeader}" Text="Waveform" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
@@ -755,14 +755,14 @@
 
                                     <TextBlock Style="{StaticResource SectionHeader}" Text="Frequency response &amp; cut-off" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,8"
-                                               Text="Average loudness at each frequency across the whole track (there is no time on this graph). Lossy encoders throw away the highest frequencies, leaving a sharp cliff. Where that cliff sits tells you the bitrate:" />
+                                               Text="Average loudness at each frequency across the whole track (there is no time on this graph). A lossy MP3 usually discards the highest frequencies, leaving a sharp cliff whose position hints at the bitrate:" />
                                     <Border Background="#14FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="6"
                                             Padding="14,10" Margin="0,0,0,8">
                                         <TextBlock Foreground="#DCDCDC" FontSize="13" LineHeight="21"
-                                                   Text="~16 kHz  &#8776;  128 kbps&#x0a;~19 kHz  &#8776;  256 kbps&#x0a;~20 kHz  &#8776;  320 kbps&#x0a;reaches ~22 kHz with no cliff  &#8776;  true lossless" />
+                                                   Text="~16 kHz  &#8776;  128 kbps&#x0a;~19 kHz  &#8776;  256 kbps&#x0a;~20 kHz  &#8776;  320 kbps&#x0a;(MP3 guides; AAC and Opus keep more)" />
                                     </Border>
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
-                                               Text="The amber line marks the detected cut-off." />
+                                               Text="High-bitrate AAC and Opus can reach the very top with no cliff, so full bandwidth does not prove lossless. The amber line marks the detected cut-off." />
 
                                     <TextBlock Style="{StaticResource SectionHeader}" Text="Spectrogram" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
@@ -770,7 +770,7 @@
 
                                     <TextBlock Style="{StaticResource SectionHeader}" Text="Good to know" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,4"
-                                               Text="A cut-off shows the encoding ceiling, not the artist's intent. A sparse acoustic track or an old master can genuinely lack high frequencies without being lossy. That is why the spectrogram matters: a hard, flat cliff means a filter (lossy), while a gentle natural roll-off is just the music." />
+                                               Text="The format has the final word on lossy versus lossless; the spectrum only describes bandwidth. A full spectrum does not prove lossless (a good lossy encoder reaches the top too), and a sparse acoustic track or old master can lack highs without being lossy. The spectrogram shows which is which: a hard, flat cliff is a filter (lossy), a gentle natural roll-off is just the music." />
                                 </StackPanel>
                             </ScrollViewer>
                         </Grid>
