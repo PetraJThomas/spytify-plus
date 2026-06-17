@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\spytify-logo.png" />
+    <Resource Include="Assets\spytify-icon.png" />
   </ItemGroup>
 
   <ItemGroup>
