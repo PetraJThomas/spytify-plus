@@ -23,6 +23,7 @@
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <l:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
 
         <Style x:Key="Card" TargetType="Border">
             <Setter Property="Background" Value="#16FFFFFF" />
@@ -286,11 +287,29 @@
                                         Margin="0,8,0,0">
                                 <StackPanel Style="{StaticResource Row}">
                                     <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblClientId}" />
-                                    <TextBox Text="{Binding SpotifyClientId, UpdateSourceTrigger=PropertyChanged}" Width="430" />
+                                    <Grid Width="430">
+                                        <TextBox Text="{Binding SpotifyClientId, UpdateSourceTrigger=LostFocus}"
+                                                 Visibility="{Binding ShowClientId, Converter={StaticResource BoolToVis}}" />
+                                        <TextBox Text="{Binding ClientIdMasked}" IsReadOnly="True" Focusable="False"
+                                                 Visibility="{Binding ShowClientId, Converter={StaticResource InverseBoolToVis}}" />
+                                    </Grid>
+                                    <ToggleButton IsChecked="{Binding ShowClientId, Mode=TwoWay}" Width="36" Margin="6,0,0,0"
+                                                  ToolTip="Show / hide">
+                                        <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
+                                    </ToggleButton>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource Row}">
                                     <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblSecretId}" />
-                                    <TextBox Text="{Binding SpotifySecretId, UpdateSourceTrigger=PropertyChanged}" Width="430" />
+                                    <Grid Width="430">
+                                        <TextBox Text="{Binding SpotifySecretId, UpdateSourceTrigger=LostFocus}"
+                                                 Visibility="{Binding ShowSecret, Converter={StaticResource BoolToVis}}" />
+                                        <TextBox Text="{Binding SecretMasked}" IsReadOnly="True" Focusable="False"
+                                                 Visibility="{Binding ShowSecret, Converter={StaticResource InverseBoolToVis}}" />
+                                    </Grid>
+                                    <ToggleButton IsChecked="{Binding ShowSecret, Mode=TwoWay}" Width="36" Margin="6,0,0,0"
+                                                  ToolTip="Show / hide">
+                                        <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
+                                    </ToggleButton>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource Row}">
                                     <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblRedirectURL}" />

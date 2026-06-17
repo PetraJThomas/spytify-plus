@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- DPAPI (ProtectedData) for at-rest encryption of the Spotify API secret -->
+    <Reference Include="System.Security" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
     <!-- LAMEPreset (bitrate enum) used by UserSettings; not exposed transitively from the engine's packages.config -->
     <PackageReference Include="NAudio.Lame" Version="1.1.6" />

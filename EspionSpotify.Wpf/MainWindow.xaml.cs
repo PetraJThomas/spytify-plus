@@ -423,9 +423,10 @@ namespace EspionSpotify.Wpf
             {
                 if (!Set(ref _spotifyClientId, value) || _loading) return;
                 _userSettings.SpotifyAPIClientId = value?.Trim();
-                Settings.Default.app_spotify_api_client_id = value?.Trim();
+                Settings.Default.app_spotify_api_client_id = Crypto.Encrypt(value?.Trim());
                 Settings.Default.Save();
                 OnPropertyChanged(nameof(SpotifyApiConfigured));
+                OnPropertyChanged(nameof(ClientIdMasked));
             }
         }
 
@@ -437,11 +438,25 @@ namespace EspionSpotify.Wpf
             {
                 if (!Set(ref _spotifySecretId, value) || _loading) return;
                 _userSettings.SpotifyAPISecretId = value?.Trim();
-                Settings.Default.app_spotify_api_client_secret = value?.Trim();
+                Settings.Default.app_spotify_api_client_secret = Crypto.Encrypt(value?.Trim());
                 Settings.Default.Save();
                 OnPropertyChanged(nameof(SpotifyApiConfigured));
+                OnPropertyChanged(nameof(SecretMasked));
             }
         }
+
+        // Reveal/hide state (hidden by default on boot) and the masked dots shown when hidden.
+        private bool _showClientId;
+        public bool ShowClientId { get => _showClientId; set => Set(ref _showClientId, value); }
+
+        private bool _showSecret;
+        public bool ShowSecret { get => _showSecret; set => Set(ref _showSecret, value); }
+
+        public string ClientIdMasked => Mask(_spotifyClientId);
+        public string SecretMasked => Mask(_spotifySecretId);
+
+        private static string Mask(string value) =>
+            string.IsNullOrEmpty(value) ? "" : new string('●', Math.Min(value.Length, 32));
 
         private string _spotifyRedirectUrl;
         public string SpotifyRedirectUrl
@@ -531,13 +546,23 @@ namespace EspionSpotify.Wpf
             DeviceName = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceName;
             RefreshAudioState();
 
-            // metadata api
-            _userSettings.SpotifyAPIClientId = Settings.Default.app_spotify_api_client_id?.Trim();
-            _userSettings.SpotifyAPISecretId = Settings.Default.app_spotify_api_client_secret?.Trim();
+            // metadata api — Client ID / secret are stored encrypted (DPAPI); decrypt for use.
+            var storedClientId = Settings.Default.app_spotify_api_client_id;
+            var storedSecret = Settings.Default.app_spotify_api_client_secret;
+            _userSettings.SpotifyAPIClientId = Crypto.Decrypt(storedClientId)?.Trim();
+            _userSettings.SpotifyAPISecretId = Crypto.Decrypt(storedSecret)?.Trim();
             _userSettings.SpotifyAPIRedirectURL = Settings.Default.app_spotify_api_redirect_url?.Trim();
             SpotifyClientId = _userSettings.SpotifyAPIClientId;
             SpotifySecretId = _userSettings.SpotifyAPISecretId;
             SpotifyRedirectUrl = _userSettings.SpotifyAPIRedirectURL;
+
+            // Migrate any legacy plaintext values to encrypted at rest.
+            var migrated = false;
+            if (!string.IsNullOrEmpty(storedClientId) && !Crypto.IsEncrypted(storedClientId))
+            { Settings.Default.app_spotify_api_client_id = Crypto.Encrypt(_userSettings.SpotifyAPIClientId); migrated = true; }
+            if (!string.IsNullOrEmpty(storedSecret) && !Crypto.IsEncrypted(storedSecret))
+            { Settings.Default.app_spotify_api_client_secret = Crypto.Encrypt(_userSettings.SpotifyAPISecretId); migrated = true; }
+            if (migrated) Settings.Default.Save();
             IsSpotifySelected = Settings.Default.app_selected_external_api_id == (int)ExternalAPIType.Spotify && _userSettings.IsSpotifyAPISet;
             IsLastFmSelected = !IsSpotifySelected;
 
