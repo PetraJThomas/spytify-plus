@@ -666,6 +666,10 @@ namespace EspionSpotify.Wpf
         }
 
         private static readonly Duration PanelFade = new Duration(TimeSpan.FromMilliseconds(160));
+        private static readonly Duration PanelSlide = new Duration(TimeSpan.FromMilliseconds(210));
+        private const double SlideOffset = 12.0;
+
+        private static IEasingFunction EaseOut() => new CubicEase { EasingMode = EasingMode.EaseOut };
 
         private void Nav_SelectionChanged(ModernWpf.Controls.NavigationView sender,
             ModernWpf.Controls.NavigationViewSelectionChangedEventArgs args)
@@ -676,23 +680,37 @@ namespace EspionSpotify.Wpf
             SetPanelActive(AdvancedPanel, tag == "advanced");
         }
 
-        // Cross-fade with no explicit From and no position transform. Inactive panels are
-        // pre-set to opacity 0, so the incoming panel always animates from its real current
-        // value up to 1 — re-triggering mid-fade is seamless and never snaps, no matter how
+        private static TranslateTransform SlideOf(FrameworkElement el)
+        {
+            if (!(el.RenderTransform is TranslateTransform tt))
+            {
+                tt = new TranslateTransform();
+                el.RenderTransform = tt;
+            }
+            return tt;
+        }
+
+        // Fade + slide with no explicit From and a persistent transform. Inactive panels are
+        // parked at opacity 0 / Y = SlideOffset (their animations released first), so the
+        // incoming panel always animates from its real current opacity/Y up to 1 / 0.
+        // Interrupting mid-transition just continues from where it is — never snaps, however
         // fast you click between sections.
         private void SetPanelActive(FrameworkElement el, bool active)
         {
             if (el == null) return;
+            var slide = SlideOf(el);
             if (active)
             {
                 el.Visibility = Visibility.Visible;
-                el.BeginAnimation(OpacityProperty,
-                    new DoubleAnimation(1, PanelFade) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+                el.BeginAnimation(OpacityProperty, new DoubleAnimation(1, PanelFade) { EasingFunction = EaseOut() });
+                slide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, PanelSlide) { EasingFunction = EaseOut() });
             }
             else
             {
-                el.BeginAnimation(OpacityProperty, null); // release the held animated value
-                el.Opacity = 0;
+                el.BeginAnimation(OpacityProperty, null); // release held animated values...
+                slide.BeginAnimation(TranslateTransform.YProperty, null);
+                el.Opacity = 0;                            // ...then park at the entrance start
+                slide.Y = SlideOffset;
                 el.Visibility = Visibility.Collapsed;
             }
         }
