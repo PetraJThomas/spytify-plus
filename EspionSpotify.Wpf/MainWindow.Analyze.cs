@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using EspionSpotify.Wpf.Analysis;
 using WShapes = System.Windows.Shapes;
@@ -105,6 +107,92 @@ namespace EspionSpotify.Wpf
             AnalyzeBusy.Visibility = state == AnalyzeState.Busy ? Visibility.Visible : Visibility.Collapsed;
             AnalyzeResults.Visibility = state == AnalyzeState.Results ? Visibility.Visible : Visibility.Collapsed;
             AnalyzeError.Visibility = state == AnalyzeState.Error ? Visibility.Visible : Visibility.Collapsed;
+
+            if (state == AnalyzeState.Results) AnimateResultsIn();
+            else StopTierPulse();
+        }
+
+        // Fade + slide the results panel up as they appear.
+        private void AnimateResultsIn()
+        {
+            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            AnalyzeResults.BeginAnimation(OpacityProperty,
+                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300)) { EasingFunction = ease });
+
+            if (!(AnalyzeResults.RenderTransform is TranslateTransform tt))
+            {
+                tt = new TranslateTransform();
+                AnalyzeResults.RenderTransform = tt;
+            }
+            tt.BeginAnimation(TranslateTransform.YProperty,
+                new DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(340)) { EasingFunction = ease });
+        }
+
+        // Tier-reactive pulse: a coloured glow + gentle breathing scale on the verdict badge whose
+        // rhythm and intensity track quality (lossless pulses fast and bright, low-bitrate slow and dim).
+        private void StartTierPulse(QualityTier tier, Color glow)
+        {
+            double seconds, maxOpacity, maxBlur, maxScale;
+            switch (tier)
+            {
+                case QualityTier.Lossless: seconds = 1.0; maxOpacity = 1.00; maxBlur = 28; maxScale = 1.05; break;
+                case QualityTier.Kbps320: seconds = 1.3; maxOpacity = 0.85; maxBlur = 24; maxScale = 1.04; break;
+                case QualityTier.Kbps256: seconds = 1.5; maxOpacity = 0.75; maxBlur = 21; maxScale = 1.035; break;
+                case QualityTier.Kbps192: seconds = 1.8; maxOpacity = 0.65; maxBlur = 18; maxScale = 1.03; break;
+                case QualityTier.Kbps128: seconds = 2.1; maxOpacity = 0.55; maxBlur = 16; maxScale = 1.025; break;
+                default: seconds = 2.6; maxOpacity = 0.45; maxBlur = 14; maxScale = 1.02; break;
+            }
+
+            var ease = new SineEase { EasingMode = EasingMode.EaseInOut };
+            var dur = new Duration(TimeSpan.FromSeconds(seconds));
+
+            var effect = new DropShadowEffect
+            {
+                Color = glow, ShadowDepth = 0, BlurRadius = 8, Opacity = 0.15,
+                RenderingBias = RenderingBias.Performance
+            };
+            VerdictBadge.Effect = effect;
+            effect.BeginAnimation(DropShadowEffect.BlurRadiusProperty,
+                new DoubleAnimation(8, maxBlur, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+            effect.BeginAnimation(DropShadowEffect.OpacityProperty,
+                new DoubleAnimation(0.15, maxOpacity, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease });
+
+            VerdictBadge.RenderTransformOrigin = new Point(0.5, 0.5);
+            var scale = new ScaleTransform(1, 1);
+            VerdictBadge.RenderTransform = scale;
+            var scaleAnim = new DoubleAnimation(1, maxScale, dur) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = ease };
+            scale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnim);
+            scale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnim);
+        }
+
+        private void StopTierPulse()
+        {
+            if (VerdictBadge.Effect is DropShadowEffect e)
+            {
+                e.BeginAnimation(DropShadowEffect.BlurRadiusProperty, null);
+                e.BeginAnimation(DropShadowEffect.OpacityProperty, null);
+            }
+            if (VerdictBadge.RenderTransform is ScaleTransform s)
+            {
+                s.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                s.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            }
+            VerdictBadge.Effect = null;
+        }
+
+        private static Color TierGlow(QualityTier tier, bool transcode)
+        {
+            if (transcode) return Color.FromRgb(0xFF, 0xB7, 0x4D);
+            switch (tier)
+            {
+                case QualityTier.Lossless: return Color.FromRgb(0x1E, 0xD7, 0x60);
+                case QualityTier.Kbps320: return Color.FromRgb(0x8B, 0xC3, 0x4A);
+                case QualityTier.Kbps256: return Color.FromRgb(0xCD, 0xDC, 0x39);
+                case QualityTier.Kbps192: return Color.FromRgb(0xFF, 0xB7, 0x4D);
+                case QualityTier.Kbps128: return Color.FromRgb(0xFF, 0x8A, 0x65);
+                case QualityTier.Low: return Color.FromRgb(0xEF, 0x53, 0x50);
+                default: return Color.FromRgb(0x9E, 0x9E, 0x9E);
+            }
         }
 
         private void PopulateAnalyzeResults(string path, AudioSample sample, QualityResult result)
@@ -127,6 +215,8 @@ namespace EspionSpotify.Wpf
             FreqResponseCutoffLabel.Text = result.Tier == QualityTier.Unknown
                 ? ""
                 : $"cut-off ~{result.CutoffHz / 1000.0:0.0} kHz";
+
+            StartTierPulse(result.Tier, TierGlow(result.Tier, result.IsTranscode));
         }
 
         private static (Brush bg, Brush fg) TierColors(QualityTier tier)
@@ -221,6 +311,8 @@ namespace EspionSpotify.Wpf
             wb.WritePixels(new Int32Rect(0, 0, spec.Width, spec.Height), spec.Bgra, spec.Width * 4, 0);
             wb.Freeze();
             SpectrogramImageControl.Source = wb;
+            SpectrogramImageControl.BeginAnimation(OpacityProperty,
+                new DoubleAnimation(0.35, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
         }
 
         // Frequency axis (left), time axis (bottom) and the dashed cut-off line over the heatmap.
