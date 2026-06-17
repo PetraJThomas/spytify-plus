@@ -9,8 +9,12 @@ namespace EspionSpotify.Wpf.Analysis
         public int SampleRate { get; set; }
         public string Codec { get; set; }
         public int? ContainerBitrateKbps { get; set; }
+        public int? AudioBitrateKbps { get; set; }
         public TimeSpan Duration { get; set; }
 
         public double NyquistHz => SampleRate / 2.0;
+
+        /// <summary>Real audio bitrate when ffmpeg reported it, else the container figure.</summary>
+        public int? EffectiveBitrateKbps => AudioBitrateKbps ?? ContainerBitrateKbps;
     }
 }

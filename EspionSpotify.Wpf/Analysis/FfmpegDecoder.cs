@@ -38,6 +38,7 @@ namespace EspionSpotify.Wpf.Analysis
                 SampleRate = info.SampleRate > 0 ? info.SampleRate : 44100,
                 Codec = info.Codec,
                 ContainerBitrateKbps = info.BitrateKbps,
+                AudioBitrateKbps = info.AudioBitrateKbps,
                 Duration = info.Duration
             };
         }
@@ -46,7 +47,8 @@ namespace EspionSpotify.Wpf.Analysis
         {
             public int SampleRate;
             public string Codec;
-            public int? BitrateKbps;
+            public int? BitrateKbps;       // container overall (audio + cover art + tags)
+            public int? AudioBitrateKbps;  // the audio stream itself, when ffmpeg reports it
             public TimeSpan Duration;
         }
 
@@ -87,6 +89,11 @@ namespace EspionSpotify.Wpf.Analysis
 
             var br = Regex.Match(stderr, @"bitrate:\s*(\d+) kb/s");
             if (br.Success && int.TryParse(br.Groups[1].Value, out var b)) info.BitrateKbps = b;
+
+            // Per-stream bitrate on the "Audio:" line (e.g. "Audio: mp3, 48000 Hz, stereo, 320 kb/s").
+            // This is the real audio bitrate, free of cover-art/tag inflation; lossless usually omits it.
+            var abr = Regex.Match(stderr, @"Audio:[^\r\n]*?(\d+) kb/s");
+            if (abr.Success && int.TryParse(abr.Groups[1].Value, out var ab)) info.AudioBitrateKbps = ab;
 
             var dur = Regex.Match(stderr, @"Duration:\s*(\d+):(\d+):([\d.]+)");
             if (dur.Success)

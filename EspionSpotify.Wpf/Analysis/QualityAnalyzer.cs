@@ -107,11 +107,11 @@ namespace EspionSpotify.Wpf.Analysis
 
             result.CutoffHz = cutoffBin * binHz;
             result.Confidence = Confidence(db, cutoffBin, binHz);
-            AssignTier(result, result.CutoffHz, nyquist, sample.Codec);
+            AssignTier(result, result.CutoffHz, nyquist, sample.Codec, sample.EffectiveBitrateKbps);
             return result;
         }
 
-        private static void AssignTier(QualityResult r, double cutoff, double nyquist, string codec)
+        private static void AssignTier(QualityResult r, double cutoff, double nyquist, string codec, int? bitrateKbps)
         {
             QualityTier tier;
             string label;
@@ -136,7 +136,8 @@ namespace EspionSpotify.Wpf.Analysis
             if (tier == QualityTier.Lossless)
             {
                 r.Verdict = losslessContainer ? "True lossless" : "Full-band (lossless-grade)";
-                r.Detail = $"Content reaches ~{cutoffKHz:0.0} kHz (Nyquist {nyqKHz:0.0} kHz) with no early roll-off.";
+                var rate = bitrateKbps.HasValue ? $" Actual bitrate ~{bitrateKbps} kbps." : "";
+                r.Detail = $"Content reaches ~{cutoffKHz:0.0} kHz (Nyquist {nyqKHz:0.0} kHz) with no early roll-off.{rate}";
             }
             else if (r.IsTranscode)
             {

@@ -307,7 +307,7 @@ namespace EspionSpotify.Wpf
             AnalyzeFileName.Text = Path.GetFileName(path);
 
             var meta = $"{(sample.Codec ?? "?").ToUpperInvariant()}  ·  {sample.SampleRate / 1000.0:0.#} kHz";
-            if (sample.ContainerBitrateKbps.HasValue) meta += $"  ·  {sample.ContainerBitrateKbps} kbps";
+            if (sample.EffectiveBitrateKbps.HasValue) meta += $"  ·  {sample.EffectiveBitrateKbps} kbps";
             if (sample.Duration > TimeSpan.Zero) meta += $"  ·  {sample.Duration:m\\:ss}";
             AnalyzeMeta.Text = meta;
 
