@@ -682,9 +682,9 @@ namespace EspionSpotify.Wpf
             if (item != null) Nav.SelectedItem = item;
         }
 
-        private static readonly Duration PanelFade = new Duration(TimeSpan.FromMilliseconds(160));
-        private static readonly Duration PanelSlide = new Duration(TimeSpan.FromMilliseconds(210));
-        private const double SlideOffset = 12.0;
+        private static readonly Duration PanelFade = new Duration(TimeSpan.FromMilliseconds(90));
+        private static readonly Duration PanelSlide = new Duration(TimeSpan.FromMilliseconds(110));
+        private const double SlideOffset = 8.0;
 
         private static IEasingFunction EaseOut() => new CubicEase { EasingMode = EasingMode.EaseOut };
 
