@@ -238,7 +238,8 @@
                             </StackPanel>
                             <StackPanel Style="{StaticResource Row}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblFormat}" />
-                                <ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
+                                <ComboBox ItemsSource="{Binding Formats}" SelectedValuePath="Key"
+                                          DisplayMemberPath="Value" SelectedValue="{Binding SelectedFormat, Mode=TwoWay}"
                                           Width="200" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource Row}"

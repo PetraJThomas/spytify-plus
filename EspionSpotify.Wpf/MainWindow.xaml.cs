@@ -321,7 +321,13 @@ namespace EspionSpotify.Wpf
         }
 
         // --- Format / bitrate ---
-        public MediaFormat[] Formats { get; } = { MediaFormat.Mp3, MediaFormat.Wav, MediaFormat.Opus, MediaFormat.Flac };
+        public List<KeyValuePair<MediaFormat, string>> Formats { get; } = new List<KeyValuePair<MediaFormat, string>>
+        {
+            new KeyValuePair<MediaFormat, string>(MediaFormat.Mp3, "MP3"),
+            new KeyValuePair<MediaFormat, string>(MediaFormat.Wav, "WAV"),
+            new KeyValuePair<MediaFormat, string>(MediaFormat.Opus, "Opus"),
+            new KeyValuePair<MediaFormat, string>(MediaFormat.Flac, "FLAC")
+        };
 
         private MediaFormat _selectedFormat;
         public MediaFormat SelectedFormat
