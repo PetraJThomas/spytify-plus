@@ -665,32 +665,36 @@ namespace EspionSpotify.Wpf
             if (item != null) Nav.SelectedItem = item;
         }
 
+        private static readonly Duration PanelFade = new Duration(TimeSpan.FromMilliseconds(160));
+
         private void Nav_SelectionChanged(ModernWpf.Controls.NavigationView sender,
             ModernWpf.Controls.NavigationViewSelectionChangedEventArgs args)
         {
             var tag = (args.SelectedItem as ModernWpf.Controls.NavigationViewItem)?.Tag as string ?? "record";
-            RecordPanel.Visibility = tag == "record" ? Visibility.Visible : Visibility.Collapsed;
-            SettingsPanel.Visibility = tag == "settings" ? Visibility.Visible : Visibility.Collapsed;
-            AdvancedPanel.Visibility = tag == "advanced" ? Visibility.Visible : Visibility.Collapsed;
-
-            FrameworkElement active = tag == "settings" ? SettingsPanel : tag == "advanced" ? AdvancedPanel : RecordPanel;
-            AnimateIn(active);
+            SetPanelActive(RecordPanel, tag == "record");
+            SetPanelActive(SettingsPanel, tag == "settings");
+            SetPanelActive(AdvancedPanel, tag == "advanced");
         }
 
-        private static void AnimateIn(FrameworkElement el)
+        // Cross-fade with no explicit From and no position transform. Inactive panels are
+        // pre-set to opacity 0, so the incoming panel always animates from its real current
+        // value up to 1 — re-triggering mid-fade is seamless and never snaps, no matter how
+        // fast you click between sections.
+        private void SetPanelActive(FrameworkElement el, bool active)
         {
             if (el == null) return;
-            var slide = new TranslateTransform(0, 10);
-            el.RenderTransform = slide;
-
-            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-            // Start from 0.55 (not 0): when you click around quickly, a panel that
-            // re-animates never blinks to fully transparent, so it reads as a smooth
-            // settle instead of a snap. The slide carries the "entrance" feel.
-            el.BeginAnimation(OpacityProperty,
-                new DoubleAnimation(0.55, 1, TimeSpan.FromMilliseconds(150)) { EasingFunction = ease });
-            slide.BeginAnimation(TranslateTransform.YProperty,
-                new DoubleAnimation(10, 0, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease });
+            if (active)
+            {
+                el.Visibility = Visibility.Visible;
+                el.BeginAnimation(OpacityProperty,
+                    new DoubleAnimation(1, PanelFade) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+            }
+            else
+            {
+                el.BeginAnimation(OpacityProperty, null); // release the held animated value
+                el.Opacity = 0;
+                el.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void BrowseOutput()
