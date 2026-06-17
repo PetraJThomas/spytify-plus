@@ -400,7 +400,7 @@
 
             <!-- ===================== ANALYZE ===================== -->
             <Grid x:Name="AnalyzePanel" Visibility="Collapsed"
-                  AllowDrop="True" DragOver="Analyze_DragOver" Drop="Analyze_Drop">
+                  AllowDrop="True" DragOver="Analyze_DragOver" DragLeave="Analyze_DragLeave" Drop="Analyze_Drop">
 
                 <!-- Empty state: drop zone -->
                 <Border x:Name="AnalyzeDropZone" CornerRadius="10" Background="#10FFFFFF"
@@ -687,6 +687,20 @@
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
+
+                <!-- Drag-over highlight (shown while a file is dragged over the pane) -->
+                <Border x:Name="AnalyzeDragOverlay" Visibility="Collapsed" IsHitTestVisible="False"
+                        Panel.ZIndex="20" CornerRadius="10" Background="#D40A0A0A"
+                        BorderBrush="{StaticResource SpotifyGreenBrush}" BorderThickness="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#1ED760" ShadowDepth="0" BlurRadius="26" Opacity="0.55" />
+                    </Border.Effect>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ui:FontIcon Glyph="&#xE896;" FontSize="46" Foreground="#1ED760" HorizontalAlignment="Center" />
+                        <TextBlock Text="Drop to analyze" FontSize="20" Foreground="#FFFFFF"
+                                   Margin="0,14,0,0" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
             </Grid>
 
         </Grid>

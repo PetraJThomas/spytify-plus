@@ -33,16 +33,48 @@ namespace EspionSpotify.Wpf
 
         private enum AnalyzeState { Empty, Busy, Results, Error }
 
+        private bool _dragShown;
+
         private void Analyze_DragOver(object sender, DragEventArgs e)
         {
-            e.Effects = SingleFileFrom(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
+            var ok = SingleFileFrom(e) != null;
+            e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
+            if (ok && !_dragShown) ShowDragOverlay(true);
+            e.Handled = true;
+        }
+
+        private void Analyze_DragLeave(object sender, DragEventArgs e)
+        {
+            // DragLeave also fires when crossing child elements; only hide once the pointer has
+            // actually left the panel's bounds, otherwise the overlay flickers.
+            var p = e.GetPosition(AnalyzePanel);
+            if (p.X < 0 || p.Y < 0 || p.X > AnalyzePanel.ActualWidth || p.Y > AnalyzePanel.ActualHeight)
+                ShowDragOverlay(false);
             e.Handled = true;
         }
 
         private void Analyze_Drop(object sender, DragEventArgs e)
         {
+            ShowDragOverlay(false);
             var path = SingleFileFrom(e);
             if (path != null) _ = AnalyzeFileAsync(path);
+        }
+
+        private void ShowDragOverlay(bool show)
+        {
+            _dragShown = show;
+            if (show)
+            {
+                AnalyzeDragOverlay.Visibility = Visibility.Visible;
+                AnalyzeDragOverlay.BeginAnimation(OpacityProperty,
+                    new DoubleAnimation(1, TimeSpan.FromMilliseconds(120)));
+            }
+            else
+            {
+                var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(120));
+                fade.Completed += (s, e2) => { if (!_dragShown) AnalyzeDragOverlay.Visibility = Visibility.Collapsed; };
+                AnalyzeDragOverlay.BeginAnimation(OpacityProperty, fade);
+            }
         }
 
         private void Analyze_OpenFile_Click(object sender, RoutedEventArgs e)
