@@ -43,7 +43,7 @@ namespace EspionSpotify.Wpf.Analysis
             var maxStart = samples.Length - FftSize;
 
             // Pass 1: store linear magnitudes and track the loudest bin in the whole file.
-            // (NAudio's FFT applies its own scaling, so an absolute dB reference is unreliable —
+            // (NAudio's FFT applies its own scaling, so an absolute dB reference is unreliable;
             // normalising to the file's own peak is what gives a Spek-like image.)
             var peak = 1e-12;
             for (var c = 0; c < columns; c++)

@@ -165,7 +165,7 @@ namespace EspionSpotify.Wpf
         public string StatusGlyph { get => _statusGlyph; set => Set(ref _statusGlyph, value); }
 
         // Dot + now-playing title are green while a recording session is active and grey when
-        // idle/stopped — driven by the same session flag as the pulse so they never disagree.
+        // idle/stopped, driven by the same session flag as the pulse so they never disagree.
         public Brush StatusBrush => IsRecording ? GreenBrush : GrayBrush;
 
         private string _nowPlaying = "Spotify";
@@ -549,7 +549,7 @@ namespace EspionSpotify.Wpf
             DeviceName = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceName;
             RefreshAudioState();
 
-            // metadata api — Client ID / secret are stored encrypted (DPAPI); decrypt for use.
+            // metadata api. Client ID / secret are stored encrypted (DPAPI); decrypt for use.
             var storedClientId = Settings.Default.app_spotify_api_client_id;
             var storedSecret = Settings.Default.app_spotify_api_client_secret;
             _userSettings.SpotifyAPIClientId = Crypto.Decrypt(storedClientId)?.Trim();
@@ -810,7 +810,7 @@ namespace EspionSpotify.Wpf
         });
 
         public void ShowFailedToUseSpotifyAPIMessage() => RunOnUi(() =>
-            MessageBox.Show(this, "Couldn't use the Spotify API — falling back to Last.fm.",
+            MessageBox.Show(this, "Couldn't use the Spotify API, falling back to Last.fm.",
                 "Spytify", MessageBoxButton.OK, MessageBoxImage.Information));
 
         public void UpdateAudioDevicesDataSource() => RunOnUi(() =>
@@ -910,7 +910,7 @@ namespace EspionSpotify.Wpf
         // Fade + slide with no explicit From and a persistent transform. Inactive panels are
         // parked at opacity 0 / Y = SlideOffset (their animations released first), so the
         // incoming panel always animates from its real current opacity/Y up to 1 / 0.
-        // Interrupting mid-transition just continues from where it is — never snaps, however
+        // Interrupting mid-transition just continues from where it is, never snaps, however
         // fast you click between sections.
         private void SetPanelActive(FrameworkElement el, bool active)
         {

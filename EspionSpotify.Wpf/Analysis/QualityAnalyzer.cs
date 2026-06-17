@@ -141,12 +141,12 @@ namespace EspionSpotify.Wpf.Analysis
             else if (r.IsTranscode)
             {
                 r.Verdict = $"Lossy source in a lossless container ({label})";
-                r.Detail = $"Container is {codecUp} but the spectrum cuts off at ~{cutoffKHz:0.0} kHz — " +
+                r.Detail = $"Container is {codecUp} but the spectrum cuts off at ~{cutoffKHz:0.0} kHz: " +
                            "re-encoded from a lossy file, not true lossless.";
             }
             else
             {
-                r.Verdict = $"Lossy — {label}";
+                r.Verdict = $"Lossy: {label}";
                 r.Detail = $"Spectral cut-off at ~{cutoffKHz:0.0} kHz.";
             }
         }

@@ -216,7 +216,7 @@ namespace EspionSpotify
                 UserSettings = _userSettings,
                 CountSeconds = CountSeconds
             });
-            _tempOriginalFile = null; // ownership transferred — do not delete it here
+            _tempOriginalFile = null; // ownership transferred, do not delete it here
 
             Running = false;
             _form.UpdateIconSpotify(true);
@@ -239,7 +239,7 @@ namespace EspionSpotify
                 case MediaFormat.Opus:
                 case MediaFormat.Flac:
                     // Every format records to a temp WAV first (then ffmpeg encodes), so validating the
-                    // WAV writer is enough — ffmpeg handles any sample rate / channel count downstream.
+                    // WAV writer is enough; ffmpeg handles any sample rate / channel count downstream.
                     try
                     {
                         using (new WaveFileWriter(new MemoryStream(), waveIn.WaveFormat))
@@ -309,7 +309,7 @@ namespace EspionSpotify
             TempWaveWriterDispose();
 
             // Once a capture has been handed to the encode service, _tempOriginalFile is null
-            // and the service owns the temp WAV — so this only deletes WAVs we still own.
+            // and the service owns the temp WAV, so this only deletes WAVs we still own.
             if (!string.IsNullOrWhiteSpace(_tempOriginalFile)) _fileManager.DeleteFile(_tempOriginalFile);
         }
 
