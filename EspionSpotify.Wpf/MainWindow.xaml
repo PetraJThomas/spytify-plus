@@ -481,13 +481,15 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Spectrogram + vertical frequency profile -->
+                        <!-- Spectrogram -->
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
                                 <Grid>
                                     <TextBlock Style="{StaticResource SectionHeader}"
-                                               Text="Spectrogram &amp; frequency profile" VerticalAlignment="Center" />
+                                               Text="Spectrogram" VerticalAlignment="Center" />
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                                        <TextBlock Text="Heatmap colour theme" Foreground="#AAAAAA"
+                                                   VerticalAlignment="Center" Margin="0,0,10,0" FontSize="12" />
                                         <ComboBox x:Name="PaletteCombo" Width="104" Height="28"
                                                   VerticalAlignment="Center" FontSize="12"
                                                   SelectionChanged="PaletteCombo_SelectionChanged">
@@ -496,15 +498,12 @@
                                             <ComboBoxItem Content="Viridis" />
                                             <ComboBoxItem Content="Heat" />
                                         </ComboBox>
-                                        <TextBlock x:Name="SpectrogramCutoffLabel" Foreground="#FFD54F"
-                                                   VerticalAlignment="Center" FontWeight="SemiBold" Margin="14,0,0,0" />
                                     </StackPanel>
                                 </Grid>
                                 <Grid Height="300">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40" />
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="92" />
                                         <ColumnDefinition Width="56" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
@@ -512,7 +511,7 @@
                                         <RowDefinition Height="18" />
                                     </Grid.RowDefinitions>
 
-                                    <!-- frequency axis (shared by heatmap + profile) -->
+                                    <!-- frequency axis -->
                                     <Canvas x:Name="SpecFreqAxis" Grid.Row="0" Grid.Column="0" />
 
                                     <!-- heatmap + overlay (cut-off line) -->
@@ -525,14 +524,8 @@
                                         </Grid>
                                     </Border>
 
-                                    <!-- vertical averaged-spectrum profile (Y = frequency, aligned to heatmap) -->
-                                    <Border Grid.Row="0" Grid.Column="2" Margin="6,0,0,0" CornerRadius="4"
-                                            Background="#0CFFFFFF" ClipToBounds="True">
-                                        <Canvas x:Name="SpecProfileCanvas" SizeChanged="SpecProfileCanvas_SizeChanged" />
-                                    </Border>
-
                                     <!-- dB colour legend -->
-                                    <Grid Grid.Row="0" Grid.Column="3" Margin="10,0,0,0">
+                                    <Grid Grid.Row="0" Grid.Column="2" Margin="10,0,0,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="14" />
                                             <ColumnDefinition Width="*" />
@@ -548,6 +541,39 @@
                                     <!-- time axis (under heatmap) -->
                                     <Canvas x:Name="SpecTimeAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
                                 </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Frequency response & cut-off -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Style="{StaticResource SectionHeader}"
+                                               Text="Frequency response &amp; cut-off" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="FreqResponseCutoffLabel" Foreground="#FFD54F"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                </Grid>
+                                <Grid Height="160">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="18" />
+                                    </Grid.RowDefinitions>
+
+                                    <Canvas x:Name="FreqDbAxis" Grid.Row="0" Grid.Column="0" />
+
+                                    <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" ClipToBounds="True"
+                                            Background="#0CFFFFFF">
+                                        <Canvas x:Name="FreqResponseCanvas" SizeChanged="FreqResponseCanvas_SizeChanged" />
+                                    </Border>
+
+                                    <Canvas x:Name="FreqHzAxis" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" />
+                                </Grid>
+                                <TextBlock Foreground="#999999" TextWrapping="Wrap" Margin="0,10,0,0" FontSize="12"
+                                           Text="Average loudness at each frequency across the whole track. Lossy formats (MP3/AAC/Opus) discard the highest frequencies to save space, leaving a sharp cut-off cliff whose position reveals the bitrate (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). True lossless keeps energy all the way to ~22 kHz with no cliff. The amber line marks the detected cut-off." />
                             </StackPanel>
                         </Border>
                     </StackPanel>
