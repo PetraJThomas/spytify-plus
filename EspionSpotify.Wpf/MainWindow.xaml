@@ -255,6 +255,18 @@
                                 <TextBlock Text="{Binding MinLengthDisplay}" Margin="12,0,0,0"
                                            VerticalAlignment="Center" Foreground="#CCC" />
                             </StackPanel>
+                            <StackPanel Style="{StaticResource Row}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Device volume" />
+                                <Slider Minimum="0" Maximum="100" Width="260" VerticalAlignment="Center"
+                                        Value="{Binding Volume, Mode=TwoWay}" IsEnabled="{Binding VolumeEnabled}" />
+                                <TextBlock Text="{Binding VolumePercent}" Margin="12,0,0,0"
+                                           VerticalAlignment="Center" Foreground="#CCC" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource Row}"
+                                        Visibility="{Binding DriverButtonVisible, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Virtual cable" />
+                                <Button Content="{Binding DriverButtonText}" Command="{Binding InstallDriverCommand}" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

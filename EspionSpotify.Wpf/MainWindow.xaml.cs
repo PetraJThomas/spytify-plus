@@ -14,6 +14,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using EspionSpotify.API;
 using EspionSpotify.AudioSessions;
+using EspionSpotify.Drivers;
 using EspionSpotify.Enums;
 using EspionSpotify.Extensions;
 using EspionSpotify.Models;
@@ -62,6 +63,7 @@ namespace EspionSpotify.Wpf
             OpenOutputCommand = new RelayCommand(_ => OpenOutputFolder());
             NumPlusCommand = new RelayCommand(_ => NumAdjust(+1));
             NumMinusCommand = new RelayCommand(_ => NumAdjust(-1));
+            InstallDriverCommand = new RelayCommand(_ => InstallDriver());
 
             LoadState();
             ReloadExternalApi();
@@ -144,6 +146,7 @@ namespace EspionSpotify.Wpf
         public ICommand OpenOutputCommand { get; }
         public ICommand NumPlusCommand { get; }
         public ICommand NumMinusCommand { get; }
+        public ICommand InstallDriverCommand { get; }
 
         private bool _isRecording;
         public bool IsRecording
@@ -255,11 +258,67 @@ namespace EspionSpotify.Wpf
                 Settings.Default.app_selected_audio_device_id = value;
                 Settings.Default.Save();
                 DeviceName = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceName;
+                RefreshAudioState();
             }
         }
 
         private string _deviceName;
         public string DeviceName { get => _deviceName; set => Set(ref _deviceName, value); }
+
+        // --- Windows volume for the selected device ---
+        private bool _suppressVolumeApply;
+        private int _volume;
+        public int Volume
+        {
+            get => _volume;
+            set
+            {
+                if (!Set(ref _volume, value)) return;
+                OnPropertyChanged(nameof(VolumePercent));
+                if (_loading || _suppressVolumeApply) return;
+
+                var mgr = _audioSession.AudioMMDevicesManager;
+                if (mgr.AudioEndPointDeviceMute == true && mgr.AudioEndPointDevice?.AudioEndpointVolume != null)
+                    mgr.AudioEndPointDevice.AudioEndpointVolume.Mute = false;
+                _audioSession.SetAudioDeviceVolume(value);
+            }
+        }
+
+        public string VolumePercent => $"{_volume}%";
+
+        private bool _volumeEnabled;
+        public bool VolumeEnabled { get => _volumeEnabled; set => Set(ref _volumeEnabled, value); }
+
+        // --- VB-Audio virtual cable driver ---
+        public bool DriverButtonVisible => AudioVirtualCableDriver.IsFound;
+
+        private string _driverButtonText = "Install virtual cable driver";
+        public string DriverButtonText { get => _driverButtonText; set => Set(ref _driverButtonText, value); }
+
+        private void RefreshAudioState()
+        {
+            VolumeEnabled = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceName != null;
+            _suppressVolumeApply = true;
+            Volume = _audioSession.AudioDeviceVolume;
+            _suppressVolumeApply = false;
+
+            OnPropertyChanged(nameof(DriverButtonVisible));
+            if (DriverButtonVisible)
+                DriverButtonText = AudioVirtualCableDriver.ExistsInAudioEndPointDevices(
+                    _audioSession.AudioMMDevicesManager.AudioEndPointDeviceNames)
+                    ? "Reinstall virtual cable driver"
+                    : "Install virtual cable driver";
+        }
+
+        private async void InstallDriver()
+        {
+            if (!AudioVirtualCableDriver.IsFound) return;
+            var ok = await Task.Run(() => AudioVirtualCableDriver.SetupDriver());
+            if (!ok)
+                MessageBox.Show(this, "Virtual cable driver installation failed.",
+                    "Spytify", MessageBoxButton.OK, MessageBoxImage.Warning);
+            RefreshAudioState();
+        }
 
         // --- Format / bitrate ---
         public MediaFormat[] Formats { get; } = { MediaFormat.Mp3, MediaFormat.Wav, MediaFormat.Opus, MediaFormat.Flac };
@@ -464,6 +523,7 @@ namespace EspionSpotify.Wpf
                 : _audioSession.AudioMMDevicesManager.DefaultAudioEndPointDeviceID;
             _userSettings.AudioEndPointDeviceID = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceID;
             DeviceName = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceName;
+            RefreshAudioState();
 
             // metadata api
             _userSettings.SpotifyAPIClientId = Settings.Default.app_spotify_api_client_id?.Trim();
@@ -711,10 +771,17 @@ namespace EspionSpotify.Wpf
             SelectedDeviceId = id;
             _loading = false;
             DeviceName = _audioSession.AudioMMDevicesManager.AudioEndPointDeviceName;
+            RefreshAudioState();
         });
 
-        // No Windows-volume slider surfaced in this UI yet.
-        public void SetSoundVolume(int volume) { }
+        // Volume changed externally (Windows mixer / notification): reflect it on the slider
+        // without re-applying it back to the device.
+        public void SetSoundVolume(int volume) => RunOnUi(() =>
+        {
+            _suppressVolumeApply = true;
+            Volume = volume;
+            _suppressVolumeApply = false;
+        });
 
         public bool AskUpdate(string title, string message)
         {
