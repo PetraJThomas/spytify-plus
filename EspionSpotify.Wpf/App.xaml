@@ -176,17 +176,26 @@
             <Style TargetType="ui:ToggleSwitch" BasedOn="{StaticResource {x:Type ui:ToggleSwitch}}">
                 <Setter Property="Margin" Value="0,5,0,5" />
                 <Setter Property="HorizontalAlignment" Value="Left" />
-                <Setter Property="FontSize" Value="14.5" />
                 <Setter Property="LayoutTransform">
                     <Setter.Value>
                         <ScaleTransform ScaleX="1.1" ScaleY="1.1" />
+                    </Setter.Value>
+                </Setter>
+                <!-- Render the header ourselves so its colour matches the other labels (ModernWpf's
+                     default header colour comes from a theme brush, not the control Foreground).
+                     14.5 x the 1.1 scale renders at ~16 to match the FieldLabels. -->
+                <Setter Property="HeaderTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Foreground="#D8D8D8" FontSize="14.5" />
+                        </DataTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
 
             <!-- CheckBox: rounded box that fills green with a checkmark that springs in. -->
             <Style TargetType="CheckBox">
-                <Setter Property="Foreground" Value="#E6E6E6" />
+                <Setter Property="Foreground" Value="#D8D8D8" />
                 <Setter Property="FontSize" Value="16" />
                 <Setter Property="Cursor" Value="Hand" />
                 <Setter Property="Margin" Value="0,6,0,6" />
@@ -229,6 +238,59 @@
                                                 <DoubleAnimation Storyboard.TargetName="Check" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.1" />
                                                 <DoubleAnimation Storyboard.TargetName="CheckS" Storyboard.TargetProperty="ScaleX" To="0.4" Duration="0:0:0.1" />
                                                 <DoubleAnimation Storyboard.TargetName="CheckS" Storyboard.TargetProperty="ScaleY" To="0.4" Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- RadioButton: circle outline with a green dot that springs in; label matches the others. -->
+            <Style TargetType="RadioButton">
+                <Setter Property="Foreground" Value="#D8D8D8" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                                <Grid Width="22" Height="22" VerticalAlignment="Center">
+                                    <Ellipse Stroke="#66FFFFFF" StrokeThickness="1.5" Fill="#22FFFFFF" />
+                                    <Ellipse x:Name="Dot" Width="11" Height="11" Fill="{StaticResource SpotifyGreenBrush}"
+                                             Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                        <Ellipse.RenderTransform><ScaleTransform x:Name="DotS" ScaleX="0.3" ScaleY="0.3" /></Ellipse.RenderTransform>
+                                    </Ellipse>
+                                </Grid>
+                                <ContentPresenter Margin="9,0,0,0" VerticalAlignment="Center"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                            </StackPanel>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1" />
+                                                <DoubleAnimation Storyboard.TargetName="DotS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.22">
+                                                    <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.7" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="DotS" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.22">
+                                                    <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.7" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.1" />
+                                                <DoubleAnimation Storyboard.TargetName="DotS" Storyboard.TargetProperty="ScaleX" To="0.3" Duration="0:0:0.1" />
+                                                <DoubleAnimation Storyboard.TargetName="DotS" Storyboard.TargetProperty="ScaleY" To="0.3" Duration="0:0:0.1" />
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </Trigger.ExitActions>
