@@ -402,11 +402,11 @@
     <comment>message</comment>
   </data>
   <data name="lblClientId" xml:space="preserve">
-    <value>Client ID</value>
+    <value>Identifiant client</value>
     <comment>interface --</comment>
   </data>
   <data name="lblSecretId" xml:space="preserve">
-    <value>Client Secret</value>
+    <value>Secret client</value>
     <comment>interface --</comment>
   </data>
   <data name="tipFAQSpotifyAPI" xml:space="preserve">
