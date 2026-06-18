@@ -98,7 +98,7 @@
                 <Setter Property="Foreground" Value="#DDDDDD" />
                 <Setter Property="BorderBrush" Value="#33FFFFFF" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Height" Value="34" />
+                <Setter Property="Height" Value="32" />
                 <Setter Property="Cursor" Value="Hand" />
                 <Setter Property="Template">
                     <Setter.Value>

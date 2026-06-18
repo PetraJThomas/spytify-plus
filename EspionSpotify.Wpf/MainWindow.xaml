@@ -222,6 +222,12 @@
 
             <!-- ===================== SETTINGS ===================== -->
             <ScrollViewer x:Name="SettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer.Resources>
+                    <!-- Buttons on this page match the field/combo height (32). -->
+                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Height" Value="32" />
+                    </Style>
+                </ScrollViewer.Resources>
                 <StackPanel>
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
@@ -353,6 +359,12 @@
 
             <!-- ===================== ADVANCED ===================== -->
             <ScrollViewer x:Name="AdvancedPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer.Resources>
+                    <!-- Buttons on this page match the field/combo height (32). -->
+                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Height" Value="32" />
+                    </Style>
+                </ScrollViewer.Resources>
                 <StackPanel>
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
