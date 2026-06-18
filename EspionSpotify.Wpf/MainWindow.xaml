@@ -55,6 +55,13 @@
             <Setter Property="Margin" Value="0,9,0,9" />
         </Style>
 
+        <!-- Left-aligned icon for buttons that pair a glyph with a label. -->
+        <Style x:Key="BtnIcon" TargetType="ui:FontIcon">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
         <!-- Logos as resolution-independent vector (converted from the SVG source) so they
              render crisp at any size/DPI instead of down-sampling a large PNG. -->
         <DrawingImage x:Key="LogoIconDrawing">
@@ -221,11 +228,21 @@
                                    FontFamily="Consolas" Foreground="#1ED760"
                                    VerticalAlignment="Center" Margin="0,0,20,0" />
 
-                        <Button Grid.Column="3" Content="{Binding StartStopLabel}"
+                        <Button Grid.Column="3"
                                 Command="{Binding StartStopCommand}"
                                 ui:ControlHelper.CornerRadius="6"
                                 Padding="20,8" FontWeight="SemiBold"
-                                Background="#1ED760" Foreground="#0A0A0A" BorderThickness="0" />
+                                Background="#1ED760" Foreground="#0A0A0A" BorderThickness="0">
+                            <StackPanel Orientation="Horizontal">
+                                <Grid Width="11" Height="11" Margin="0,0,9,0" VerticalAlignment="Center">
+                                    <Ellipse Fill="#0A0A0A"
+                                             Visibility="{Binding IsRecording, Converter={StaticResource InverseBoolToVis}}" />
+                                    <Rectangle Fill="#0A0A0A" RadiusX="2" RadiusY="2"
+                                               Visibility="{Binding IsRecording, Converter={StaticResource BoolToVis}}" />
+                                </Grid>
+                                <TextBlock Text="{Binding StartStopLabel}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </Grid>
                 </Border>
 
@@ -248,9 +265,24 @@
                 <Grid Grid.Row="2" Margin="2,2,2,0">
                     <TextBlock Text="{Binding DeviceName}" Foreground="#999" VerticalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="{l:Tr lblCopyLog}" Command="{Binding CopyLogCommand}" Margin="0,0,8,0" />
-                        <Button Content="{l:Tr lblClearLog}" Command="{Binding ClearLogCommand}" Margin="0,0,8,0" />
-                        <Button Content="{l:Tr lblOpenFolder}" Command="{Binding OpenOutputCommand}" />
+                        <Button Command="{Binding CopyLogCommand}" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8C8;" />
+                                <TextBlock Text="{l:Tr lblCopyLog}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ClearLogCommand}" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE894;" />
+                                <TextBlock Text="{l:Tr lblClearLog}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding OpenOutputCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8B7;" />
+                                <TextBlock Text="{l:Tr lblOpenFolder}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -270,7 +302,12 @@
                             <StackPanel Style="{StaticResource Row}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblPath}" />
                                 <TextBox Text="{Binding OutputPath, UpdateSourceTrigger=PropertyChanged}" Width="430" />
-                                <Button Content="{l:Tr lblBrowse}" Command="{Binding BrowseOutputCommand}" Margin="8,0,0,0" />
+                                <Button Command="{Binding BrowseOutputCommand}" Margin="8,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8B7;" />
+                                        <TextBlock Text="{l:Tr lblBrowse}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -315,7 +352,12 @@
                             <StackPanel Style="{StaticResource Row}"
                                         Visibility="{Binding DriverButtonVisible, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblVirtualCable}" />
-                                <Button Content="{Binding DriverButtonText}" Command="{Binding InstallDriverCommand}" />
+                                <Button Command="{Binding InstallDriverCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE72C;" />
+                                        <TextBlock Text="{Binding DriverButtonText}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -367,9 +409,14 @@
                                              Fill="{Binding SpotifyConnectionBrush}" />
                                     <TextBlock Text="{Binding SpotifyConnectionStatus}" VerticalAlignment="Center"
                                                Margin="0,0,16,0" Foreground="#D8D8D8" />
-                                    <Button Content="{l:Tr lblConnectToSpotify}" Click="ConnectSpotify_Click"
+                                    <Button Click="ConnectSpotify_Click"
                                             IsEnabled="{Binding CanConnectSpotify}" Padding="16,6" Cursor="Hand"
-                                            Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000" BorderThickness="0" />
+                                            Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000" BorderThickness="0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE71B;" Foreground="#000000" />
+                                            <TextBlock Text="{l:Tr lblConnectToSpotify}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
@@ -469,14 +516,24 @@
                                    Foreground="#EEEEEE" HorizontalAlignment="Center" Margin="0,16,0,4" />
                         <TextBlock Text="{l:Tr anzDropSubtitle}"
                                    Foreground="#888888" HorizontalAlignment="Center" Margin="0,0,0,20" />
-                        <Button Content="{l:Tr anzOpenFile}" Click="Analyze_OpenFile_Click"
+                        <Button Click="Analyze_OpenFile_Click"
                                 Padding="22,8" FontSize="14" HorizontalAlignment="Center"
                                 Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000"
-                                BorderThickness="0" Cursor="Hand" />
-                        <Button Content="{l:Tr anzHowToRead}" Click="InfoButton_Click"
+                                BorderThickness="0" Cursor="Hand">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8E5;" Foreground="#000000" />
+                                <TextBlock Text="{l:Tr anzOpenFile}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button Click="InfoButton_Click"
                                 HorizontalAlignment="Center" Margin="0,18,0,0" Padding="6,2"
                                 Background="Transparent" BorderThickness="0"
-                                Foreground="#1ED760" Cursor="Hand" />
+                                Foreground="#1ED760" Cursor="Hand">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE946;" Foreground="#1ED760" />
+                                <TextBlock Text="{l:Tr anzHowToRead}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
 
@@ -586,8 +643,13 @@
                     <StackPanel>
                         <TextBlock x:Name="AnalyzeErrorText" Foreground="#FFD0D0" TextWrapping="Wrap"
                                    HorizontalAlignment="Center" TextAlignment="Center" />
-                        <Button Content="{l:Tr anzTryAnother}" Click="Analyze_OpenFile_Click"
-                                Margin="0,14,0,0" HorizontalAlignment="Center" Padding="16,6" />
+                        <Button Click="Analyze_OpenFile_Click"
+                                Margin="0,14,0,0" HorizontalAlignment="Center" Padding="16,6">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8E5;" />
+                                <TextBlock Text="{l:Tr anzTryAnother}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
 
@@ -608,8 +670,13 @@
                                     <ui:FontIcon Glyph="&#xE946;" FontSize="16" />
                                 </Button>
                                 <StackPanel>
-                                    <Button Content="{l:Tr anzOpenAnother}" Click="Analyze_OpenFile_Click"
-                                            HorizontalAlignment="Right" Padding="14,6" />
+                                    <Button Click="Analyze_OpenFile_Click"
+                                            HorizontalAlignment="Right" Padding="14,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8E5;" />
+                                            <TextBlock Text="{l:Tr anzOpenAnother}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
                                     <TextBlock Text="{l:Tr anzDragHint}" Foreground="#AAAAAA" FontSize="12.5"
                                                HorizontalAlignment="Right" Margin="0,7,14,0" />
                                 </StackPanel>
