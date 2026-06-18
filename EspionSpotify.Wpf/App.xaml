@@ -91,6 +91,79 @@
                 </Setter>
             </Style>
 
+            <!-- Icon toggle (e.g. the show/hide eye): matches the button style (rounded + darken-on-hover
+                 fade) and tints green when active/checked. -->
+            <Style x:Key="IconToggleButton" TargetType="ToggleButton">
+                <Setter Property="Background" Value="#16FFFFFF" />
+                <Setter Property="Foreground" Value="#DDDDDD" />
+                <Setter Property="BorderBrush" Value="#33FFFFFF" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Height" Value="34" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Grid>
+                                <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" />
+                                <Border x:Name="Tint" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Background="{StaticResource SpotifyGreenBrush}" Opacity="0" />
+                                <Border x:Name="Overlay" CornerRadius="{DynamicResource ControlCornerRadius}" Background="Black" Opacity="0" />
+                                <ContentPresenter x:Name="cp" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Tint" Property="Opacity" Value="0.9" />
+                                    <Setter TargetName="cp" Property="TextElement.Foreground" Value="#000000" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity" To="0.25" Duration="0:0:0.15">
+                                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22">
+                                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity" To="0.4" Duration="0:0:0.06" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity" To="0.25" Duration="0:0:0.12" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Bg" Property="Opacity" Value="0.45" />
+                                    <Setter TargetName="cp" Property="Opacity" Value="0.45" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <!-- ComboBox: bigger and rounder, keeping ModernWpf's animated dropdown popup. -->
             <Style TargetType="ComboBox" BasedOn="{StaticResource DefaultComboBoxStyle}">
                 <Setter Property="MinHeight" Value="36" />

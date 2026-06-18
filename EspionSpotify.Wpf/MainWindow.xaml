@@ -299,8 +299,8 @@
                                         <TextBox Text="{Binding ClientIdMasked, Mode=OneWay}" IsReadOnly="True" Focusable="False"
                                                  Visibility="{Binding ShowClientId, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
-                                    <ToggleButton IsChecked="{Binding ShowClientId, Mode=TwoWay}" Width="36" Margin="6,0,0,0"
-                                                  ToolTip="Show / hide">
+                                    <ToggleButton Style="{StaticResource IconToggleButton}" IsChecked="{Binding ShowClientId, Mode=TwoWay}"
+                                                  Width="36" Margin="6,0,0,0" ToolTip="Show / hide">
                                         <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
                                     </ToggleButton>
                                 </StackPanel>
@@ -312,8 +312,8 @@
                                         <TextBox Text="{Binding SecretMasked, Mode=OneWay}" IsReadOnly="True" Focusable="False"
                                                  Visibility="{Binding ShowSecret, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
-                                    <ToggleButton IsChecked="{Binding ShowSecret, Mode=TwoWay}" Width="36" Margin="6,0,0,0"
-                                                  ToolTip="Show / hide">
+                                    <ToggleButton Style="{StaticResource IconToggleButton}" IsChecked="{Binding ShowSecret, Mode=TwoWay}"
+                                                  Width="36" Margin="6,0,0,0" ToolTip="Show / hide">
                                         <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
                                     </ToggleButton>
                                 </StackPanel>
