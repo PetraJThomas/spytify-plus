@@ -576,7 +576,7 @@
     <value>Fermer</value>
   </data>
   <data name="anzFreqExplainer" xml:space="preserve">
-    <value>Volume moyen à chaque fréquence sur l'ensemble du morceau. Un MP3 avec perte applique généralement un filtre passe-bas dans les aigus, laissant une falaise nette dont la position indique le débit (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). Mais un AAC ou Opus à haut débit peut atteindre le sommet sans falaise : un spectre complet ne prouve donc pas le sans perte, c'est le format qui le détermine. La ligne ambre marque la coupure détectée.</value>
+    <value>Volume moyen à chaque fréquence sur l'ensemble du morceau. Un MP3 avec perte applique généralement un filtre passe-bas sur les aigus, laissant une falaise nette dont la position indique le débit (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). Mais un AAC ou Opus à haut débit peut atteindre le sommet sans falaise : un spectre complet ne prouve donc pas le sans perte, c'est le format qui le détermine. La ligne ambre marque la coupure détectée.</value>
   </data>
   <data name="anzInfoVerdictHdr" xml:space="preserve">
     <value>Verdict de qualité</value>
@@ -585,10 +585,10 @@
     <value>La pastille colorée indique le verdict et s'anime selon le niveau : une bordure lumineuse animée pour le vrai sans perte, une lueur pulsée pour l'audio avec perte. Le format tranche entre avec perte et sans perte : MP3, AAC et Opus sont avec perte par définition et ne peuvent jamais être réellement sans perte, aussi propres soient-ils ; seuls FLAC, ALAC et WAV le sont. « Source avec perte dans un conteneur sans perte » signifie un FLAC ou ALAC en réalité créé à partir d'un MP3 : l'enveloppe prétend être sans perte, mais l'audio en dessous ne l'est pas.</value>
   </data>
   <data name="anzInfoWaveformBody" xml:space="preserve">
-    <value>Volume au fil du temps. Les parties hautes sont fortes, les fines sont calmes. Pratique pour repérer les silences, les fondus, ou un master « brick-wall » qui remplit toute la hauteur sans dynamique.</value>
+    <value>Volume au fil du temps. Les parties hautes sont fortes, les fines sont faibles. Pratique pour repérer les silences, les fondus, ou un master « brick-wall » qui remplit toute la hauteur sans dynamique.</value>
   </data>
   <data name="anzInfoFreqBody" xml:space="preserve">
-    <value>Volume moyen à chaque fréquence sur l'ensemble du morceau (il n'y a pas de temps sur ce graphique). Un MP3 avec perte jette généralement les fréquences les plus hautes, laissant une falaise nette dont la position indique le débit :</value>
+    <value>Volume moyen à chaque fréquence sur l'ensemble du morceau (il n'y a pas de temps sur ce graphique). Un MP3 avec perte supprime généralement les fréquences les plus hautes, laissant une falaise nette dont la position indique le débit :</value>
   </data>
   <data name="anzInfoFreqBox" xml:space="preserve">
     <value>~16 kHz  ≈  128 kbps
@@ -606,7 +606,7 @@
     <value>Bon à savoir</value>
   </data>
   <data name="anzInfoGoodBody" xml:space="preserve">
-    <value>C'est le format qui a le dernier mot sur avec perte ou sans perte ; le spectre ne décrit que la bande passante. Un spectre complet ne prouve pas le sans perte (un bon encodeur avec perte atteint aussi le sommet), et un morceau acoustique épuré ou un vieux master peut manquer d'aigus sans être avec perte. Le spectrogramme montre lequel est lequel : une falaise dure et plate est un filtre (avec perte), une décroissance douce et naturelle, c'est juste la musique.</value>
+    <value>C'est le format qui a le dernier mot sur avec perte ou sans perte ; le spectre ne décrit que la bande passante. Un spectre complet ne prouve pas le sans perte (un bon encodeur avec perte atteint aussi le sommet), et un morceau acoustique épuré ou un vieux master peut manquer d'aigus sans être avec perte. Le spectrogramme permet de distinguer les deux : une falaise dure et plate est un filtre (avec perte), une décroissance douce et naturelle, c'est juste la musique.</value>
   </data>
   <data name="anzTierLossless" xml:space="preserve">
     <value>Sans perte (large bande)</value>
