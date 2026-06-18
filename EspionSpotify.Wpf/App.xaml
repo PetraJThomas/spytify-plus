@@ -174,18 +174,15 @@
             <!-- ToggleSwitch: keep ModernWpf's own switch (animated green pill, click-to-toggle wired up)
                  and just scale it up a touch so it reads bigger and more modern. -->
             <Style TargetType="ui:ToggleSwitch" BasedOn="{StaticResource {x:Type ui:ToggleSwitch}}">
-                <Setter Property="Margin" Value="0,4,0,4" />
+                <Setter Property="Margin" Value="0,5,0,5" />
                 <Setter Property="HorizontalAlignment" Value="Left" />
-                <Setter Property="LayoutTransform">
-                    <Setter.Value>
-                        <ScaleTransform ScaleX="1.2" ScaleY="1.2" />
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="FontSize" Value="15" />
             </Style>
 
             <!-- CheckBox: rounded box that fills green with a checkmark that springs in. -->
             <Style TargetType="CheckBox">
                 <Setter Property="Foreground" Value="#E6E6E6" />
+                <Setter Property="FontSize" Value="15" />
                 <Setter Property="Cursor" Value="Hand" />
                 <Setter Property="Margin" Value="0,6,0,6" />
                 <Setter Property="Template">
