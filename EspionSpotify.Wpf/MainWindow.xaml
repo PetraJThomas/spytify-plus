@@ -57,7 +57,7 @@
 
         <!-- Left-aligned icon for buttons that pair a glyph with a label. -->
         <Style x:Key="BtnIcon" TargetType="ui:FontIcon">
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="15" />
             <Setter Property="Margin" Value="0,0,8,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
@@ -267,19 +267,19 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Command="{Binding CopyLogCommand}" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8C8;" />
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8C8;" FontSize="13" />
                                 <TextBlock Text="{l:Tr lblCopyLog}" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                         <Button Command="{Binding ClearLogCommand}" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE894;" />
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE894;" FontSize="13" />
                                 <TextBlock Text="{l:Tr lblClearLog}" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                         <Button Command="{Binding OpenOutputCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8B7;" />
+                                <ui:FontIcon Style="{StaticResource BtnIcon}" Glyph="&#xE8B7;" FontSize="13" />
                                 <TextBlock Text="{l:Tr lblOpenFolder}" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
