@@ -30,6 +30,8 @@ namespace EspionSpotify.Wpf
         private static readonly Brush GrayBrush = new SolidColorBrush(Color.FromRgb(0xB3, 0xB3, 0xB3));
         private static readonly Brush MsgBrush = new SolidColorBrush(Color.FromRgb(0xB3, 0xB3, 0xB3));
         private static readonly Brush TimeBrush = new SolidColorBrush(Color.FromRgb(0x77, 0x77, 0x77));
+        private static readonly Brush AmberBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0xB7, 0x4D));
+        private static readonly Brush RedBrush = new SolidColorBrush(Color.FromRgb(0xEF, 0x53, 0x50));
 
         private readonly IMainAudioSession _audioSession;
         private readonly UserSettings _userSettings = new UserSettings();
@@ -474,6 +476,66 @@ namespace EspionSpotify.Wpf
             }
         }
 
+        // --- Spotify connection (the Connect button + status dot) ---
+        private string _spotifyConnectionStatus = "Not connected";
+        public string SpotifyConnectionStatus { get => _spotifyConnectionStatus; set => Set(ref _spotifyConnectionStatus, value); }
+
+        private Brush _spotifyConnectionBrush = GrayBrush;
+        public Brush SpotifyConnectionBrush { get => _spotifyConnectionBrush; set => Set(ref _spotifyConnectionBrush, value); }
+
+        private bool _spotifyConnecting;
+        public bool SpotifyConnecting
+        {
+            get => _spotifyConnecting;
+            set { if (Set(ref _spotifyConnecting, value)) OnPropertyChanged(nameof(CanConnectSpotify)); }
+        }
+        public bool CanConnectSpotify => !_spotifyConnecting;
+
+        // Trigger the OAuth flow up front from Configuration, so the token is ready before recording
+        // (the engine otherwise only authenticates lazily once a spy session hooks Spotify).
+        private async void ConnectSpotify_Click(object sender, RoutedEventArgs e)
+        {
+            if (_spotifyConnecting) return;
+            if (!_userSettings.IsSpotifyAPISet) { SetConnState("Enter your Client ID and Secret first", AmberBrush); return; }
+
+            if (!IsSpotifySelected) IsSpotifySelected = true; // selects Spotify + builds the SpotifyAPI instance
+            if (!(ExternalAPI.Instance is EspionSpotify.API.SpotifyAPI))
+                SetExternalApi(ExternalAPIType.Spotify, true);
+            if (!(ExternalAPI.Instance is EspionSpotify.API.SpotifyAPI))
+            {
+                SetConnState("Could not initialise the Spotify API", RedBrush);
+                return;
+            }
+
+            if (ExternalAPI.Instance.IsAuthenticated) { SetConnState("Connected", GreenBrush); return; }
+
+            SpotifyConnecting = true;
+            SetConnState("Connecting, authorize Spytify in your browser", AmberBrush);
+            try { await ExternalAPI.Instance.Authenticate(); } catch { /* the API swallows auth errors too */ }
+
+            for (var i = 0; i < 90 && !ExternalAPI.Instance.IsAuthenticated; i++)
+                await Task.Delay(1000);
+
+            SpotifyConnecting = false;
+            SetConnState(ExternalAPI.Instance.IsAuthenticated ? "Connected" : "Not connected (authorization not completed)",
+                ExternalAPI.Instance.IsAuthenticated ? GreenBrush : RedBrush);
+        }
+
+        private void SetConnState(string text, Brush brush)
+        {
+            SpotifyConnectionStatus = text;
+            SpotifyConnectionBrush = brush;
+        }
+
+        private void RefreshSpotifyConnState()
+        {
+            if (_spotifyConnecting) return;
+            if (ExternalAPI.Instance is EspionSpotify.API.SpotifyAPI && ExternalAPI.Instance.IsAuthenticated)
+                SetConnState("Connected", GreenBrush);
+            else
+                SetConnState("Not connected", GrayBrush);
+        }
+
         // --- General toggles ---
         public bool MuteAds { get => _userSettings.MuteAdsEnabled; set => SetToggle(value, v => { _userSettings.MuteAdsEnabled = v; Settings.Default.settings_mute_ads_enabled = v; }); }
         public bool MinimizeToTray { get => _userSettings.MinimizeToSystemTrayEnabled; set => SetToggle(value, v => { _userSettings.MinimizeToSystemTrayEnabled = v; Settings.Default.settings_minimize_to_system_tray_enabled = v; }); }
@@ -895,6 +957,7 @@ namespace EspionSpotify.Wpf
             SetPanelActive(SettingsPanel, tag == "settings");
             SetPanelActive(AdvancedPanel, tag == "advanced");
             SetPanelActive(AnalyzePanel, tag == "analyze");
+            if (tag == "settings") RefreshSpotifyConnState();
         }
 
         private static TranslateTransform SlideOf(FrameworkElement el)

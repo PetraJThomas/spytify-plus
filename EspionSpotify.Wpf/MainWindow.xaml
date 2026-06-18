@@ -320,6 +320,16 @@
                                     <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblRedirectURL}" />
                                     <TextBox Text="{Binding SpotifyRedirectUrl, UpdateSourceTrigger=PropertyChanged}" Width="430" />
                                 </StackPanel>
+                                <StackPanel Style="{StaticResource Row}">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="" />
+                                    <Button Content="Connect to Spotify" Click="ConnectSpotify_Click"
+                                            IsEnabled="{Binding CanConnectSpotify}" Padding="16,6" Cursor="Hand"
+                                            Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000" BorderThickness="0" />
+                                    <Ellipse Width="10" Height="10" Margin="16,0,0,0" VerticalAlignment="Center"
+                                             Fill="{Binding SpotifyConnectionBrush}" />
+                                    <TextBlock Text="{Binding SpotifyConnectionStatus}" VerticalAlignment="Center"
+                                               Margin="8,0,0,0" Foreground="#CCCCCC" />
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </Border>
