@@ -674,4 +674,22 @@
   <data name="msgSpotifyFallback" xml:space="preserve">
     <value>Impossible d'utiliser l'API Spotify, retour à Last.fm.</value>
   </data>
+  <data name="lblNowPlaying" xml:space="preserve">
+    <value>Lecture en cours</value>
+  </data>
+  <data name="lblCopyLog" xml:space="preserve">
+    <value>Copier le journal</value>
+  </data>
+  <data name="lblClearLog" xml:space="preserve">
+    <value>Effacer</value>
+  </data>
+  <data name="lblOpenFolder" xml:space="preserve">
+    <value>Ouvrir le dossier</value>
+  </data>
+  <data name="lblBrowse" xml:space="preserve">
+    <value>Parcourir…</value>
+  </data>
+  <data name="tipCounterDigits" xml:space="preserve">
+    <value>Maintenez Ctrl en cliquant sur − / + pour changer le nombre de chiffres</value>
+  </data>
 </root>

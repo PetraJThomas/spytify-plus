@@ -674,4 +674,22 @@
   <data name="msgSpotifyFallback" xml:space="preserve">
     <value>Couldn't use the Spotify API, falling back to Last.fm.</value>
   </data>
+  <data name="lblNowPlaying" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="lblCopyLog" xml:space="preserve">
+    <value>Copy log</value>
+  </data>
+  <data name="lblClearLog" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="lblOpenFolder" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
+  <data name="lblBrowse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="tipCounterDigits" xml:space="preserve">
+    <value>Hold Ctrl while clicking − / + to change the number of digits</value>
+  </data>
 </root>
