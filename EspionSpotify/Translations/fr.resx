@@ -170,7 +170,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblLanguage" xml:space="preserve">
-    <value>Langage</value>
+    <value>Choisir la langue</value>
     <comment>interface</comment>
   </data>
   <data name="lblMinLength" xml:space="preserve">
