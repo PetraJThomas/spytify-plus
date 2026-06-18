@@ -73,12 +73,12 @@
             </Grid>
         </ui:NavigationView.PaneFooter>
         <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="{l:Tr tabRecord}" Tag="record" IsSelected="True">
+            <ui:NavigationViewItem Content="Spy / Record" Tag="record" IsSelected="True">
                 <ui:NavigationViewItem.Icon>
                     <ui:FontIcon Glyph="&#xE7C8;" />
                 </ui:NavigationViewItem.Icon>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="{l:Tr tabSettings}" Tag="settings">
+            <ui:NavigationViewItem Content="Configuration" Tag="settings">
                 <ui:NavigationViewItem.Icon>
                     <ui:FontIcon Glyph="&#xE713;" />
                 </ui:NavigationViewItem.Icon>
@@ -565,8 +565,8 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Grid x:Name="BadgeWrap" VerticalAlignment="Center" SizeChanged="BadgeWrap_SizeChanged">
                                         <!-- coloured ring behind the badge; inner badge is inset to reveal it -->
-                                        <Border x:Name="BadgeRing" CornerRadius="9" />
-                                        <Border x:Name="VerdictBadge" CornerRadius="6" Padding="12,5" Margin="3"
+                                        <Border x:Name="BadgeRing" CornerRadius="16" />
+                                        <Border x:Name="VerdictBadge" CornerRadius="14" Padding="14,5" Margin="3"
                                                 Background="#1ED760">
                                             <TextBlock x:Name="VerdictTierText" Text="" FontWeight="Bold"
                                                        FontSize="14" Foreground="#000000" />

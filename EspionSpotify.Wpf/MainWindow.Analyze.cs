@@ -234,7 +234,7 @@ namespace EspionSpotify.Wpf
             double w = BadgeWrap.ActualWidth, h = BadgeWrap.ActualHeight;
             if (w < 4 || h < 4) return; // not measured yet; BadgeWrap_SizeChanged will retry
 
-            const double r = 9;
+            const double r = 16;
             var geo = PathGeometry.CreateFromGeometry(new RectangleGeometry(new Rect(0, 0, w, h), r, r));
             geo.Freeze();
             var perim = 2 * (w + h) - 8 * r + 2 * Math.PI * r;
