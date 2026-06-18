@@ -692,4 +692,10 @@
   <data name="tipCounterDigits" xml:space="preserve">
     <value>Maintenez Ctrl en cliquant sur − / + pour changer le nombre de chiffres</value>
   </data>
+  <data name="msgCableInstallFailed" xml:space="preserve">
+    <value>Échec de l'installation du pilote du câble virtuel.</value>
+  </data>
+  <data name="msgOutputNotFound" xml:space="preserve">
+    <value>Dossier de sortie introuvable :</value>
+  </data>
 </root>

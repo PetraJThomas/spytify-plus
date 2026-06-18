@@ -692,4 +692,10 @@
   <data name="tipCounterDigits" xml:space="preserve">
     <value>Hold Ctrl while clicking − / + to change the number of digits</value>
   </data>
+  <data name="msgCableInstallFailed" xml:space="preserve">
+    <value>Virtual cable driver installation failed.</value>
+  </data>
+  <data name="msgOutputNotFound" xml:space="preserve">
+    <value>Output folder not found:</value>
+  </data>
 </root>

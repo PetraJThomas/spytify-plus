@@ -320,7 +320,7 @@ namespace EspionSpotify.Wpf
             if (!AudioVirtualCableDriver.IsFound) return;
             var ok = await Task.Run(() => AudioVirtualCableDriver.SetupDriver());
             if (!ok)
-                MessageBox.Show(this, "Virtual cable driver installation failed.",
+                MessageBox.Show(this, Loc.Instance["msgCableInstallFailed"],
                     "Spytify", MessageBoxButton.OK, MessageBoxImage.Warning);
             RefreshAudioState();
         }
@@ -706,7 +706,7 @@ namespace EspionSpotify.Wpf
             {
                 if (!Directory.Exists(_userSettings.OutputPath))
                 {
-                    MessageBox.Show(this, "Output folder not found:\n" + _userSettings.OutputPath,
+                    MessageBox.Show(this, Loc.Instance["msgOutputNotFound"] + "\n" + _userSettings.OutputPath,
                         "Spytify", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
