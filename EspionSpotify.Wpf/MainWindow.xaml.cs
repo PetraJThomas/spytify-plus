@@ -496,28 +496,28 @@ namespace EspionSpotify.Wpf
         private async void ConnectSpotify_Click(object sender, RoutedEventArgs e)
         {
             if (_spotifyConnecting) return;
-            if (!_userSettings.IsSpotifyAPISet) { SetConnState("Enter your Client ID and Secret first", AmberBrush); return; }
+            if (!_userSettings.IsSpotifyAPISet) { SetConnState(Loc.Instance["connEnterCreds"], AmberBrush); return; }
 
             if (!IsSpotifySelected) IsSpotifySelected = true; // selects Spotify + builds the SpotifyAPI instance
             if (!(ExternalAPI.Instance is EspionSpotify.API.SpotifyAPI))
                 SetExternalApi(ExternalAPIType.Spotify, true);
             if (!(ExternalAPI.Instance is EspionSpotify.API.SpotifyAPI))
             {
-                SetConnState("Could not initialise the Spotify API", RedBrush);
+                SetConnState(Loc.Instance["connInitFailed"], RedBrush);
                 return;
             }
 
-            if (ExternalAPI.Instance.IsAuthenticated) { SetConnState("Connected", GreenBrush); return; }
+            if (ExternalAPI.Instance.IsAuthenticated) { SetConnState(Loc.Instance["connConnected"], GreenBrush); return; }
 
             SpotifyConnecting = true;
-            SetConnState("Connecting, authorize Spytify in your browser", AmberBrush);
+            SetConnState(Loc.Instance["connConnecting"], AmberBrush);
             try { await ExternalAPI.Instance.Authenticate(); } catch { /* the API swallows auth errors too */ }
 
             for (var i = 0; i < 90 && !ExternalAPI.Instance.IsAuthenticated; i++)
                 await Task.Delay(1000);
 
             SpotifyConnecting = false;
-            SetConnState(ExternalAPI.Instance.IsAuthenticated ? "Connected" : "Not connected (authorization not completed)",
+            SetConnState(ExternalAPI.Instance.IsAuthenticated ? Loc.Instance["connConnected"] : Loc.Instance["connFailed"],
                 ExternalAPI.Instance.IsAuthenticated ? GreenBrush : RedBrush);
         }
 
@@ -531,9 +531,9 @@ namespace EspionSpotify.Wpf
         {
             if (_spotifyConnecting) return;
             if (ExternalAPI.Instance is EspionSpotify.API.SpotifyAPI && ExternalAPI.Instance.IsAuthenticated)
-                SetConnState("Connected", GreenBrush);
+                SetConnState(Loc.Instance["connConnected"], GreenBrush);
             else
-                SetConnState("Not connected", GrayBrush);
+                SetConnState(Loc.Instance["connNotConnected"], GrayBrush);
         }
 
         // --- General toggles ---

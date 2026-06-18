@@ -206,7 +206,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblSpy" xml:space="preserve">
-    <value>Spy</value>
+    <value>Spy / Record</value>
     <comment>interface</comment>
   </data>
   <data name="logAd" xml:space="preserve">
@@ -278,11 +278,11 @@
     <comment>interface</comment>
   </data>
   <data name="tabRecord" xml:space="preserve">
-    <value>Spy</value>
+    <value>Spy / Record</value>
     <comment>interface</comment>
   </data>
   <data name="tabSettings" xml:space="preserve">
-    <value>Settings</value>
+    <value>Configuration</value>
     <comment>interface</comment>
   </data>
   <data name="tipClear" xml:space="preserve">
@@ -493,5 +493,41 @@
   </data>
   <data name="lblAlbumTrackNumberToFilePrefix" xml:space="preserve">
     <value>Add the album track number in front of all files name</value>
+  </data>
+  <data name="tabAnalyze" xml:space="preserve">
+    <value>Analyze</value>
+  </data>
+  <data name="lblDeviceVolume" xml:space="preserve">
+    <value>Device volume</value>
+  </data>
+  <data name="lblVirtualCable" xml:space="preserve">
+    <value>Virtual cable</value>
+  </data>
+  <data name="lblShowHide" xml:space="preserve">
+    <value>Show / hide</value>
+  </data>
+  <data name="lblConnectToSpotify" xml:space="preserve">
+    <value>Connect to Spotify</value>
+  </data>
+  <data name="lblBlankOff" xml:space="preserve">
+    <value>(blank = off)</value>
+  </data>
+  <data name="connNotConnected" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
+  <data name="connConnecting" xml:space="preserve">
+    <value>Connecting, authorize Spytify in your browser</value>
+  </data>
+  <data name="connConnected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="connFailed" xml:space="preserve">
+    <value>Not connected (authorization not completed)</value>
+  </data>
+  <data name="connEnterCreds" xml:space="preserve">
+    <value>Enter your Client ID and Secret first</value>
+  </data>
+  <data name="connInitFailed" xml:space="preserve">
+    <value>Could not initialise the Spotify API</value>
   </data>
 </root>

@@ -206,7 +206,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblSpy" xml:space="preserve">
-    <value>Espion</value>
+    <value>Espion / Enreg.</value>
     <comment>interface</comment>
   </data>
   <data name="logAd" xml:space="preserve">
@@ -278,11 +278,11 @@
     <comment>interface</comment>
   </data>
   <data name="tabRecord" xml:space="preserve">
-    <value>Espion</value>
+    <value>Espion / Enreg.</value>
     <comment>interface</comment>
   </data>
   <data name="tabSettings" xml:space="preserve">
-    <value>Paramètres</value>
+    <value>Configuration</value>
     <comment>interface</comment>
   </data>
   <data name="tipClear" xml:space="preserve">
@@ -493,5 +493,41 @@
   </data>
   <data name="lblAlbumTrackNumberToFilePrefix" xml:space="preserve">
     <value>Inscrire au début du nom des fichiers enregistrés le numéro de position cd (album track)</value>
+  </data>
+  <data name="tabAnalyze" xml:space="preserve">
+    <value>Analyse</value>
+  </data>
+  <data name="lblDeviceVolume" xml:space="preserve">
+    <value>Volume du périphérique</value>
+  </data>
+  <data name="lblVirtualCable" xml:space="preserve">
+    <value>Câble virtuel</value>
+  </data>
+  <data name="lblShowHide" xml:space="preserve">
+    <value>Afficher / masquer</value>
+  </data>
+  <data name="lblConnectToSpotify" xml:space="preserve">
+    <value>Se connecter à Spotify</value>
+  </data>
+  <data name="lblBlankOff" xml:space="preserve">
+    <value>(vide = désactivé)</value>
+  </data>
+  <data name="connNotConnected" xml:space="preserve">
+    <value>Non connecté</value>
+  </data>
+  <data name="connConnecting" xml:space="preserve">
+    <value>Connexion, autorisez Spytify dans votre navigateur</value>
+  </data>
+  <data name="connConnected" xml:space="preserve">
+    <value>Connecté</value>
+  </data>
+  <data name="connFailed" xml:space="preserve">
+    <value>Non connecté (autorisation non terminée)</value>
+  </data>
+  <data name="connEnterCreds" xml:space="preserve">
+    <value>Saisissez d'abord votre Client ID et Secret</value>
+  </data>
+  <data name="connInitFailed" xml:space="preserve">
+    <value>Impossible d'initialiser l'API Spotify</value>
   </data>
 </root>

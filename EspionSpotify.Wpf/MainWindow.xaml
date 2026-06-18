@@ -75,12 +75,12 @@
             </Grid>
         </ui:NavigationView.PaneFooter>
         <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Spy / Record" Tag="record" IsSelected="True">
+            <ui:NavigationViewItem Content="{l:Tr tabRecord}" Tag="record" IsSelected="True">
                 <ui:NavigationViewItem.Icon>
                     <ui:FontIcon Glyph="&#xE7C8;" />
                 </ui:NavigationViewItem.Icon>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Configuration" Tag="settings">
+            <ui:NavigationViewItem Content="{l:Tr tabSettings}" Tag="settings">
                 <ui:NavigationViewItem.Icon>
                     <ui:FontIcon Glyph="&#xE713;" />
                 </ui:NavigationViewItem.Icon>
@@ -90,7 +90,7 @@
                     <ui:FontIcon Glyph="&#xE9E9;" />
                 </ui:NavigationViewItem.Icon>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Analyze" Tag="analyze">
+            <ui:NavigationViewItem Content="{l:Tr tabAnalyze}" Tag="analyze">
                 <ui:NavigationViewItem.Icon>
                     <ui:FontIcon Glyph="&#xE9D9;" />
                 </ui:NavigationViewItem.Icon>
@@ -272,7 +272,7 @@
                                            VerticalAlignment="Center" Foreground="#CCC" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource Row}">
-                                <TextBlock Style="{StaticResource FieldLabel}" Text="Device volume" />
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblDeviceVolume}" />
                                 <Slider Minimum="0" Maximum="100" Width="260" VerticalAlignment="Center"
                                         Value="{Binding Volume, Mode=TwoWay}" IsEnabled="{Binding VolumeEnabled}" />
                                 <TextBlock Text="{Binding VolumePercent}" Margin="12,0,0,0"
@@ -280,7 +280,7 @@
                             </StackPanel>
                             <StackPanel Style="{StaticResource Row}"
                                         Visibility="{Binding DriverButtonVisible, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Style="{StaticResource FieldLabel}" Text="Virtual cable" />
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblVirtualCable}" />
                                 <Button Content="{Binding DriverButtonText}" Command="{Binding InstallDriverCommand}" />
                             </StackPanel>
                         </StackPanel>
@@ -307,7 +307,7 @@
                                                  Visibility="{Binding ShowClientId, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
                                     <ToggleButton Style="{StaticResource IconToggleButton}" IsChecked="{Binding ShowClientId, Mode=TwoWay}"
-                                                  Width="36" Margin="6,0,0,0" ToolTip="Show / hide">
+                                                  Width="36" Margin="6,0,0,0" ToolTip="{l:Tr lblShowHide}">
                                         <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
                                     </ToggleButton>
                                 </StackPanel>
@@ -320,7 +320,7 @@
                                                  Visibility="{Binding ShowSecret, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
                                     <ToggleButton Style="{StaticResource IconToggleButton}" IsChecked="{Binding ShowSecret, Mode=TwoWay}"
-                                                  Width="36" Margin="6,0,0,0" ToolTip="Show / hide">
+                                                  Width="36" Margin="6,0,0,0" ToolTip="{l:Tr lblShowHide}">
                                         <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
                                     </ToggleButton>
                                 </StackPanel>
@@ -333,7 +333,7 @@
                                              Fill="{Binding SpotifyConnectionBrush}" />
                                     <TextBlock Text="{Binding SpotifyConnectionStatus}" VerticalAlignment="Center"
                                                Margin="0,0,16,0" Foreground="#D8D8D8" />
-                                    <Button Content="Connect to Spotify" Click="ConnectSpotify_Click"
+                                    <Button Content="{l:Tr lblConnectToSpotify}" Click="ConnectSpotify_Click"
                                             IsEnabled="{Binding CanConnectSpotify}" Padding="16,6" Cursor="Hand"
                                             Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000" BorderThickness="0" />
                                 </StackPanel>
@@ -405,7 +405,7 @@
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblRecordingTimer}" />
                                 <TextBox Text="{Binding RecordingTimerText, UpdateSourceTrigger=LostFocus}"
                                          Width="110" ui:ControlHelper.PlaceholderText="HH:MM:SS" />
-                                <TextBlock Text="(blank = off)" Foreground="#888" VerticalAlignment="Center" Margin="10,0,0,0" />
+                                <TextBlock Text="{l:Tr lblBlankOff}" Foreground="#888" VerticalAlignment="Center" Margin="10,0,0,0" />
                             </StackPanel>
                         </StackPanel>
                     </Border>
