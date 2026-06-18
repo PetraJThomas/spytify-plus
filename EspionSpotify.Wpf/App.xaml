@@ -13,6 +13,68 @@
             <!-- Spotify-style accent -->
             <Color x:Key="SpotifyGreen">#1ED760</Color>
             <SolidColorBrush x:Key="SpotifyGreenBrush" Color="{StaticResource SpotifyGreen}" />
+
+            <!-- Slightly rounder controls across the app (buttons, text boxes, combos). -->
+            <CornerRadius x:Key="ControlCornerRadius">6</CornerRadius>
+
+            <!-- Consistent buttons: rounded + a smooth hover/press overlay that adapts to the button's
+                 own colour (a faint white wash on hover, a faint black wash on press), so green accent
+                 buttons and default buttons both feel right. Based on ModernWpf's default style, so the
+                 window caption buttons and other framework buttons keep their own styles. -->
+            <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Padding" Value="12,5,12,6" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}" />
+                                <Border x:Name="Overlay" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Background="White" Opacity="0" />
+                                <ContentPresenter x:Name="cp" Margin="{TemplateBinding Padding}"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}"
+                                                  RecognizesAccessKey="True" />
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity"
+                                                                 To="0.13" Duration="0:0:0.15">
+                                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity"
+                                                                 To="0" Duration="0:0:0.22">
+                                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <!-- Press: swap the wash to black (opacity stays at the hover level). -->
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Overlay" Property="Background" Value="Black" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Bg" Property="Opacity" Value="0.45" />
+                                    <Setter TargetName="cp" Property="Opacity" Value="0.45" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
