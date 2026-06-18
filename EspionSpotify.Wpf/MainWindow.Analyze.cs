@@ -23,6 +23,10 @@ namespace EspionSpotify.Wpf
         private SpectrogramImage _spectrogram;
         private SpectrogramPalette _palette = SpectrogramPalette.Inferno;
 
+        // Flip to true to surface the raw cut-off detection metrics under the verdict (and in Debug)
+        // when calibrating the thresholds against a labelled file set. Off for normal use.
+        private const bool AnalyzeShowDiagnostics = false;
+
         private static readonly Brush WaveBrush = Frozen(0x1E, 0xD7, 0x60, 0xFF);
         private static readonly Brush WaveMidBrush = Frozen(0xFF, 0xFF, 0xFF, 0x22);
         private static readonly Brush ProfileStroke = Frozen(0x1E, 0xD7, 0x60, 0xFF);
@@ -127,8 +131,16 @@ namespace EspionSpotify.Wpf
             SetAnalyzeState(AnalyzeState.Busy);
             try
             {
+                // The subtitle cross-fades through the genuine pipeline stages. The three detection
+                // passes themselves run in microseconds, so they share one honest "passes" label
+                // rather than pretending to tick by one at a time; the real wait is the decode.
+                SetBusyPhase("anzPhaseDecode", immediate: true);
                 var sample = await FfmpegDecoder.DecodeAsync(path).ConfigureAwait(true);
+
+                SetBusyPhase("anzPhasePasses");
                 var result = await Task.Run(() => QualityAnalyzer.Analyze(sample)).ConfigureAwait(true);
+
+                SetBusyPhase("anzPhaseSpectro");
                 var spectrogram = await Task.Run(() =>
                 {
                     var s = Spectrogram.Compute(sample, 1600);
@@ -156,6 +168,34 @@ namespace EspionSpotify.Wpf
                 AnalyzeErrorText.Text = Loc.Instance["anzCouldntAnalyze"] + "\n" + ex.Message;
                 SetAnalyzeState(AnalyzeState.Error);
             }
+        }
+
+        // Cross-fade the busy subtitle to the next pipeline stage. `immediate` just fades the first
+        // label in; otherwise the current label dims out, swaps, and the new one fades back up.
+        private void SetBusyPhase(string key, bool immediate = false)
+        {
+            var tb = AnalyzeBusyPhase;
+            var text = Loc.Instance[key];
+            if (immediate)
+            {
+                tb.Text = text;
+                tb.BeginAnimation(OpacityProperty, new DoubleAnimation(0.35, 1, TimeSpan.FromMilliseconds(180)));
+                return;
+            }
+
+            var fadeOut = new DoubleAnimation(0.25, TimeSpan.FromMilliseconds(110))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            fadeOut.Completed += (s, e) =>
+            {
+                tb.Text = text;
+                tb.BeginAnimation(OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(200))
+                {
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                });
+            };
+            tb.BeginAnimation(OpacityProperty, fadeOut);
         }
 
         private void SetAnalyzeState(AnalyzeState state)
@@ -321,6 +361,12 @@ namespace EspionSpotify.Wpf
             VerdictTierText.Text = (result.IsTranscode ? "⚠ " : "") + result.TierLabel;
             VerdictText.Text = result.Verdict;
             VerdictDetail.Text = result.Detail;
+
+            if (AnalyzeShowDiagnostics && !string.IsNullOrEmpty(result.Diagnostics))
+            {
+                System.Diagnostics.Debug.WriteLine("[Analyze] " + Path.GetFileName(path) + " :: " + result.Diagnostics);
+                VerdictDetail.Text += "\n [" + result.Diagnostics + "]";
+            }
 
             if (result.Tier == QualityTier.Unknown)
             {

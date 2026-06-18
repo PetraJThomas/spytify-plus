@@ -70,6 +70,39 @@ discover; recorded here so they don't have to be rediscovered.
   spectrum only for bandwidth/cut-off. (This fixed an AAC false-positive.)
 - **Spectrogram looked near-black** until normalized to the file's *peak*
   magnitude rather than an absolute reference.
+- **Cut-off detection must measure transition steepness *locally*, not globally.**
+  The first version took the highest bin clearing a single −60 dB floor; on a soft,
+  bass-heavy track the gentle high-frequency roll-off naturally dips below −60 dB
+  (relative to the loud low end) in the mid-teens kHz, so genuine lossless got
+  flagged as a transcode. The defining feature of a lossy low-pass is a **brick-wall
+  step**: a steep drop into a dead plateau. Detect *that*, by sliding a narrow
+  window down the spectrum — in-band mean over the ~1.5 kHz below an edge vs plateau
+  mean over the ~2 kHz above — and taking the highest edge whose drop is ≥ 25 dB.
+  Natural roll-off is < ~10 dB per 2 kHz everywhere, so the separation is huge.
+- **Lossy files leave a rising quantisation-noise floor near Nyquist**, and it
+  wrecks any *global* steepness measure. A "spread between the −40/−60/−80 dB
+  crossings" looked elegant until a 128k MP3 with an obvious 14 kHz cliff reported
+  full-band: its noise floor poked above −80 dB up at 22 kHz, so the −80 crossing
+  jumped to Nyquist and the global spread went meaningless. Measuring the drop in a
+  window *local* to the edge (never looking all the way to Nyquist) is immune to it.
+- **More passes is not more robustness.** An "ensemble" of three equal votes was
+  *worse* than one good measure: two non-discriminating passes outvoted the correct
+  one. *Residual energy above the cut* is dominated by the bass, so it's ~0 above
+  13 kHz for **any** music, lossy or not. *Spectral flatness* reads "flat" for real
+  high-frequency air/sibilance just as much as for quantisation noise. Robustness
+  came from a single physically-defining measure (the local step), combined as a
+  necessary condition, not from quantity or majority vote.
+- **Place the cut-off *line* by scanning up from in-band to the first *sustained*
+  drop** below the cliff mid-point (a few-hundred-Hz "stays below" hold). Seeking
+  the line from the top down against a fixed threshold lets a lone faint noise-floor
+  bin inside the plateau drag the marker up above the real cliff.
+- **The shallow-step zone is genuinely unsolvable from spectrum alone.** A bright,
+  airy lossless master and a low-bitrate MP3 whose artefact noise sits only ~15-20 dB
+  below the band (not a clean 50 dB dead floor) overlap. No analyzer (Spek included)
+  separates them from the spectrum. The codec-authoritative rule is the backstop:
+  the spectral cut-off only changes the *verdict* inside a lossless container
+  (transcode hunting), where real source cuts are almost always clean deep steps;
+  everywhere else it only colours the detail line.
 
 ## WPF / vector / icons
 

@@ -632,8 +632,8 @@
                             </Border.Triggers>
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="{l:Tr anzAnalyzing}" Foreground="#CCCCCC" FontSize="13" Margin="0,18,0,0"
-                               HorizontalAlignment="Center" />
+                    <TextBlock x:Name="AnalyzeBusyPhase" Text="{l:Tr anzAnalyzing}" Foreground="#1DB954"
+                               FontSize="16" Margin="0,20,0,0" HorizontalAlignment="Center" />
                 </StackPanel>
 
                 <!-- Error -->

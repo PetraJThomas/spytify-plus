@@ -34,15 +34,22 @@ solution builds; the 290-test suite passes.
 - [x] Verdict badge (true lossless / lossy-in-lossless-container / lossy + bitrate)
 - [x] Codec authoritative for lossy/lossless (AAC false-positive fixed)
 - [x] Exact audio-stream bitrate; "extends to" vs "cut-off" near Nyquist
+- [x] Local brick-wall cut-off detection (steep, deep drop into a dead plateau);
+      immune to the near-Nyquist noise floor that defeats a global measure. Fixed a
+      soft-track false transcode and a 128k-MP3 missed cut; validated on ~20 MP3s
+- [x] Cut-off line seeks the cliff edge via a sustained-drop scan (noise-bin proof)
+- [x] Flag-gated detection diagnostic readout (`AnalyzeShowDiagnostics`, off)
 - [x] Tier-reactive pulse, lossless glow-streak border, equalizer loader,
       drag-over overlay, "How to read" info modal
+- [x] Busy loader subtitle cross-fades through real pipeline stages (decode →
+      passes → spectrogram), darker-green/larger
 - [x] "Analysis Verdict" header on the verdict card; consistent card spacing
 
 ## Localization (en + fr)
 - [x] Entire UI localized: nav, settings, Connect statuses, Record/log/output,
       the full Analyze tab (incl. info-modal prose), verdict/detail format
       strings, error messages, MessageBoxes
-- [x] en/fr in sync — 168 real keys
+- [x] en/fr in sync — 171 real keys
 - [x] All keys mirrored in `TranslationKeys` enum; tab-record test updated
 - [x] Live language switch (incl. forced refresh for nav items + imperative
       strings); French prose self-reviewed

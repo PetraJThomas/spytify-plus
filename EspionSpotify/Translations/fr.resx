@@ -545,6 +545,15 @@
   <data name="anzAnalyzing" xml:space="preserve">
     <value>Analyse en cours</value>
   </data>
+  <data name="anzPhaseDecode" xml:space="preserve">
+    <value>Décodage de l'audio</value>
+  </data>
+  <data name="anzPhasePasses" xml:space="preserve">
+    <value>Analyses de qualité en cours</value>
+  </data>
+  <data name="anzPhaseSpectro" xml:space="preserve">
+    <value>Construction du spectrogramme</value>
+  </data>
   <data name="anzTryAnother" xml:space="preserve">
     <value>Essayer un autre fichier</value>
   </data>

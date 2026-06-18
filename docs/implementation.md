@@ -63,11 +63,17 @@ The WPF project references the engine project. `AssemblyName` is `Spytify`
   rate / bitrate / duration), decodes to mono `float[]` via `-f f32le` (no
   ffprobe; 15-min cap). `AudioSample.cs` is the DTO.
 - `QualityAnalyzer.cs` — Hann-windowed FFT (NAudio), averaged magnitude spectrum,
-  cut-off detection (highest frequency above the noise floor), and tiering. **The
-  codec is authoritative** for lossy vs lossless (an AAC/Opus that reaches Nyquist
-  is still lossy); the spectrum only describes bandwidth. Emits localized
-  tier/verdict/detail via `Loc.Instance` + format strings. `QualityResult.cs` is
-  the DTO.
+  cut-off detection, and tiering. **Cut-off = a local brick-wall** (`DetectCutoff`):
+  slide a narrow window down the spectrum and take the highest edge whose level
+  drops ≥ `DeadDepthDb` (in-band mean below vs plateau mean over the ~2 kHz above)
+  into a dead plateau; full-band (Nyquist) when none. Local on purpose — a global
+  steepness measure is defeated by the rising quantisation-noise floor lossy files
+  leave near Nyquist. The line is then placed at the cliff edge by a sustained-drop
+  scan (noise-bin proof). **The codec is authoritative** for lossy vs lossless (an
+  AAC/Opus that reaches Nyquist is still lossy); the spectrum only describes
+  bandwidth. Emits localized tier/verdict/detail via `Loc.Instance` + format
+  strings; `QualityResult.cs` is the DTO and carries a `Diagnostics` string surfaced
+  by the `AnalyzeShowDiagnostics` calibration flag.
 - `WaveformPeaks.cs` — min/max buckets for the amplitude waveform.
 - `Spectrogram.cs` — 2D heatmap (`WriteableBitmap`) with palette selection
   (Inferno/Magma/Viridis/Heat) and a cut-off overlay line.

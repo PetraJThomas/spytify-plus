@@ -13,7 +13,14 @@ namespace EspionSpotify.Wpf.Analysis
     {
         private const int FftSize = 4096;
         private const int FftM = 12; // 2^12 == 4096
-        private const double FloorDb = -60.0;
+
+        // Cut-off thresholds (see DetectCutoff). A brick-wall low-pass is a STEEP, DEEP local drop:
+        // the level falls past DeadDepthDb within a ~2 kHz window into a plateau that is genuinely
+        // dead. Measured locally at the edge so the rising near-Nyquist noise of lossy files can't
+        // hide the cut. Easy to calibrate here; the huge gap to natural roll-off (<10 dB/2 kHz) is the
+        // safety margin.
+        private const double DeadDepthDb = 25.0;    // in-band -> plateau must drop at least this much over ~2 kHz
+        private const double AboveDeadDb = -55.0;   // ...and the plateau must itself sit at least this far below peak
 
         public static QualityResult Analyze(AudioSample sample)
         {
@@ -92,21 +99,14 @@ namespace EspionSpotify.Wpf.Analysis
 
             result.Spectrum = spectrum;
 
-            // Cut-off = highest frequency whose locally-smoothed level still clears the floor.
-            const int smooth = 3;
-            var cutoffBin = 0;
-            for (var i = bins - 1; i >= 0; i--)
-            {
-                double s = 0;
-                var c = 0;
-                for (var k = i - smooth; k <= i + smooth; k++)
-                    if (k >= 0 && k < bins) { s += db[k]; c++; }
-
-                if (s / c > FloorDb) { cutoffBin = i; break; }
-            }
-
-            result.CutoffHz = cutoffBin * binHz;
-            result.Confidence = Confidence(db, cutoffBin, binHz);
+            // Cut-off detection: an ensemble of three independent passes that must corroborate
+            // before we call an early cut-off. A lossy low-pass leaves a brick-wall cliff with a
+            // flat "dead band" above; natural (lossless) roll-off declines gradually and keeps real
+            // content to Nyquist. No single threshold decides it: the passes vote.
+            var (cutoffHz, confidence, diag) = DetectCutoff(db, accum, binHz, bins, nyquist);
+            result.CutoffHz = cutoffHz;
+            result.Confidence = confidence;
+            result.Diagnostics = diag;
             AssignTier(result, result.CutoffHz, nyquist, sample.Codec, sample.EffectiveBitrateKbps);
             return result;
         }
@@ -216,15 +216,131 @@ namespace EspionSpotify.Wpf.Analysis
                    codec.Contains("cook") || codec.Contains("sipr");
         }
 
-        // Sharper drop just above the cut-off => more confident it's a deliberate low-pass.
-        private static double Confidence(double[] db, int cutoffBin, double binHz)
+        // A lossy low-pass leaves a brick-wall cliff: the level falls steeply into a dead plateau. A
+        // natural (lossless) roll-off declines gradually and keeps real content to Nyquist. We scan
+        // for the highest edge where the level drops at least DeadDepthDb within a ~2 kHz window into
+        // a plateau that is itself dead. The window is LOCAL to the edge, so the rising quantisation-
+        // noise floor lossy codecs leave near Nyquist cannot mask the cut (the old global measure was
+        // fooled exactly there). Returns the cut-off (Nyquist when full-band), confidence, and a
+        // calibration line.
+        private static (double cutoffHz, double confidence, string diag) DetectCutoff(
+            double[] db, double[] mag, double binHz, int bins, double nyquist)
         {
-            if (cutoffBin <= 0 || cutoffBin >= db.Length - 1) return 0.5;
-            var ahead = Math.Max(1, (int)(1000 / binHz));
-            var j = Math.Min(db.Length - 1, cutoffBin + ahead);
-            var drop = db[cutoffBin] - db[j];
-            var c = drop / 40.0;
-            return c < 0 ? 0 : (c > 1 ? 1 : c);
+            var sdb = Smooth(db, 3);
+            var pre = HzBins(1500, binHz);     // in-band reference window, just below the edge
+            var gap = HzBins(200, binHz);      // skip the transition band itself
+            var win = HzBins(2000, binHz);     // dead-plateau window, just above the edge
+            var minAbove = HzBins(700, binHz); // need at least this much band above to judge a plateau
+            var loBin = HzBins(7000, binHz);   // do not hunt cut-offs below ~7 kHz
+
+            // Scan downward: the first (highest) edge with a steep, deep local drop is the cut.
+            var cutBin = -1;
+            double cBelow = 0, cAbove = 0;
+            for (var i = bins - 1 - minAbove; i >= loBin; i--)
+            {
+                var below = MeanDb(sdb, i - pre, i - gap, bins);
+                var above = MeanDb(sdb, i + gap, Math.Min(bins - 1, i + win), bins);
+                if (below - above >= DeadDepthDb && above <= AboveDeadDb)
+                {
+                    cutBin = i; cBelow = below; cAbove = above;
+                    break;
+                }
+            }
+
+            // Multi-level crossings: printed for calibration (and flatness, info-only).
+            var f40 = CrossingHz(sdb, -40, binHz, bins);
+            var f60 = CrossingHz(sdb, -60, binHz, bins);
+            var f80 = CrossingHz(sdb, -80, binHz, bins);
+
+            if (cutBin < 0)
+                return (nyquist, 0.9, string.Format(
+                    "cross -40/-60/-80={0:0}/{1:0}/{2:0}Hz | no local drop >= {3:0}dB into a dead plateau " +
+                    "=> full-band", f40, f60, f80, DeadDepthDb));
+
+            // Place the line at the cliff edge: scanning UP from in-band, the first frequency whose
+            // level falls below the cliff mid-point and STAYS below for a few hundred Hz. The "stays
+            // below" hold makes the line ignore faint noise-floor bins that poke up inside the dead
+            // plateau, which would otherwise drag the line up into the noise.
+            var mid = (cBelow + cAbove) / 2.0;
+            var hold = HzBins(400, binHz);
+            var hi = Math.Min(bins - 1, cutBin + win);
+            var edge = cutBin;
+            for (var k = Math.Max(0, cutBin - pre); k <= hi; k++)
+            {
+                if (sdb[k] >= mid) continue;
+                var stays = true;
+                for (var m = k; m < Math.Min(bins, k + hold); m++)
+                    if (sdb[m] >= mid) { stays = false; break; }
+                if (stays) { edge = k; break; }
+            }
+            var cut = edge * binHz;
+            var deadDepth = cBelow - cAbove;
+            var flatness = Flatness(mag, cutBin + gap, Math.Min(bins, cutBin + win));
+
+            var diag = string.Format(
+                "cut~{0:0}Hz | below/above={1:0.0}/{2:0.0}dB deadDepth={3:0.0}dB (>= {4:0}) " +
+                "| cross -40/-60/-80={5:0}/{6:0}/{7:0}Hz flatness={8:0.00} => cut-off",
+                cut, cBelow, cAbove, deadDepth, DeadDepthDb, f40, f60, f80, flatness);
+
+            var conf = 0.7 + Math.Min(0.29, (deadDepth - DeadDepthDb) / 100.0);
+            return (cut, conf, diag);
+        }
+
+        private static int HzBins(double hz, double binHz) => Math.Max(1, (int)Math.Round(hz / binHz));
+
+        // Mean smoothed dB over the inclusive bin range [from, to], clamped to the spectrum.
+        private static double MeanDb(double[] sdb, int from, int to, int bins)
+        {
+            if (from < 0) from = 0;
+            if (to > bins - 1) to = bins - 1;
+            if (to < from) return -120.0;
+            double s = 0;
+            var c = 0;
+            for (var i = from; i <= to; i++) { s += sdb[i]; c++; }
+            return c == 0 ? -120.0 : s / c;
+        }
+
+        private static double[] Smooth(double[] x, int radius)
+        {
+            var y = new double[x.Length];
+            for (var i = 0; i < x.Length; i++)
+            {
+                double s = 0;
+                var c = 0;
+                for (var k = i - radius; k <= i + radius; k++)
+                    if (k >= 0 && k < x.Length) { s += x[k]; c++; }
+                y[i] = s / c;
+            }
+            return y;
+        }
+
+        // Highest frequency whose smoothed level still clears the given dB line (relative to peak).
+        private static double CrossingHz(double[] sdb, double thresholdDb, double binHz, int bins)
+        {
+            for (var i = bins - 1; i >= 0; i--)
+                if (sdb[i] >= thresholdDb) return i * binHz;
+            return 0;
+        }
+
+        // Wiener entropy of magnitudes over [from, to): geometric mean / arithmetic mean. 1 == flat.
+        private static double Flatness(double[] mag, int from, int to)
+        {
+            if (from < 1) from = 1;
+            if (to > mag.Length) to = mag.Length;
+            if (to - from < 8) return 0; // too few bins above the cut to judge
+            double logSum = 0, sum = 0;
+            var n = 0;
+            for (var i = from; i < to; i++)
+            {
+                var m = mag[i] + 1e-12;
+                logSum += Math.Log(m);
+                sum += m;
+                n++;
+            }
+            if (n == 0 || sum <= 0) return 0;
+            var geo = Math.Exp(logSum / n);
+            var arith = sum / n;
+            return geo / arith;
         }
 
         private static double[] Hann(int n)

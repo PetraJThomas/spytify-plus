@@ -28,6 +28,7 @@ namespace EspionSpotify.Wpf.Analysis
         public bool IsTranscode { get; set; }
         public string Verdict { get; set; }    // headline line
         public string Detail { get; set; }     // secondary explanation
+        public string Diagnostics { get; set; } // raw ensemble-pass metrics (for threshold calibration)
         public SpectrumPoint[] Spectrum { get; set; }
     }
 }

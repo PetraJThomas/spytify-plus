@@ -83,6 +83,27 @@ This is a phase-ordered narrative; see `git log master..HEAD` for the full list.
 - **Left-aligned icons on all action buttons** (shared `BtnIcon` style; Start/Stop
   uses state-driven record-dot/stop-square); footer icons scaled to 13.
 
+## Phase 9 — Analyze cut-off detection rework
+- Replaced the single −60 dB floor-crossing cut-off with **local brick-wall
+  detection**: slide a narrow window down the spectrum and take the highest edge
+  whose level drops ≥ 25 dB (in-band over the ~1.5 kHz below vs plateau over the
+  ~2 kHz above) into a dead plateau. Fixed two real misreads found by user testing:
+  a soft RnB ballad (gentle roll-off) wrongly flagged as a transcode, and a 128k MP3
+  with an obvious 14 kHz cliff wrongly called full-band (its near-Nyquist
+  quantisation-noise floor had defeated a global steepness measure).
+- Cut-off **line placement** now seeks the cliff edge by scanning up from in-band to
+  the first *sustained* drop below the cliff mid-point, so faint noise-floor bins in
+  the plateau can't drag the marker upward.
+- Added a flag-gated **diagnostic readout** (`AnalyzeShowDiagnostics`) that surfaces
+  the raw detection metrics under the verdict for calibration; off for normal use.
+- Validated against ~20 assorted MP3s plus lossless/transcode cases; the residual
+  ambiguous zone (airy lossless vs noisy-floor MP3) is accepted as unsolvable from
+  spectrum and backstopped by the codec-authoritative verdict.
+- **Busy-loader subtitle** now cross-fades through the genuine pipeline stages
+  (Decoding → Running quality passes → Building spectrogram), darker readable green
+  at a larger size; three new resx keys (`anzPhaseDecode/Passes/Spectro`, en + fr,
+  mirrored in the enum).
+
 ## Current state
 All of the above is committed and building; 290/290 tests pass. Open items are in
 `completed.md` under "Remaining / future".
