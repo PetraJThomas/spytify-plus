@@ -20,7 +20,7 @@ namespace EspionSpotify.Tests
         [Fact]
         internal void GetString_ReturnsExpectedTranslatedSpyString()
         {
-            Assert.Equal("Spy", _rm.GetString(I18NKeys.TabRecord));
+            Assert.Equal("Spy / Record", _rm.GetString(I18NKeys.TabRecord));
         }
     }
 
