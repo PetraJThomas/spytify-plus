@@ -670,10 +670,10 @@
                                     <TextBlock Style="{StaticResource SectionHeader}"
                                                Text="{l:Tr anzSpectrogram}" VerticalAlignment="Center" />
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-                                        <TextBlock Text="{l:Tr anzHeatmapTheme}" Foreground="#C8C8C8"
-                                                   VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" />
-                                        <ComboBox x:Name="PaletteCombo" Width="112" Height="30"
-                                                  VerticalAlignment="Center" FontSize="13"
+                                        <TextBlock Text="{l:Tr anzHeatmapTheme}" Foreground="#D8D8D8"
+                                                   VerticalAlignment="Center" Margin="0,0,12,0" FontSize="15" />
+                                        <ComboBox x:Name="PaletteCombo" Width="120"
+                                                  VerticalAlignment="Center" FontSize="14"
                                                   SelectionChanged="PaletteCombo_SelectionChanged">
                                             <ComboBoxItem Content="Inferno" IsSelected="True" />
                                             <ComboBoxItem Content="Magma" />
