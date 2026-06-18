@@ -67,6 +67,7 @@ namespace EspionSpotify.Wpf
             InstallDriverCommand = new RelayCommand(_ => InstallDriver());
 
             LoadState();
+            RefreshSpotifyConnState(); // set the initial connect status in the current language
             ReloadExternalApi();
             InitTray();
 
@@ -161,7 +162,7 @@ namespace EspionSpotify.Wpf
         }
 
         public bool SettingsEnabled => !IsRecording;
-        public string StartStopLabel => IsRecording ? "Stop" : "Start recording";
+        public string StartStopLabel => IsRecording ? Loc.Instance["lblStop"] : Loc.Instance["lblStartRecording"];
 
         private string _statusGlyph = ""; // pause
         public string StatusGlyph { get => _statusGlyph; set => Set(ref _statusGlyph, value); }
@@ -536,6 +537,18 @@ namespace EspionSpotify.Wpf
                 SetConnState(Loc.Instance["connNotConnected"], GrayBrush);
         }
 
+        // NavigationView items bind their Content via {l:Tr}, but the pane doesn't always re-evaluate
+        // those bindings on a language switch, so force each to re-pull from the resource manager.
+        private void RefreshNavLabels()
+        {
+            if (Nav?.MenuItems == null) return;
+            foreach (var obj in Nav.MenuItems)
+                if (obj is ModernWpf.Controls.NavigationViewItem item)
+                    System.Windows.Data.BindingOperations
+                        .GetBindingExpression(item, System.Windows.Controls.ContentControl.ContentProperty)
+                        ?.UpdateTarget();
+        }
+
         // --- General toggles ---
         public bool MuteAds { get => _userSettings.MuteAdsEnabled; set => SetToggle(value, v => { _userSettings.MuteAdsEnabled = v; Settings.Default.settings_mute_ads_enabled = v; }); }
         public bool MinimizeToTray { get => _userSettings.MinimizeToSystemTrayEnabled; set => SetToggle(value, v => { _userSettings.MinimizeToSystemTrayEnabled = v; Settings.Default.settings_minimize_to_system_tray_enabled = v; }); }
@@ -693,6 +706,10 @@ namespace EspionSpotify.Wpf
                 Settings.Default.Save();
                 Rm = new ResourceManager(Languages.GetResourcesManagerLanguageType(value));
                 Loc.Instance.SetLanguage(value);
+                // these are set imperatively (not {l:Tr} bindings), so re-localize them on language change
+                RefreshSpotifyConnState();
+                OnPropertyChanged(nameof(StartStopLabel));
+                RefreshNavLabels();
             }
         }
 

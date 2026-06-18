@@ -698,4 +698,19 @@
   <data name="msgOutputNotFound" xml:space="preserve">
     <value>Output folder not found:</value>
   </data>
+  <data name="lblOutput" xml:space="preserve">
+    <value>OUTPUT</value>
+  </data>
+  <data name="lblAudio" xml:space="preserve">
+    <value>AUDIO</value>
+  </data>
+  <data name="lblMetadataSource" xml:space="preserve">
+    <value>METADATA SOURCE</value>
+  </data>
+  <data name="lblStartRecording" xml:space="preserve">
+    <value>Start recording</value>
+  </data>
+  <data name="lblStop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
 </root>

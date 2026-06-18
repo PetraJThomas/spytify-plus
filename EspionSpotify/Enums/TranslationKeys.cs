@@ -165,6 +165,11 @@
         anzSilent,
         anzCutoff,
         anzExtendsTo,
-        anzCouldntAnalyze
+        anzCouldntAnalyze,
+        lblOutput,
+        lblAudio,
+        lblMetadataSource,
+        lblStartRecording,
+        lblStop
     }
 }

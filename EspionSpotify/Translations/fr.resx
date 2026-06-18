@@ -698,4 +698,19 @@
   <data name="msgOutputNotFound" xml:space="preserve">
     <value>Dossier de sortie introuvable :</value>
   </data>
+  <data name="lblOutput" xml:space="preserve">
+    <value>SORTIE</value>
+  </data>
+  <data name="lblAudio" xml:space="preserve">
+    <value>AUDIO</value>
+  </data>
+  <data name="lblMetadataSource" xml:space="preserve">
+    <value>SOURCE DES MÉTADONNÉES</value>
+  </data>
+  <data name="lblStartRecording" xml:space="preserve">
+    <value>Démarrer l'enregistrement</value>
+  </data>
+  <data name="lblStop" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
 </root>

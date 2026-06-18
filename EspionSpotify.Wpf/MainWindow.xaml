@@ -232,7 +232,7 @@
                 <StackPanel>
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource SectionHeader}" Text="OUTPUT" />
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr lblOutput}" />
                             <StackPanel Style="{StaticResource Row}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblPath}" />
                                 <TextBox Text="{Binding OutputPath, UpdateSourceTrigger=PropertyChanged}" Width="430" />
@@ -243,7 +243,7 @@
 
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource SectionHeader}" Text="AUDIO" />
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr lblAudio}" />
                             <StackPanel Style="{StaticResource Row}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblAudioDevice}" />
                                 <ComboBox ItemsSource="{Binding Devices}" SelectedValuePath="Key"
@@ -289,7 +289,7 @@
                     <Border Style="{StaticResource Card}"
                             Visibility="{Binding SpotifyOptionsVisible, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource SectionHeader}" Text="METADATA SOURCE" />
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr lblMetadataSource}" />
                             <StackPanel Style="{StaticResource Row}">
                                 <RadioButton GroupName="api" Content="Last.fm" Margin="0,0,20,0"
                                              IsChecked="{Binding IsLastFmSelected, Mode=TwoWay}" />
