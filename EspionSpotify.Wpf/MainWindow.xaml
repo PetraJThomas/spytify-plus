@@ -372,7 +372,7 @@
                             <ui:ToggleSwitch Header="{l:Tr lblListenToSpotifyPlayback}" IsOn="{Binding ListenToPlayback, Mode=TwoWay}" />
                             <ui:ToggleSwitch Header="{l:Tr lblForceSpotifyToSkip}" IsOn="{Binding ForceSkip, Mode=TwoWay}" />
                             <ui:ToggleSwitch Header="{l:Tr lblRecordEverything}" IsOn="{Binding RecordEverything, Mode=TwoWay}" />
-                            <CheckBox Content="{l:Tr lblRecordAds}" Margin="6,0,0,6"
+                            <CheckBox Content="{l:Tr lblRecordAds}"
                                       IsChecked="{Binding RecordAds, Mode=TwoWay}"
                                       Visibility="{Binding RecordAdsVisible, Converter={StaticResource BoolToVis}}" />
                         </StackPanel>
@@ -386,7 +386,7 @@
                             <ui:ToggleSwitch Header="{l:Tr lblCounterToFilePrefix}" IsOn="{Binding CounterToFilePrefix, Mode=TwoWay}" />
                             <ui:ToggleSwitch Header="{l:Tr lblAlbumTrackNumberToFilePrefix}" IsOn="{Binding AlbumTrackNumberPrefix, Mode=TwoWay}" />
                             <ui:ToggleSwitch Header="{l:Tr lblRecordOverRecordings}" IsOn="{Binding RecordOverRecordings, Mode=TwoWay}" />
-                            <CheckBox Content="{l:Tr lblDuplicate}" Margin="6,0,0,6"
+                            <CheckBox Content="{l:Tr lblDuplicate}"
                                       IsChecked="{Binding DuplicateRecordings, Mode=TwoWay}"
                                       Visibility="{Binding DuplicateVisible, Converter={StaticResource BoolToVis}}" />
 

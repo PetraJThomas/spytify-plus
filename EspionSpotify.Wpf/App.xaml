@@ -199,11 +199,18 @@
                 <Setter Property="FontSize" Value="16" />
                 <Setter Property="Cursor" Value="Hand" />
                 <Setter Property="Margin" Value="0,6,0,6" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="CheckBox">
-                            <StackPanel Orientation="Horizontal" Background="Transparent">
-                                <Grid Width="24" Height="24" VerticalAlignment="Center">
+                            <Grid Background="Transparent">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0" VerticalAlignment="Center"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                                <Grid Grid.Column="1" Width="24" Height="24" VerticalAlignment="Center" Margin="12,0,0,0">
                                     <Border CornerRadius="6" Background="#22FFFFFF" BorderBrush="#66FFFFFF" BorderThickness="1.5" />
                                     <Border x:Name="BoxOn" CornerRadius="6" Background="{StaticResource SpotifyGreenBrush}" Opacity="0" />
                                     <Path x:Name="Check" Data="M6,12 L10.5,16.5 L18,7" Stroke="Black" StrokeThickness="2.4"
@@ -212,9 +219,7 @@
                                         <Path.RenderTransform><ScaleTransform x:Name="CheckS" ScaleX="0.4" ScaleY="0.4" /></Path.RenderTransform>
                                     </Path>
                                 </Grid>
-                                <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"
-                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
-                            </StackPanel>
+                            </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Trigger.EnterActions>
