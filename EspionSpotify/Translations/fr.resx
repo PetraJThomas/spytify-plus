@@ -282,7 +282,7 @@
     <comment>interface</comment>
   </data>
   <data name="tabSettings" xml:space="preserve">
-    <value>Configuration</value>
+    <value>Paramètres</value>
     <comment>interface</comment>
   </data>
   <data name="tipClear" xml:space="preserve">
