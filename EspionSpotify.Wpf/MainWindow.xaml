@@ -557,7 +557,7 @@
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzVerdictHeader}" />
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                                     <Grid x:Name="BadgeWrap" VerticalAlignment="Center" SizeChanged="BadgeWrap_SizeChanged">
                                         <!-- coloured ring behind the badge; inner badge is inset to reveal it -->
                                         <Border x:Name="BadgeRing" CornerRadius="16" />
