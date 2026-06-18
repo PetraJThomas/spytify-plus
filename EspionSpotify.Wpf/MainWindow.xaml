@@ -585,6 +585,7 @@
                         <!-- Verdict -->
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
+                                <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzVerdictHeader}" />
                                 <StackPanel Orientation="Horizontal">
                                     <Grid x:Name="BadgeWrap" VerticalAlignment="Center" SizeChanged="BadgeWrap_SizeChanged">
                                         <!-- coloured ring behind the badge; inner badge is inset to reveal it -->
@@ -625,7 +626,7 @@
                                     <TextBlock x:Name="FreqResponseCutoffLabel" Foreground="#FFD54F"
                                                HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" />
                                 </Grid>
-                                <Grid Height="160">
+                                <Grid Height="160" Margin="0,12,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40" />
                                         <ColumnDefinition Width="*" />
@@ -682,7 +683,7 @@
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
-                                <Grid Height="500">
+                                <Grid Height="500" Margin="0,12,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40" />
                                         <ColumnDefinition Width="*" />

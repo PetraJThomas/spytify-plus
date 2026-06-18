@@ -170,6 +170,7 @@
         lblAudio,
         lblMetadataSource,
         lblStartRecording,
-        lblStop
+        lblStop,
+        anzVerdictHeader
     }
 }

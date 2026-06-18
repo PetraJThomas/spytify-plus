@@ -713,4 +713,7 @@
   <data name="lblStop" xml:space="preserve">
     <value>Stop</value>
   </data>
+  <data name="anzVerdictHeader" xml:space="preserve">
+    <value>Analysis Verdict</value>
+  </data>
 </root>
