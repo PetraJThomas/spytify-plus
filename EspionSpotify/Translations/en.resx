@@ -608,4 +608,70 @@
   <data name="anzInfoGoodBody" xml:space="preserve">
     <value>The format has the final word on lossy versus lossless; the spectrum only describes bandwidth. A full spectrum does not prove lossless (a good lossy encoder reaches the top too), and a sparse acoustic track or old master can lack highs without being lossy. The spectrogram shows which is which: a hard, flat cliff is a filter (lossy), a gentle natural roll-off is just the music.</value>
   </data>
+  <data name="anzTierLossless" xml:space="preserve">
+    <value>Lossless (full-band)</value>
+  </data>
+  <data name="anzTierLow" xml:space="preserve">
+    <value>≤96 kbps / heavily compressed</value>
+  </data>
+  <data name="anzTierUnknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="anzTierLossy" xml:space="preserve">
+    <value>Lossy {0}</value>
+  </data>
+  <data name="anzVTrueLossless" xml:space="preserve">
+    <value>True lossless</value>
+  </data>
+  <data name="anzVFullBand" xml:space="preserve">
+    <value>Full-band (lossless-grade)</value>
+  </data>
+  <data name="anzVTranscode" xml:space="preserve">
+    <value>Lossy source in a lossless container ({0})</value>
+  </data>
+  <data name="anzVLossy" xml:space="preserve">
+    <value>Lossy: {0}</value>
+  </data>
+  <data name="anzVLossyBitrate" xml:space="preserve">
+    <value>Lossy: {0} {1} kbps</value>
+  </data>
+  <data name="anzDLossyFull" xml:space="preserve">
+    <value>{0} keeps energy up to ~{1} kHz (full bandwidth), but it is a lossy codec, so this is not lossless.</value>
+  </data>
+  <data name="anzDLossyCut" xml:space="preserve">
+    <value>{0} with a spectral cut-off at ~{1} kHz.</value>
+  </data>
+  <data name="anzDLossless" xml:space="preserve">
+    <value>Content reaches ~{0} kHz (Nyquist {1} kHz) with no early roll-off.</value>
+  </data>
+  <data name="anzDActualBitrate" xml:space="preserve">
+    <value> Actual bitrate ~{0} kbps.</value>
+  </data>
+  <data name="anzDTranscode" xml:space="preserve">
+    <value>Container is {0} but the spectrum cuts off at ~{1} kHz: re-encoded from a lossy file, not true lossless.</value>
+  </data>
+  <data name="anzDUnknown" xml:space="preserve">
+    <value>Content reaches ~{0} kHz with no early roll-off.{1} Codec '{2}' is unrecognised, so this is a spectral estimate.</value>
+  </data>
+  <data name="anzDSpectralCut" xml:space="preserve">
+    <value>Spectral cut-off at ~{0} kHz.</value>
+  </data>
+  <data name="anzNotEnough" xml:space="preserve">
+    <value>Not enough audio to analyze.</value>
+  </data>
+  <data name="anzSilent" xml:space="preserve">
+    <value>Track is silent or too short to analyze.</value>
+  </data>
+  <data name="anzCutoff" xml:space="preserve">
+    <value>cut-off ~{0} kHz</value>
+  </data>
+  <data name="anzExtendsTo" xml:space="preserve">
+    <value>extends to ~{0} kHz</value>
+  </data>
+  <data name="anzCouldntAnalyze" xml:space="preserve">
+    <value>Couldn't analyze this file.</value>
+  </data>
+  <data name="msgSpotifyFallback" xml:space="preserve">
+    <value>Couldn't use the Spotify API, falling back to Last.fm.</value>
+  </data>
 </root>

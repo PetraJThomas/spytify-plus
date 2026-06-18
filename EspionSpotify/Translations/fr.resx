@@ -608,4 +608,70 @@
   <data name="anzInfoGoodBody" xml:space="preserve">
     <value>C'est le format qui a le dernier mot sur avec perte ou sans perte ; le spectre ne décrit que la bande passante. Un spectre complet ne prouve pas le sans perte (un bon encodeur avec perte atteint aussi le sommet), et un morceau acoustique épuré ou un vieux master peut manquer d'aigus sans être avec perte. Le spectrogramme montre lequel est lequel : une falaise dure et plate est un filtre (avec perte), une décroissance douce et naturelle, c'est juste la musique.</value>
   </data>
+  <data name="anzTierLossless" xml:space="preserve">
+    <value>Sans perte (large bande)</value>
+  </data>
+  <data name="anzTierLow" xml:space="preserve">
+    <value>≤96 kbps / fortement compressé</value>
+  </data>
+  <data name="anzTierUnknown" xml:space="preserve">
+    <value>Inconnu</value>
+  </data>
+  <data name="anzTierLossy" xml:space="preserve">
+    <value>Avec perte {0}</value>
+  </data>
+  <data name="anzVTrueLossless" xml:space="preserve">
+    <value>Vrai sans perte</value>
+  </data>
+  <data name="anzVFullBand" xml:space="preserve">
+    <value>Large bande (qualité sans perte)</value>
+  </data>
+  <data name="anzVTranscode" xml:space="preserve">
+    <value>Source avec perte dans un conteneur sans perte ({0})</value>
+  </data>
+  <data name="anzVLossy" xml:space="preserve">
+    <value>Avec perte : {0}</value>
+  </data>
+  <data name="anzVLossyBitrate" xml:space="preserve">
+    <value>Avec perte : {0} {1} kbps</value>
+  </data>
+  <data name="anzDLossyFull" xml:space="preserve">
+    <value>{0} conserve de l'énergie jusqu'à ~{1} kHz (bande passante complète), mais c'est un codec avec perte, donc ce n'est pas sans perte.</value>
+  </data>
+  <data name="anzDLossyCut" xml:space="preserve">
+    <value>{0} avec une coupure spectrale à ~{1} kHz.</value>
+  </data>
+  <data name="anzDLossless" xml:space="preserve">
+    <value>Le contenu atteint ~{0} kHz (Nyquist {1} kHz) sans atténuation précoce.</value>
+  </data>
+  <data name="anzDActualBitrate" xml:space="preserve">
+    <value> Débit réel ~{0} kbps.</value>
+  </data>
+  <data name="anzDTranscode" xml:space="preserve">
+    <value>Le conteneur est {0} mais le spectre se coupe à ~{1} kHz : ré-encodé depuis un fichier avec perte, pas un vrai sans perte.</value>
+  </data>
+  <data name="anzDUnknown" xml:space="preserve">
+    <value>Le contenu atteint ~{0} kHz sans atténuation précoce.{1} Le codec « {2} » n'est pas reconnu, il s'agit donc d'une estimation spectrale.</value>
+  </data>
+  <data name="anzDSpectralCut" xml:space="preserve">
+    <value>Coupure spectrale à ~{0} kHz.</value>
+  </data>
+  <data name="anzNotEnough" xml:space="preserve">
+    <value>Pas assez d'audio pour analyser.</value>
+  </data>
+  <data name="anzSilent" xml:space="preserve">
+    <value>Le morceau est silencieux ou trop court pour être analysé.</value>
+  </data>
+  <data name="anzCutoff" xml:space="preserve">
+    <value>coupure ~{0} kHz</value>
+  </data>
+  <data name="anzExtendsTo" xml:space="preserve">
+    <value>monte jusqu'à ~{0} kHz</value>
+  </data>
+  <data name="anzCouldntAnalyze" xml:space="preserve">
+    <value>Impossible d'analyser ce fichier.</value>
+  </data>
+  <data name="msgSpotifyFallback" xml:space="preserve">
+    <value>Impossible d'utiliser l'API Spotify, retour à Last.fm.</value>
+  </data>
 </root>

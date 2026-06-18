@@ -153,7 +153,7 @@ namespace EspionSpotify.Wpf
                 _analyzeSample = null;
                 _analyzeResult = null;
                 _spectrogram = null;
-                AnalyzeErrorText.Text = "Couldn't analyze this file.\n" + ex.Message;
+                AnalyzeErrorText.Text = Loc.Instance["anzCouldntAnalyze"] + "\n" + ex.Message;
                 SetAnalyzeState(AnalyzeState.Error);
             }
         }
@@ -330,7 +330,8 @@ namespace EspionSpotify.Wpf
             {
                 // Near Nyquist there is no real cliff, just a natural roll-off, so say "extends to".
                 var nearTop = result.CutoffHz >= result.NyquistHz - 1000;
-                FreqResponseCutoffLabel.Text = $"{(nearTop ? "extends to" : "cut-off")} ~{result.CutoffHz / 1000.0:0.0} kHz";
+                FreqResponseCutoffLabel.Text = string.Format(Loc.Instance[nearTop ? "anzExtendsTo" : "anzCutoff"],
+                    (result.CutoffHz / 1000.0).ToString("0.0"));
             }
 
             StartTierPulse(result.Tier, TierGlow(result.Tier, result.IsTranscode));

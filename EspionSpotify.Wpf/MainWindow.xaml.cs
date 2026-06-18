@@ -872,7 +872,7 @@ namespace EspionSpotify.Wpf
         });
 
         public void ShowFailedToUseSpotifyAPIMessage() => RunOnUi(() =>
-            MessageBox.Show(this, "Couldn't use the Spotify API, falling back to Last.fm.",
+            MessageBox.Show(this, Loc.Instance["msgSpotifyFallback"],
                 "Spytify", MessageBoxButton.OK, MessageBoxImage.Information));
 
         public void UpdateAudioDevicesDataSource() => RunOnUi(() =>

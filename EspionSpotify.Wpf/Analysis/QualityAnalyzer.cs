@@ -27,8 +27,8 @@ namespace EspionSpotify.Wpf.Analysis
             if (samples == null || samples.Length < FftSize)
             {
                 result.Tier = QualityTier.Unknown;
-                result.TierLabel = "Unknown";
-                result.Verdict = "Not enough audio to analyze.";
+                result.TierLabel = Tr("anzTierUnknown");
+                result.Verdict = Tr("anzNotEnough");
                 return result;
             }
 
@@ -69,8 +69,8 @@ namespace EspionSpotify.Wpf.Analysis
             if (frames == 0)
             {
                 result.Tier = QualityTier.Unknown;
-                result.TierLabel = "Unknown";
-                result.Verdict = "Track is silent or too short to analyze.";
+                result.TierLabel = Tr("anzTierUnknown");
+                result.Verdict = Tr("anzSilent");
                 return result;
             }
 
@@ -111,10 +111,13 @@ namespace EspionSpotify.Wpf.Analysis
             return result;
         }
 
+        private static string Tr(string key) => Loc.Instance[key];
+        private static string Trf(string key, params object[] args) => string.Format(Loc.Instance[key], args);
+
         private static void AssignTier(QualityResult r, double cutoff, double nyquist, string codec, int? bitrateKbps)
         {
-            var cutoffKHz = cutoff / 1000.0;
-            var nyqKHz = nyquist / 1000.0;
+            var cutoffKHz = (cutoff / 1000.0).ToString("0.0");
+            var nyqKHz = (nyquist / 1000.0).ToString("0.0");
             var codecUp = string.IsNullOrEmpty(codec) ? "?" : codec.ToUpperInvariant();
             var fullBand = cutoff >= nyquist - 1000 && nyquist >= 21000;
             var (cTier, cLabel) = CutoffTier(cutoff, nyquist);
@@ -126,11 +129,9 @@ namespace EspionSpotify.Wpf.Analysis
             if (IsLossyCodec(codec))
             {
                 r.Tier = bitrateKbps.HasValue ? BitrateColor(bitrateKbps.Value) : cTier;
-                r.TierLabel = bitrateKbps.HasValue ? $"{codecUp} {bitrateKbps} kbps" : $"Lossy {codecUp}";
-                r.Verdict = bitrateKbps.HasValue ? $"Lossy: {codecUp} {bitrateKbps} kbps" : $"Lossy: {codecUp}";
-                r.Detail = fullBand
-                    ? $"{codecUp} keeps energy up to ~{cutoffKHz:0.0} kHz (full bandwidth), but it is a lossy codec, so this is not lossless."
-                    : $"{codecUp} with a spectral cut-off at ~{cutoffKHz:0.0} kHz.";
+                r.TierLabel = bitrateKbps.HasValue ? $"{codecUp} {bitrateKbps} kbps" : Trf("anzTierLossy", codecUp);
+                r.Verdict = bitrateKbps.HasValue ? Trf("anzVLossyBitrate", codecUp, bitrateKbps.Value) : Trf("anzVLossy", codecUp);
+                r.Detail = fullBand ? Trf("anzDLossyFull", codecUp, cutoffKHz) : Trf("anzDLossyCut", codecUp, cutoffKHz);
                 return;
             }
 
@@ -141,19 +142,18 @@ namespace EspionSpotify.Wpf.Analysis
                 if (fullBand)
                 {
                     r.Tier = QualityTier.Lossless;
-                    r.TierLabel = "Lossless (full-band)";
-                    r.Verdict = "True lossless";
-                    var rate = bitrateKbps.HasValue ? $" Actual bitrate ~{bitrateKbps} kbps." : "";
-                    r.Detail = $"Content reaches ~{cutoffKHz:0.0} kHz (Nyquist {nyqKHz:0.0} kHz) with no early roll-off.{rate}";
+                    r.TierLabel = Tr("anzTierLossless");
+                    r.Verdict = Tr("anzVTrueLossless");
+                    var rate = bitrateKbps.HasValue ? Trf("anzDActualBitrate", bitrateKbps.Value) : "";
+                    r.Detail = Trf("anzDLossless", cutoffKHz, nyqKHz) + rate;
                 }
                 else
                 {
                     r.Tier = cTier;
                     r.TierLabel = cLabel;
                     r.IsTranscode = true;
-                    r.Verdict = $"Lossy source in a lossless container ({cLabel})";
-                    r.Detail = $"Container is {codecUp} but the spectrum cuts off at ~{cutoffKHz:0.0} kHz: " +
-                               "re-encoded from a lossy file, not true lossless.";
+                    r.Verdict = Trf("anzVTranscode", cLabel);
+                    r.Detail = Trf("anzDTranscode", codecUp, cutoffKHz);
                 }
                 return;
             }
@@ -163,25 +163,25 @@ namespace EspionSpotify.Wpf.Analysis
             r.TierLabel = cLabel;
             if (cTier == QualityTier.Lossless)
             {
-                r.Verdict = "Full-band (lossless-grade)";
-                var rate = bitrateKbps.HasValue ? $" Actual bitrate ~{bitrateKbps} kbps." : "";
-                r.Detail = $"Content reaches ~{cutoffKHz:0.0} kHz with no early roll-off.{rate} Codec '{codecUp}' is unrecognised, so this is a spectral estimate.";
+                r.Verdict = Tr("anzVFullBand");
+                var rate = bitrateKbps.HasValue ? Trf("anzDActualBitrate", bitrateKbps.Value) : "";
+                r.Detail = Trf("anzDUnknown", cutoffKHz, rate, codecUp);
             }
             else
             {
-                r.Verdict = $"Lossy: {cLabel}";
-                r.Detail = $"Spectral cut-off at ~{cutoffKHz:0.0} kHz.";
+                r.Verdict = Trf("anzVLossy", cLabel);
+                r.Detail = Trf("anzDSpectralCut", cutoffKHz);
             }
         }
 
         private static (QualityTier tier, string label) CutoffTier(double cutoff, double nyquist)
         {
-            if (cutoff >= nyquist - 1000 && nyquist >= 21000) return (QualityTier.Lossless, "Lossless (full-band)");
+            if (cutoff >= nyquist - 1000 && nyquist >= 21000) return (QualityTier.Lossless, Tr("anzTierLossless"));
             if (cutoff >= 20000) return (QualityTier.Kbps320, "~320 kbps");
             if (cutoff >= 18500) return (QualityTier.Kbps256, "~256 kbps");
             if (cutoff >= 17000) return (QualityTier.Kbps192, "~192 kbps");
             if (cutoff >= 15500) return (QualityTier.Kbps128, "~128 kbps");
-            return (QualityTier.Low, "≤96 kbps / heavily compressed");
+            return (QualityTier.Low, Tr("anzTierLow"));
         }
 
         // Badge colour for a lossy file, from its actual bitrate (codec-agnostic, rough).
