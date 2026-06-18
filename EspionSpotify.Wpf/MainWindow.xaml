@@ -431,15 +431,15 @@
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <ui:FontIcon Glyph="&#xEC4F;" FontSize="46" Foreground="#1ED760"
                                      HorizontalAlignment="Center" />
-                        <TextBlock Text="Drag &amp; drop an audio file here" FontSize="18"
+                        <TextBlock Text="{l:Tr anzDropTitle}" FontSize="18"
                                    Foreground="#EEEEEE" HorizontalAlignment="Center" Margin="0,16,0,4" />
-                        <TextBlock Text="FLAC · WAV · MP3 · Opus · M4A · analyzed for true quality"
+                        <TextBlock Text="{l:Tr anzDropSubtitle}"
                                    Foreground="#888888" HorizontalAlignment="Center" Margin="0,0,0,20" />
-                        <Button Content="Open file…" Click="Analyze_OpenFile_Click"
+                        <Button Content="{l:Tr anzOpenFile}" Click="Analyze_OpenFile_Click"
                                 Padding="22,8" FontSize="14" HorizontalAlignment="Center"
                                 Background="{StaticResource SpotifyGreenBrush}" Foreground="#000000"
                                 BorderThickness="0" Cursor="Hand" />
-                        <Button Content="How to read this analysis" Click="InfoButton_Click"
+                        <Button Content="{l:Tr anzHowToRead}" Click="InfoButton_Click"
                                 HorizontalAlignment="Center" Margin="0,18,0,0" Padding="6,2"
                                 Background="Transparent" BorderThickness="0"
                                 Foreground="#1ED760" Cursor="Hand" />
@@ -541,7 +541,7 @@
                             </Border.Triggers>
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="Analyzing" Foreground="#CCCCCC" FontSize="13" Margin="0,18,0,0"
+                    <TextBlock Text="{l:Tr anzAnalyzing}" Foreground="#CCCCCC" FontSize="13" Margin="0,18,0,0"
                                HorizontalAlignment="Center" />
                 </StackPanel>
 
@@ -552,7 +552,7 @@
                     <StackPanel>
                         <TextBlock x:Name="AnalyzeErrorText" Foreground="#FFD0D0" TextWrapping="Wrap"
                                    HorizontalAlignment="Center" TextAlignment="Center" />
-                        <Button Content="Try another file" Click="Analyze_OpenFile_Click"
+                        <Button Content="{l:Tr anzTryAnother}" Click="Analyze_OpenFile_Click"
                                 Margin="0,14,0,0" HorizontalAlignment="Center" Padding="16,6" />
                     </StackPanel>
                 </Border>
@@ -570,13 +570,13 @@
                             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
                                 <Button Click="InfoButton_Click" Width="34" Height="34" Padding="0"
                                         VerticalAlignment="Top" Margin="0,0,10,0"
-                                        ToolTip="How to read this analysis">
+                                        ToolTip="{l:Tr anzHowToRead}">
                                     <ui:FontIcon Glyph="&#xE946;" FontSize="16" />
                                 </Button>
                                 <StackPanel>
-                                    <Button Content="Open another file" Click="Analyze_OpenFile_Click"
+                                    <Button Content="{l:Tr anzOpenAnother}" Click="Analyze_OpenFile_Click"
                                             HorizontalAlignment="Right" Padding="14,6" />
-                                    <TextBlock Text="or drag &amp; drop a file here" Foreground="#AAAAAA" FontSize="12.5"
+                                    <TextBlock Text="{l:Tr anzDragHint}" Foreground="#AAAAAA" FontSize="12.5"
                                                HorizontalAlignment="Right" Margin="0,7,14,0" />
                                 </StackPanel>
                             </StackPanel>
@@ -608,7 +608,7 @@
                         <!-- Waveform -->
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
-                                <TextBlock Style="{StaticResource SectionHeader}" Text="Waveform" />
+                                <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzWaveform}" />
                                 <Border Background="#0CFFFFFF" CornerRadius="6" Padding="2">
                                     <Canvas x:Name="WaveformCanvas" Height="120" Background="Transparent"
                                             SizeChanged="WaveformCanvas_SizeChanged" ClipToBounds="True" />
@@ -621,7 +621,7 @@
                             <StackPanel>
                                 <Grid>
                                     <TextBlock Style="{StaticResource SectionHeader}"
-                                               Text="Frequency response &amp; cut-off" VerticalAlignment="Center" />
+                                               Text="{l:Tr anzFreqResponse}" VerticalAlignment="Center" />
                                     <TextBlock x:Name="FreqResponseCutoffLabel" Foreground="#FFD54F"
                                                HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" />
                                 </Grid>
@@ -657,7 +657,7 @@
                                                      VerticalAlignment="Top" Margin="0,2,12,0" />
                                         <TextBlock Grid.Column="1" Foreground="#DCDCDC" TextWrapping="Wrap"
                                                    FontSize="13" LineHeight="21"
-                                                   Text="Average loudness at each frequency across the whole track. A lossy MP3 usually low-passes the top end, leaving a sharp cut-off cliff whose position hints at the bitrate (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). But high-bitrate AAC or Opus can reach the very top with no cliff, so a full spectrum does not prove lossless: the file format decides that. The amber line marks the detected cut-off." />
+                                                   Text="{l:Tr anzFreqExplainer}" />
                                     </Grid>
                                 </Border>
                             </StackPanel>
@@ -668,9 +668,9 @@
                             <StackPanel>
                                 <Grid>
                                     <TextBlock Style="{StaticResource SectionHeader}"
-                                               Text="Spectrogram" VerticalAlignment="Center" />
+                                               Text="{l:Tr anzSpectrogram}" VerticalAlignment="Center" />
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-                                        <TextBlock Text="Heatmap colour theme" Foreground="#C8C8C8"
+                                        <TextBlock Text="{l:Tr anzHeatmapTheme}" Foreground="#C8C8C8"
                                                    VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" />
                                         <ComboBox x:Name="PaletteCombo" Width="112" Height="30"
                                                   VerticalAlignment="Center" FontSize="13"
@@ -737,7 +737,7 @@
                     </Border.Effect>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <ui:FontIcon Glyph="&#xE896;" FontSize="46" Foreground="#1ED760" HorizontalAlignment="Center" />
-                        <TextBlock Text="Drop to analyze" FontSize="20" Foreground="#FFFFFF"
+                        <TextBlock Text="{l:Tr anzDropToAnalyze}" FontSize="20" Foreground="#FFFFFF"
                                    Margin="0,14,0,0" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Border>
@@ -757,43 +757,43 @@
                             <Grid Grid.Row="0" Margin="22,18,12,10">
                                 <StackPanel Orientation="Horizontal">
                                     <ui:FontIcon Glyph="&#xE946;" FontSize="18" Foreground="#1ED760" VerticalAlignment="Center" />
-                                    <TextBlock Text="How to read the analysis" FontSize="18" FontWeight="SemiBold"
+                                    <TextBlock Text="{l:Tr anzInfoTitle}" FontSize="18" FontWeight="SemiBold"
                                                Foreground="#FFFFFF" Margin="10,0,0,0" VerticalAlignment="Center" />
                                 </StackPanel>
                                 <Button Click="InfoClose_Click" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                        Width="30" Height="30" Padding="0" ToolTip="Close">
+                                        Width="30" Height="30" Padding="0" ToolTip="{l:Tr lblClose}">
                                     <ui:FontIcon Glyph="&#xE711;" FontSize="13" />
                                 </Button>
                             </Grid>
 
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,0,22,20">
                                 <StackPanel>
-                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Quality verdict" />
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzInfoVerdictHdr}" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
-                                               Text="The coloured badge shows the verdict and animates by tier: a flowing light border for true lossless, a pulsing glow for lossy. The file format settles lossy versus lossless: MP3, AAC and Opus are lossy by definition and can never be truly lossless, however clean they look; only FLAC, ALAC and WAV are. 'Lossy source in a lossless container' means a FLAC or ALAC actually built from an MP3, so the wrapper claims lossless but the audio underneath is not." />
+                                               Text="{l:Tr anzInfoVerdictBody}" />
 
-                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Waveform" />
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzWaveform}" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
-                                               Text="Loudness over time. Tall sections are loud, thin sections are quiet. Handy for spotting silence, fade-outs, or a brick-walled master that fills the whole height with no dynamics left." />
+                                               Text="{l:Tr anzInfoWaveformBody}" />
 
-                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Frequency response &amp; cut-off" />
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzFreqResponse}" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,8"
-                                               Text="Average loudness at each frequency across the whole track (there is no time on this graph). A lossy MP3 usually discards the highest frequencies, leaving a sharp cliff whose position hints at the bitrate:" />
+                                               Text="{l:Tr anzInfoFreqBody}" />
                                     <Border Background="#14FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="6"
                                             Padding="14,10" Margin="0,0,0,8">
                                         <TextBlock Foreground="#DCDCDC" FontSize="13" LineHeight="21"
-                                                   Text="~16 kHz  &#8776;  128 kbps&#x0a;~19 kHz  &#8776;  256 kbps&#x0a;~20 kHz  &#8776;  320 kbps&#x0a;(MP3 guides; AAC and Opus keep more)" />
+                                                   Text="{l:Tr anzInfoFreqBox}" />
                                     </Border>
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
-                                               Text="High-bitrate AAC and Opus can reach the very top with no cliff, so full bandwidth does not prove lossless. The amber line marks the detected cut-off." />
+                                               Text="{l:Tr anzInfoFreqAfter}" />
 
-                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Spectrogram" />
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzSpectrogram}" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,16"
-                                               Text="The same frequencies, but over time: left to right is time, bottom to top is frequency, and colour is loudness (see the legend on the right). A lossy file shows a hard dark ceiling where the encoder cut the highs; lossless fills right to the top. Use the colour-theme dropdown to pick whichever reads clearest for you." />
+                                               Text="{l:Tr anzInfoSpectroBody}" />
 
-                                    <TextBlock Style="{StaticResource SectionHeader}" Text="Good to know" />
+                                    <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr anzInfoGoodHdr}" />
                                     <TextBlock Foreground="#CCCCCC" TextWrapping="Wrap" FontSize="13" LineHeight="20" Margin="0,0,0,4"
-                                               Text="The format has the final word on lossy versus lossless; the spectrum only describes bandwidth. A full spectrum does not prove lossless (a good lossy encoder reaches the top too), and a sparse acoustic track or old master can lack highs without being lossy. The spectrogram shows which is which: a hard, flat cliff is a filter (lossy), a gentle natural roll-off is just the music." />
+                                               Text="{l:Tr anzInfoGoodBody}" />
                                 </StackPanel>
                             </ScrollViewer>
                         </Grid>

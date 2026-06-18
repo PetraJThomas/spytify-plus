@@ -530,4 +530,82 @@
   <data name="connInitFailed" xml:space="preserve">
     <value>Could not initialise the Spotify API</value>
   </data>
+  <data name="anzDropTitle" xml:space="preserve">
+    <value>Drag &amp; drop an audio file here</value>
+  </data>
+  <data name="anzDropSubtitle" xml:space="preserve">
+    <value>FLAC · WAV · MP3 · Opus · M4A · analyzed for true quality</value>
+  </data>
+  <data name="anzOpenFile" xml:space="preserve">
+    <value>Open file…</value>
+  </data>
+  <data name="anzHowToRead" xml:space="preserve">
+    <value>How to read this analysis</value>
+  </data>
+  <data name="anzAnalyzing" xml:space="preserve">
+    <value>Analyzing</value>
+  </data>
+  <data name="anzTryAnother" xml:space="preserve">
+    <value>Try another file</value>
+  </data>
+  <data name="anzOpenAnother" xml:space="preserve">
+    <value>Open another file</value>
+  </data>
+  <data name="anzDragHint" xml:space="preserve">
+    <value>or drag &amp; drop a file here</value>
+  </data>
+  <data name="anzWaveform" xml:space="preserve">
+    <value>Waveform</value>
+  </data>
+  <data name="anzFreqResponse" xml:space="preserve">
+    <value>Frequency response &amp; cut-off</value>
+  </data>
+  <data name="anzHeatmapTheme" xml:space="preserve">
+    <value>Heatmap colour theme</value>
+  </data>
+  <data name="anzSpectrogram" xml:space="preserve">
+    <value>Spectrogram</value>
+  </data>
+  <data name="anzDropToAnalyze" xml:space="preserve">
+    <value>Drop to analyze</value>
+  </data>
+  <data name="anzInfoTitle" xml:space="preserve">
+    <value>How to read the analysis</value>
+  </data>
+  <data name="lblClose" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="anzFreqExplainer" xml:space="preserve">
+    <value>Average loudness at each frequency across the whole track. A lossy MP3 usually low-passes the top end, leaving a sharp cut-off cliff whose position hints at the bitrate (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). But high-bitrate AAC or Opus can reach the very top with no cliff, so a full spectrum does not prove lossless: the file format decides that. The amber line marks the detected cut-off.</value>
+  </data>
+  <data name="anzInfoVerdictHdr" xml:space="preserve">
+    <value>Quality verdict</value>
+  </data>
+  <data name="anzInfoVerdictBody" xml:space="preserve">
+    <value>The coloured badge shows the verdict and animates by tier: a flowing light border for true lossless, a pulsing glow for lossy. The file format settles lossy versus lossless: MP3, AAC and Opus are lossy by definition and can never be truly lossless, however clean they look; only FLAC, ALAC and WAV are. 'Lossy source in a lossless container' means a FLAC or ALAC actually built from an MP3, so the wrapper claims lossless but the audio underneath is not.</value>
+  </data>
+  <data name="anzInfoWaveformBody" xml:space="preserve">
+    <value>Loudness over time. Tall sections are loud, thin sections are quiet. Handy for spotting silence, fade-outs, or a brick-walled master that fills the whole height with no dynamics left.</value>
+  </data>
+  <data name="anzInfoFreqBody" xml:space="preserve">
+    <value>Average loudness at each frequency across the whole track (there is no time on this graph). A lossy MP3 usually discards the highest frequencies, leaving a sharp cliff whose position hints at the bitrate:</value>
+  </data>
+  <data name="anzInfoFreqBox" xml:space="preserve">
+    <value>~16 kHz  ≈  128 kbps
+~19 kHz  ≈  256 kbps
+~20 kHz  ≈  320 kbps
+(MP3 guides; AAC and Opus keep more)</value>
+  </data>
+  <data name="anzInfoFreqAfter" xml:space="preserve">
+    <value>High-bitrate AAC and Opus can reach the very top with no cliff, so full bandwidth does not prove lossless. The amber line marks the detected cut-off.</value>
+  </data>
+  <data name="anzInfoSpectroBody" xml:space="preserve">
+    <value>The same frequencies, but over time: left to right is time, bottom to top is frequency, and colour is loudness (see the legend on the right). A lossy file shows a hard dark ceiling where the encoder cut the highs; lossless fills right to the top. Use the colour-theme dropdown to pick whichever reads clearest for you.</value>
+  </data>
+  <data name="anzInfoGoodHdr" xml:space="preserve">
+    <value>Good to know</value>
+  </data>
+  <data name="anzInfoGoodBody" xml:space="preserve">
+    <value>The format has the final word on lossy versus lossless; the spectrum only describes bandwidth. A full spectrum does not prove lossless (a good lossy encoder reaches the top too), and a sparse acoustic track or old master can lack highs without being lossy. The spectrogram shows which is which: a hard, flat cliff is a filter (lossy), a gentle natural roll-off is just the music.</value>
+  </data>
 </root>

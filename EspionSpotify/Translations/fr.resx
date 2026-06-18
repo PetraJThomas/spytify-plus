@@ -530,4 +530,82 @@
   <data name="connInitFailed" xml:space="preserve">
     <value>Impossible d'initialiser l'API Spotify</value>
   </data>
+  <data name="anzDropTitle" xml:space="preserve">
+    <value>Glissez-déposez un fichier audio ici</value>
+  </data>
+  <data name="anzDropSubtitle" xml:space="preserve">
+    <value>FLAC · WAV · MP3 · Opus · M4A · analysés pour leur vraie qualité</value>
+  </data>
+  <data name="anzOpenFile" xml:space="preserve">
+    <value>Ouvrir un fichier…</value>
+  </data>
+  <data name="anzHowToRead" xml:space="preserve">
+    <value>Comment lire cette analyse</value>
+  </data>
+  <data name="anzAnalyzing" xml:space="preserve">
+    <value>Analyse en cours</value>
+  </data>
+  <data name="anzTryAnother" xml:space="preserve">
+    <value>Essayer un autre fichier</value>
+  </data>
+  <data name="anzOpenAnother" xml:space="preserve">
+    <value>Ouvrir un autre fichier</value>
+  </data>
+  <data name="anzDragHint" xml:space="preserve">
+    <value>ou glissez-déposez un fichier ici</value>
+  </data>
+  <data name="anzWaveform" xml:space="preserve">
+    <value>Forme d'onde</value>
+  </data>
+  <data name="anzFreqResponse" xml:space="preserve">
+    <value>Réponse en fréquence &amp; coupure</value>
+  </data>
+  <data name="anzHeatmapTheme" xml:space="preserve">
+    <value>Thème de couleur</value>
+  </data>
+  <data name="anzSpectrogram" xml:space="preserve">
+    <value>Spectrogramme</value>
+  </data>
+  <data name="anzDropToAnalyze" xml:space="preserve">
+    <value>Déposez pour analyser</value>
+  </data>
+  <data name="anzInfoTitle" xml:space="preserve">
+    <value>Comment lire l'analyse</value>
+  </data>
+  <data name="lblClose" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="anzFreqExplainer" xml:space="preserve">
+    <value>Volume moyen à chaque fréquence sur l'ensemble du morceau. Un MP3 avec perte applique généralement un filtre passe-bas dans les aigus, laissant une falaise nette dont la position indique le débit (~16 kHz ≈ 128k, ~19 kHz ≈ 256k, ~20 kHz ≈ 320k). Mais un AAC ou Opus à haut débit peut atteindre le sommet sans falaise : un spectre complet ne prouve donc pas le sans perte, c'est le format qui le détermine. La ligne ambre marque la coupure détectée.</value>
+  </data>
+  <data name="anzInfoVerdictHdr" xml:space="preserve">
+    <value>Verdict de qualité</value>
+  </data>
+  <data name="anzInfoVerdictBody" xml:space="preserve">
+    <value>La pastille colorée indique le verdict et s'anime selon le niveau : une bordure lumineuse animée pour le vrai sans perte, une lueur pulsée pour l'audio avec perte. Le format tranche entre avec perte et sans perte : MP3, AAC et Opus sont avec perte par définition et ne peuvent jamais être réellement sans perte, aussi propres soient-ils ; seuls FLAC, ALAC et WAV le sont. « Source avec perte dans un conteneur sans perte » signifie un FLAC ou ALAC en réalité créé à partir d'un MP3 : l'enveloppe prétend être sans perte, mais l'audio en dessous ne l'est pas.</value>
+  </data>
+  <data name="anzInfoWaveformBody" xml:space="preserve">
+    <value>Volume au fil du temps. Les parties hautes sont fortes, les fines sont calmes. Pratique pour repérer les silences, les fondus, ou un master « brick-wall » qui remplit toute la hauteur sans dynamique.</value>
+  </data>
+  <data name="anzInfoFreqBody" xml:space="preserve">
+    <value>Volume moyen à chaque fréquence sur l'ensemble du morceau (il n'y a pas de temps sur ce graphique). Un MP3 avec perte jette généralement les fréquences les plus hautes, laissant une falaise nette dont la position indique le débit :</value>
+  </data>
+  <data name="anzInfoFreqBox" xml:space="preserve">
+    <value>~16 kHz  ≈  128 kbps
+~19 kHz  ≈  256 kbps
+~20 kHz  ≈  320 kbps
+(repères MP3 ; AAC et Opus en gardent plus)</value>
+  </data>
+  <data name="anzInfoFreqAfter" xml:space="preserve">
+    <value>Les AAC et Opus à haut débit peuvent atteindre le sommet sans falaise : une bande passante complète ne prouve donc pas le sans perte. La ligne ambre marque la coupure détectée.</value>
+  </data>
+  <data name="anzInfoSpectroBody" xml:space="preserve">
+    <value>Les mêmes fréquences, mais au fil du temps : de gauche à droite le temps, de bas en haut la fréquence, et la couleur le volume (voir la légende à droite). Un fichier avec perte montre un plafond sombre net là où l'encodeur a coupé les aigus ; le sans perte monte jusqu'en haut. Utilisez le menu de thème pour choisir celui qui se lit le mieux.</value>
+  </data>
+  <data name="anzInfoGoodHdr" xml:space="preserve">
+    <value>Bon à savoir</value>
+  </data>
+  <data name="anzInfoGoodBody" xml:space="preserve">
+    <value>C'est le format qui a le dernier mot sur avec perte ou sans perte ; le spectre ne décrit que la bande passante. Un spectre complet ne prouve pas le sans perte (un bon encodeur avec perte atteint aussi le sommet), et un morceau acoustique épuré ou un vieux master peut manquer d'aigus sans être avec perte. Le spectrogramme montre lequel est lequel : une falaise dure et plate est un filtre (avec perte), une décroissance douce et naturelle, c'est juste la musique.</value>
+  </data>
 </root>
