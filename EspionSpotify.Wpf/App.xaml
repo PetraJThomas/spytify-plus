@@ -164,12 +164,8 @@
                 </Setter>
             </Style>
 
-            <!-- Text boxes and combo boxes share the same height + font so they line up. The text box
-                 is the reference (32px is ModernWpf's default, so this doesn't change it). -->
-            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-                <Setter Property="MinHeight" Value="32" />
-                <Setter Property="FontSize" Value="14" />
-            </Style>
+            <!-- Match the combo box to the (untouched) text box: same height + font so they line up.
+                 32px is ModernWpf's default text-box height. -->
             <Style TargetType="ComboBox" BasedOn="{StaticResource DefaultComboBoxStyle}">
                 <Setter Property="MinHeight" Value="32" />
                 <Setter Property="FontSize" Value="14" />
