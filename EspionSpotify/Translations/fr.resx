@@ -194,7 +194,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblRecorder" xml:space="preserve">
-    <value>Enregistreur:</value>
+    <value>Enregistreur</value>
     <comment>interface</comment>
   </data>
   <data name="lblRecordingNum" xml:space="preserve">
@@ -206,7 +206,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblSpy" xml:space="preserve">
-    <value>Espion:</value>
+    <value>Espion</value>
     <comment>interface</comment>
   </data>
   <data name="logAd" xml:space="preserve">
@@ -434,7 +434,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblID3" xml:space="preserve">
-    <value>Tags ID3:</value>
+    <value>Tags ID3</value>
     <comment>interface</comment>
   </data>
   <data name="lblRecordAds" xml:space="preserve">
@@ -470,7 +470,7 @@
     <comment>message</comment>
   </data>
   <data name="lblGeneral" xml:space="preserve">
-    <value>Général:</value>
+    <value>Général</value>
     <comment>interface</comment>
   </data>
   <data name="lblMinimizeToSystemTray" xml:space="preserve">

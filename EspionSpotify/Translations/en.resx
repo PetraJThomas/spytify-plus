@@ -194,7 +194,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblRecorder" xml:space="preserve">
-    <value>Recorder:</value>
+    <value>Recorder</value>
     <comment>interface</comment>
   </data>
   <data name="lblRecordingNum" xml:space="preserve">
@@ -206,7 +206,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblSpy" xml:space="preserve">
-    <value>Spy:</value>
+    <value>Spy</value>
     <comment>interface</comment>
   </data>
   <data name="logAd" xml:space="preserve">
@@ -434,7 +434,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblID3" xml:space="preserve">
-    <value>ID3 Tags:</value>
+    <value>ID3 Tags</value>
     <comment>interface</comment>
   </data>
   <data name="lblRecordAds" xml:space="preserve">
@@ -474,7 +474,7 @@
     <comment>interface</comment>
   </data>
   <data name="lblGeneral" xml:space="preserve">
-    <value>General:</value>
+    <value>General</value>
     <comment>interface</comment>
   </data>
   <data name="logOutputPathNotFound" xml:space="preserve">
