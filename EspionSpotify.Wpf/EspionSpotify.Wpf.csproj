@@ -27,6 +27,14 @@
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
     <!-- NAudio MMDevice/AudioEndpointVolume used by the device-volume controls -->
     <PackageReference Include="NAudio" Version="1.10.0" />
+    <!-- Spotify OAuth: EmbedIO is the local callback server SpotifyAPI.Web.Auth uses; it and these
+         facades are runtime-only deps of the engine that don't flow through the project reference,
+         so the auth flow failed silently without them (the auth code swallows the load exception). -->
+    <PackageReference Include="EmbedIO" Version="2.9.2" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
