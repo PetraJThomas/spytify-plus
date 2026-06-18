@@ -17,10 +17,10 @@
             <!-- Slightly rounder controls across the app (buttons, text boxes, combos). -->
             <CornerRadius x:Key="ControlCornerRadius">6</CornerRadius>
 
-            <!-- Consistent buttons: rounded + a smooth hover/press overlay that adapts to the button's
-                 own colour (a faint white wash on hover, a faint black wash on press), so green accent
-                 buttons and default buttons both feel right. Based on ModernWpf's default style, so the
-                 window caption buttons and other framework buttons keep their own styles. -->
+            <!-- Consistent buttons: rounded + a smooth hover/press overlay that darkens the button's own
+                 colour (30% black wash on hover, deeper on press), so green accent buttons and default
+                 buttons both feel right. Based on ModernWpf's default style, so the window caption
+                 buttons and other framework buttons keep their own styles. -->
             <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                 <Setter Property="Padding" Value="12,5,12,6" />
                 <Setter Property="Template">
@@ -32,7 +32,7 @@
                                         BorderBrush="{TemplateBinding BorderBrush}"
                                         BorderThickness="{TemplateBinding BorderThickness}" />
                                 <Border x:Name="Overlay" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Background="White" Opacity="0" />
+                                        Background="Black" Opacity="0" />
                                 <ContentPresenter x:Name="cp" Margin="{TemplateBinding Padding}"
                                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -45,7 +45,7 @@
                                         <BeginStoryboard>
                                             <Storyboard>
                                                 <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity"
-                                                                 To="0.13" Duration="0:0:0.15">
+                                                                 To="0.3" Duration="0:0:0.15">
                                                     <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
                                                 </DoubleAnimation>
                                             </Storyboard>
@@ -62,13 +62,145 @@
                                         </BeginStoryboard>
                                     </Trigger.ExitActions>
                                 </Trigger>
-                                <!-- Press: swap the wash to black (opacity stays at the hover level). -->
+                                <!-- Press: darken further, then settle back to the hover level. -->
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="Overlay" Property="Background" Value="Black" />
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity"
+                                                                 To="0.45" Duration="0:0:0.06" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="Overlay" Storyboard.TargetProperty="Opacity"
+                                                                 To="0.3" Duration="0:0:0.12" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False">
                                     <Setter TargetName="Bg" Property="Opacity" Value="0.45" />
                                     <Setter TargetName="cp" Property="Opacity" Value="0.45" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- ComboBox: bigger and rounder, keeping ModernWpf's animated dropdown popup. -->
+            <Style TargetType="ComboBox" BasedOn="{StaticResource DefaultComboBoxStyle}">
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Padding" Value="12,6,10,6" />
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+
+            <!-- ToggleSwitch: a larger, modern pill switch with a springy thumb slide and a green
+                 track that crossfades in when on. Header sits above (as ModernWpf does). -->
+            <Style TargetType="ui:ToggleSwitch">
+                <Setter Property="Foreground" Value="#E6E6E6" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Margin" Value="0,6,0,6" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ui:ToggleSwitch">
+                            <StackPanel Background="Transparent">
+                                <ContentPresenter Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" Margin="0,0,0,8" />
+                                <Grid x:Name="SwitchAreaGrid" Width="50" Height="28" HorizontalAlignment="Left">
+                                    <Border CornerRadius="14" Background="#33FFFFFF" BorderBrush="#55FFFFFF" BorderThickness="1" />
+                                    <Border x:Name="TrackOn" CornerRadius="14" Background="{StaticResource SpotifyGreenBrush}" Opacity="0" />
+                                    <Ellipse x:Name="Thumb" Width="20" Height="20" Fill="White" HorizontalAlignment="Left" Margin="4,0,0,0">
+                                        <Ellipse.RenderTransform><TranslateTransform x:Name="ThumbT" X="0" /></Ellipse.RenderTransform>
+                                    </Ellipse>
+                                </Grid>
+                            </StackPanel>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsOn" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="ThumbT" Storyboard.TargetProperty="X" To="22" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.4" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="TrackOn" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="ThumbT" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.4" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="TrackOn" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- CheckBox: rounded box that fills green with a checkmark that springs in. -->
+            <Style TargetType="CheckBox">
+                <Setter Property="Foreground" Value="#E6E6E6" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Margin" Value="0,6,0,6" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CheckBox">
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                                <Grid Width="24" Height="24" VerticalAlignment="Center">
+                                    <Border CornerRadius="6" Background="#22FFFFFF" BorderBrush="#66FFFFFF" BorderThickness="1.5" />
+                                    <Border x:Name="BoxOn" CornerRadius="6" Background="{StaticResource SpotifyGreenBrush}" Opacity="0" />
+                                    <Path x:Name="Check" Data="M6,12 L10.5,16.5 L18,7" Stroke="Black" StrokeThickness="2.4"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                          Stretch="None" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform><ScaleTransform x:Name="CheckS" ScaleX="0.4" ScaleY="0.4" /></Path.RenderTransform>
+                                    </Path>
+                                </Grid>
+                                <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                            </StackPanel>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="BoxOn" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.12" />
+                                                <DoubleAnimation Storyboard.TargetName="Check" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.12" />
+                                                <DoubleAnimation Storyboard.TargetName="CheckS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.22">
+                                                    <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.7" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="CheckS" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.22">
+                                                    <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.7" /></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="BoxOn" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.12" />
+                                                <DoubleAnimation Storyboard.TargetName="Check" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.1" />
+                                                <DoubleAnimation Storyboard.TargetName="CheckS" Storyboard.TargetProperty="ScaleX" To="0.4" Duration="0:0:0.1" />
+                                                <DoubleAnimation Storyboard.TargetName="CheckS" Storyboard.TargetProperty="ScaleY" To="0.4" Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
