@@ -57,7 +57,7 @@
 
         <!-- Left-aligned icon for buttons that pair a glyph with a label. -->
         <Style x:Key="BtnIcon" TargetType="ui:FontIcon">
-            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="Margin" Value="0,0,8,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
