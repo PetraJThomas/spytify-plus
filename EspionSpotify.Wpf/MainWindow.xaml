@@ -344,14 +344,14 @@
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
                             <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr lblGeneral}" />
+                            <ui:ToggleSwitch Header="{l:Tr lblMuteAds}" IsOn="{Binding MuteAds, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="{l:Tr lblMinimizeToSystemTray}" IsOn="{Binding MinimizeToTray, Mode=TwoWay}" />
                             <StackPanel Style="{StaticResource Row}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblLanguage}" />
                                 <ComboBox ItemsSource="{Binding LanguageOptions}" SelectedValuePath="Key"
                                           DisplayMemberPath="Value" SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
                                           Width="200" />
                             </StackPanel>
-                            <ui:ToggleSwitch Header="{l:Tr lblMuteAds}" IsOn="{Binding MuteAds, Mode=TwoWay}" />
-                            <ui:ToggleSwitch Header="{l:Tr lblMinimizeToSystemTray}" IsOn="{Binding MinimizeToTray, Mode=TwoWay}" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
