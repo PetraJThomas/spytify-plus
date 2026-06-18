@@ -93,7 +93,7 @@ namespace EspionSpotify.Wpf
 
         private void InitTray()
         {
-            _tray = new System.Windows.Forms.NotifyIcon { Text = "Spytify", Visible = false };
+            _tray = new System.Windows.Forms.NotifyIcon { Text = "Spytify+", Visible = false };
             try
             {
                 _tray.Icon = System.Drawing.Icon.ExtractAssociatedIcon(
@@ -102,7 +102,7 @@ namespace EspionSpotify.Wpf
             catch { /* fall back to no tray icon image */ }
 
             var menu = new System.Windows.Forms.ContextMenuStrip();
-            menu.Items.Add("Open Spytify", null, (s, e) => RestoreFromTray());
+            menu.Items.Add("Open Spytify+", null, (s, e) => RestoreFromTray());
             menu.Items.Add("Exit", null, (s, e) => Close());
             _tray.ContextMenuStrip = menu;
             _tray.DoubleClick += (s, e) => RestoreFromTray();
@@ -322,7 +322,7 @@ namespace EspionSpotify.Wpf
             var ok = await Task.Run(() => AudioVirtualCableDriver.SetupDriver());
             if (!ok)
                 MessageBox.Show(this, Loc.Instance["msgCableInstallFailed"],
-                    "Spytify", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    "Spytify+", MessageBoxButton.OK, MessageBoxImage.Warning);
             RefreshAudioState();
         }
 
@@ -724,7 +724,7 @@ namespace EspionSpotify.Wpf
                 if (!Directory.Exists(_userSettings.OutputPath))
                 {
                     MessageBox.Show(this, Loc.Instance["msgOutputNotFound"] + "\n" + _userSettings.OutputPath,
-                        "Spytify", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "Spytify+", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -890,7 +890,7 @@ namespace EspionSpotify.Wpf
 
         public void ShowFailedToUseSpotifyAPIMessage() => RunOnUi(() =>
             MessageBox.Show(this, Loc.Instance["msgSpotifyFallback"],
-                "Spytify", MessageBoxButton.OK, MessageBoxImage.Information));
+                "Spytify+", MessageBoxButton.OK, MessageBoxImage.Information));
 
         public void UpdateAudioDevicesDataSource() => RunOnUi(() =>
         {

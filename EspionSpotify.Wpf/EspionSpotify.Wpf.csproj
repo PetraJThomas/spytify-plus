@@ -7,6 +7,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>EspionSpotify.Wpf</RootNamespace>
     <AssemblyName>Spytify</AssemblyName>
+    <Product>Spytify+</Product>
+    <AssemblyTitle>Spytify+</AssemblyTitle>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ApplicationIcon>Assets\spytify.ico</ApplicationIcon>
@@ -16,6 +18,7 @@
   <ItemGroup>
     <Resource Include="Assets\spytify-logo.png" />
     <Resource Include="Assets\spytify-icon.png" />
+    <Resource Include="Assets\spytify.ico" />
   </ItemGroup>
 
   <ItemGroup>
