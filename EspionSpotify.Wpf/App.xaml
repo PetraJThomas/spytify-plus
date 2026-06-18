@@ -164,10 +164,14 @@
                 </Setter>
             </Style>
 
-            <!-- ComboBox: bigger and rounder, keeping ModernWpf's animated dropdown popup. -->
+            <!-- Text boxes and combo boxes share the same height + font so they line up. The text box
+                 is the reference (32px is ModernWpf's default, so this doesn't change it). -->
+            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                <Setter Property="MinHeight" Value="32" />
+                <Setter Property="FontSize" Value="14" />
+            </Style>
             <Style TargetType="ComboBox" BasedOn="{StaticResource DefaultComboBoxStyle}">
-                <Setter Property="MinHeight" Value="36" />
-                <Setter Property="Padding" Value="12,6,10,6" />
+                <Setter Property="MinHeight" Value="32" />
                 <Setter Property="FontSize" Value="14" />
             </Style>
 
