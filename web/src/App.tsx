@@ -1,0 +1,281 @@
+import type { ReactNode } from 'react'
+import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
+import logoFull from './assets/logo-full.svg'
+import logoMark from './assets/logo-mark.svg'
+import recordShot from './assets/record.png'
+import analyzeShot from './assets/analyze.png'
+import templatesShot from './assets/templates.png'
+
+const REPO = 'https://github.com/PetraJThomas/spytify-plus'
+const ORIGINAL = 'https://github.com/jwallet/spy-spotify'
+const FLAC_FORK = 'https://gitlab.com/Fora888/spytify-flac'
+const PORTFOLIO = 'https://petrajthomas.com'
+
+const EASE = [0.22, 1, 0.36, 1] as const
+
+/** Fade + rise into view once, respecting reduced-motion. */
+function Reveal({
+  children,
+  delay = 0,
+  className,
+  id,
+  as = 'div',
+}: {
+  children: ReactNode
+  delay?: number
+  className?: string
+  id?: string
+  as?: 'div' | 'section' | 'li'
+}) {
+  const reduce = useReducedMotion()
+  const M = motion[as]
+  return (
+    <M
+      id={id}
+      className={className}
+      initial={reduce ? false : { opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.6, ease: EASE, delay }}
+    >
+      {children}
+    </M>
+  )
+}
+
+const heroContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
+}
+const heroItem = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+}
+
+const HIGHLIGHTS = [
+  {
+    tag: 'Async Queue Engine',
+    body: 'Recording and encoding were one inline, thread-blocking loop, so a slow encode or a fast track change silently dropped songs. I decoupled them into a single-consumer BlockingCollection<EncodeJob> pipeline: the recorder hands off the captured WAV and returns immediately, while a background worker encodes, moves, tags and cleans up off the capture path.',
+  },
+  {
+    tag: 'Unified FFmpeg Pipeline',
+    body: 'Ripped out the legacy native LAME binaries (the libmp3lame DLLs plus the preset, resampler and validator) and routed every format — FLAC, OPUS, MP3, WAV — through one stateless FFmpeg encode/decode chain. Metadata travels via an ffmetadata file, so titles with quotes or backslashes can never corrupt the command.',
+  },
+  {
+    tag: 'Native Forensics Engine',
+    body: 'A built-in, Spek-style analyzer: decode any file with the bundled FFmpeg (no ffprobe), run a Hann-windowed FFT into an averaged magnitude spectrum, detect the brick-wall low-pass a lossy encoder leaves, and render a WriteableBitmap spectrogram (Inferno / Magma / Viridis / Heat) with a plain-language verdict. The codec is authoritative, so a 320 kbps source hidden in a FLAC wrapper is flagged as a transcode.',
+  },
+  {
+    tag: 'Offline-Library Suite',
+    body: 'Custom filename and folder templates with a click-to-insert tag builder, "record the current Spotify playlist as one album", recording-length verification, per-capture quality analysis, cover.jpg plus ISRC and Spotify track/album ID tags, and .m3u playlist export. All opt-in, and the captured audio is never resampled or transcoded.',
+  },
+  {
+    tag: 'Production Hardening',
+    body: '325 of 325 unit tests pass (xUnit), behind a localization framework whose resx string tables are enforced against a key enum in English and French. Spotify API credentials are encrypted at rest with DPAPI.',
+  },
+]
+
+const LIBRARY = [
+  'Templated paths: {albumartist}/{album} ({year}) and {track2} {title}, built by clicking tags.',
+  'Turn a Spotify playlist into one cohesive "Various Artists" album, with its cover art.',
+  'ISRC + Spotify track/album IDs written to tags, for de-duping and re-linking a library.',
+  'cover.jpg per album folder and a portable .m3u playlist, alongside the embedded metadata.',
+]
+
+export default function App() {
+  const { scrollYProgress } = useScroll()
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 })
+
+  return (
+    <div className="page">
+      <motion.div className="scroll-progress" style={{ scaleX: progress }} />
+
+      <header className="nav">
+        <a className="nav__brand" href="#top">
+          <img src={logoMark} alt="" width={26} height={26} />
+          <span>Spytify+</span>
+        </a>
+        <nav className="nav__links">
+          <a href="#engineering">Engineering</a>
+          <a href="#quickstart">Quick start</a>
+          <a className="nav__cta" href={REPO} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        </nav>
+      </header>
+
+      <main id="top">
+        {/* Phase 1 — Hero */}
+        <section className="hero">
+          <div className="hero__glow" aria-hidden />
+          <motion.div
+            className="hero__inner"
+            variants={heroContainer}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.img
+              className="hero__logo"
+              variants={heroItem}
+              src={logoFull}
+              alt="Spytify+"
+            />
+            <motion.p className="hero__subtitle" variants={heroItem}>
+              A modernized, decoupled, high-fidelity fork of the archived Spytify project,
+              optimized for bit-perfect lossless recording and native acoustic forensics.
+            </motion.p>
+            <motion.div className="hero__cta" variants={heroItem}>
+              <a className="btn btn--primary" href={REPO} target="_blank" rel="noreferrer">
+                View on GitHub
+              </a>
+              <a className="btn btn--ghost" href="#engineering">
+                See the engineering
+              </a>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            className="shots"
+            variants={heroItem}
+            initial="hidden"
+            animate="show"
+            transition={{ delay: 0.5 }}
+          >
+            <figure className="shot">
+              <motion.img
+                src={recordShot}
+                alt="Spytify+ Record tab: the player card with live album art and the async processing log"
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.35, ease: EASE }}
+              />
+              <figcaption>Record: live album-art player card + async capture log</figcaption>
+            </figure>
+            <figure className="shot">
+              <motion.img
+                src={analyzeShot}
+                alt="Spytify+ Analyze tab: waveform, frequency response and Inferno spectrogram with a lossless verdict"
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.35, ease: EASE }}
+              />
+              <figcaption>Analyze: waveform, spectrogram and a plain-language verdict</figcaption>
+            </figure>
+          </motion.div>
+        </section>
+
+        {/* Phase 2 — Origins & Credits */}
+        <Reveal as="section" className="section origins">
+          <h2 className="section__title">Origins &amp; Credits</h2>
+          <p>
+            Spytify+ is built on the foundational work of{' '}
+            <a href={ORIGINAL} target="_blank" rel="noreferrer">
+              Spytify by jwallet
+            </a>{' '}
+            (now archived). Native FLAC output came from the intermediate{' '}
+            <a href={FLAC_FORK} target="_blank" rel="noreferrer">
+              spytify-flac fork by Fora888
+            </a>
+            . This project is the WPF rewrite, the forensics engine and the offline-library work on top.
+          </p>
+          <p>
+            Every layer stays{' '}
+            <strong>100% open-source under the original MIT License</strong>, preserving the full
+            historical and legal chain back to jwallet&apos;s archive. No donation links, badges or
+            monetization live here: it is kept strictly altruistic.
+          </p>
+        </Reveal>
+
+        {/* Phase 3 — Engineering highlights */}
+        <section id="engineering" className="section">
+          <Reveal>
+            <h2 className="section__title">Engineering highlights</h2>
+            <p className="section__lead">
+              The phased technical work behind the fork, not just &ldquo;it&apos;s better.&rdquo;
+            </p>
+          </Reveal>
+          <ul className="cards">
+            {HIGHLIGHTS.map((h, i) => (
+              <Reveal as="li" className="card" key={h.tag} delay={i * 0.06}>
+                <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.3, ease: EASE }}>
+                  <span className="card__tag">{h.tag}</span>
+                  <p className="card__body">{h.body}</p>
+                </motion.div>
+              </Reveal>
+            ))}
+          </ul>
+        </section>
+
+        {/* Library / organisation, with the template builder shot */}
+        <section className="section split">
+          <Reveal className="split__text">
+            <h2 className="section__title">Built for a real library</h2>
+            <ul className="ticks">
+              {LIBRARY.map((l) => (
+                <li key={l}>{l}</li>
+              ))}
+            </ul>
+          </Reveal>
+          <Reveal className="split__media" delay={0.1}>
+            <motion.img
+              src={templatesShot}
+              alt="Spytify+ filename and folder template builder with a click-to-insert tag legend"
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.35, ease: EASE }}
+            />
+          </Reveal>
+        </section>
+
+        {/* Phase 4 — Quick start */}
+        <Reveal as="section" id="quickstart" className="section">
+          <h2 className="section__title">Quick start</h2>
+          <ol className="steps">
+            <li>
+              <span className="steps__num">1</span>
+              <div>
+                <h3>Record from the loopback</h3>
+                <p>
+                  Install a virtual audio cable (e.g. VB-Audio), set Windows playback and Spytify+ to
+                  it at <strong>44.1 kHz</strong>, and record. You capture exactly what Spotify plays
+                  out, with nothing else mixed in.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span className="steps__num">2</span>
+              <div>
+                <h3>Get past Windows SmartScreen</h3>
+                <p>
+                  The release is unsigned, so SmartScreen shows an &ldquo;unknown publisher&rdquo; prompt
+                  the first time. Click <strong>More info &rarr; Run anyway</strong>, and unblock the
+                  downloaded <code>.zip</code> (right-click &rarr; Properties &rarr; Unblock) before
+                  extracting. Or build it yourself from source.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </Reveal>
+      </main>
+
+      <footer className="footer">
+        <div className="footer__credit">
+          Maintained and re-engineered by{' '}
+          <a href={PORTFOLIO} target="_blank" rel="noreferrer">
+            Petra J. Thomas
+          </a>{' '}
+          &middot; Founder of TR Studio Pro
+        </div>
+        <div className="footer__links">
+          <a href={REPO} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+          <a href={ORIGINAL} target="_blank" rel="noreferrer">
+            Original (archived)
+          </a>
+          <a href={`${REPO}/blob/main/LICENSE`} target="_blank" rel="noreferrer">
+            MIT License
+          </a>
+        </div>
+        <div className="footer__fine">MIT licensed. Not affiliated with Spotify.</div>
+      </footer>
+    </div>
+  )
+}
