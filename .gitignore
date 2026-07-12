@@ -229,3 +229,4 @@ project.lock.json
 
 docs/*
 !docs/*.md
+!docs/screenshots/
