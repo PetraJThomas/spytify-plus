@@ -857,6 +857,7 @@ namespace EspionSpotify.Wpf
             _userSettings.TrackTitleSeparator = Settings.Default.advanced_file_replace_space_by_underscore_enabled ? "_" : " ";
             _userSettings.OrderNumberMask = Settings.Default.app_counter_number_mask;
             _userSettings.ExtraTitleToSubtitleEnabled = Settings.Default.advanced_id3_extra_title_as_subtitle_enabled;
+            _userSettings.UpdateRecordingsID3TagsEnabled = Settings.Default.advanced_id3_update_recordings_tags_enabled;
             _userSettings.WriteExtendedTags = Settings.Default.advanced_extended_tags_enabled;
             _userSettings.SaveCoverFile = Settings.Default.advanced_save_cover_file_enabled;
             _userSettings.ExportPlaylist = Settings.Default.advanced_export_m3u_enabled;
