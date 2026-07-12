@@ -279,8 +279,12 @@ namespace EspionSpotify
 
             switch (_userSettings.MediaFormat)
             {
+                // TagLib re-writes tags in place for every container (ID3 for MP3/WAV, Vorbis
+                // comments for FLAC/OPUS), so re-tagging a skipped/replayed track works for all.
                 case MediaFormat.Mp3:
                 case MediaFormat.Wav:
+                case MediaFormat.Flac:
+                case MediaFormat.Opus:
                     var mapper = new MapperID3(
                         _currentOutputFile.ToMediaFilePath(),
                         _track,

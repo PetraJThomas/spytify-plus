@@ -208,7 +208,7 @@ namespace EspionSpotify
         private async Task EncodeWithFFmpegAsync(EncodeJob job, string tempEncodeFile, bool isFlac)
         {
             var ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "binaries", "ffmpeg.exe");
-            var ffmetaPath = BuildFfmetadataFile(job.Track);
+            var ffmetaPath = BuildFfmetadataFile(job.Track, job.UserSettings);
 
             try
             {
@@ -297,7 +297,19 @@ namespace EspionSpotify
             }
         }
 
-        private string BuildFfmetadataFile(Track track)
+        private string BuildFfmetadataFile(Track track, UserSettings userSettings)
+        {
+            var path = _fileSystem.Path.GetTempFileName();
+            _fileSystem.File.WriteAllText(path, BuildFfmetadataContent(track, userSettings), new UTF8Encoding(false));
+            return path;
+        }
+
+        /// <summary>
+        /// Builds the ffmetadata document fed to ffmpeg when encoding FLAC/OPUS. Mirrors the MP3/WAV
+        /// tag logic in <see cref="MapperID3"/> so every container ends up with the same tags,
+        /// honouring the "extra title as subtitle" and "counter number as track number" toggles.
+        /// </summary>
+        public static string BuildFfmetadataContent(Track track, UserSettings userSettings)
         {
             var sb = new StringBuilder();
             sb.Append(";FFMETADATA1\n");
@@ -308,7 +320,14 @@ namespace EspionSpotify
                 sb.Append(key).Append('=').Append(FfmetaEscape(value)).Append('\n');
             }
 
-            Add("title", track.Title);
+            // "Extra title as subtitle": keep the bare title and split the "(feat.)"/"- Live" part
+            // into a subtitle field; otherwise the title carries the full extended string.
+            var movingExtraToSubtitle = userSettings.ExtraTitleToSubtitleEnabled
+                                        && track.TitleExtendedSeparatorType != TitleSeparatorType.None;
+
+            Add("title", movingExtraToSubtitle ? track.Title : track.ToTitleString());
+            if (movingExtraToSubtitle) Add("subtitle", track.TitleExtended);
+
             Add("artist", track.Artist);
             Add("album", track.Album);
 
@@ -322,13 +341,17 @@ namespace EspionSpotify
             if (track.Genres != null && track.Genres.Length > 0)
                 Add("genre", string.Join(", ", track.Genres));
             if (track.Year.HasValue) Add("date", track.Year.Value.ToString());
-            if (track.AlbumPosition.HasValue) Add("track", track.AlbumPosition.Value.ToString());
-            if (track.Disc.HasValue) Add("disc", track.Disc.Value.ToString());
-            if (!string.IsNullOrEmpty(track.TitleExtended)) Add("comment", track.TitleExtended);
 
-            var path = _fileSystem.Path.GetTempFileName();
-            _fileSystem.File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
-            return path;
+            // "Counter number as track number": use the app counter when enabled, else the album
+            // position (same choice MapperID3.GetTrackNumber makes for MP3/WAV).
+            var trackNumber = userSettings.OrderNumberInMediaTagEnabled && userSettings.OrderNumberAsTag.HasValue
+                ? userSettings.OrderNumberAsTag
+                : track.AlbumPosition;
+            if (trackNumber.HasValue) Add("track", trackNumber.Value.ToString());
+
+            if (track.Disc.HasValue) Add("disc", track.Disc.Value.ToString());
+
+            return sb.ToString();
         }
 
         private static string FfmetaEscape(string value)

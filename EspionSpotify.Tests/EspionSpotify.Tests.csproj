@@ -138,6 +138,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EncodeServiceTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="FileManagerTests.cs" />
     <Compile Include="SpotifyProcessTests.cs" />
