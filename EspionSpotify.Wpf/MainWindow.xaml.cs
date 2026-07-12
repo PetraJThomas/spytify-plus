@@ -781,6 +781,18 @@ namespace EspionSpotify.Wpf
         {
             _loading = true;
 
+            // One-time settings migration after a version bump. The .NET user-settings
+            // config path embeds the assembly version, so a new build reads a fresh,
+            // empty user.config and every saved preference appears reset. Upgrade() pulls
+            // the previous version's values forward. Runs once per new version: the flag
+            // defaults to true (no file yet for this version), then we clear and save it.
+            if (Settings.Default.settings_upgrade_required)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.settings_upgrade_required = false;
+                Settings.Default.Save();
+            }
+
             OutputPath = Settings.Default.settings_output_path;
             _userSettings.OutputPath = FileManager.GetCleanPath(Settings.Default.settings_output_path);
 
