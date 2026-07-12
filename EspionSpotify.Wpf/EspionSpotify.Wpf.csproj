@@ -9,6 +9,7 @@
     <AssemblyName>Spytify</AssemblyName>
     <Product>Spytify+</Product>
     <AssemblyTitle>Spytify+</AssemblyTitle>
+    <Version>2.0.0</Version>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ApplicationIcon>Assets\spytify.ico</ApplicationIcon>
