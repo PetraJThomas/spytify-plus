@@ -206,6 +206,59 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        internal void MapSpotifyPlaylistToTrack_OverridesAlbumIdentity_KeepsTrackArtist()
+        {
+            var track = new Track
+            {
+                Artist = "Dua Lipa", Title = "Levitating",
+                Album = "Future Nostalgia", AlbumArtists = new[] {"Dua Lipa"},
+                AlbumArtUrl = "http://track-album.img"
+            };
+            var playlist = new FullPlaylist
+            {
+                Name = "Summer 2024",
+                Images = new List<Image>
+                {
+                    new Image {Width = 300, Url = "http://300.img"},
+                    new Image {Width = 640, Url = "http://640.img"}
+                }
+            };
+
+            _spotifyAPI.MapSpotifyPlaylistToTrack(track, playlist, 5);
+
+            Assert.Equal("Summer 2024", track.Album);
+            Assert.Equal(new[] {"Various Artists"}, track.AlbumArtists);
+            Assert.Equal(5, track.AlbumPosition);
+            Assert.Equal("http://640.img", track.AlbumArtUrl);
+            Assert.Equal("Dua Lipa", track.Artist); // per-track artist preserved
+        }
+
+        [Fact]
+        internal void MapSpotifyPlaylistToTrack_NullPlaylist_IsNoOp()
+        {
+            var track = new Track {Artist = "Artist", Title = "Title", Album = "Real Album"};
+            _spotifyAPI.MapSpotifyPlaylistToTrack(track, null, 1);
+            Assert.Equal("Real Album", track.Album);
+        }
+
+        [Theory]
+        [InlineData("playlist", "spotify:playlist:37i9dQZF1DX", "37i9dQZF1DX")]
+        [InlineData("playlist", "spotify:user:abc:playlist:xyz123", "xyz123")]
+        [InlineData("album", "spotify:album:zzz", null)]
+        [InlineData("playlist", "", null)]
+        internal void GetPlaylistIdFromContext_ParsesPlaylistId(string type, string uri, string expected)
+        {
+            var context = new Context {Type = type, Uri = uri};
+            Assert.Equal(expected, API.SpotifyAPI.GetPlaylistIdFromContext(context));
+        }
+
+        [Fact]
+        internal void GetPlaylistIdFromContext_NullContext_ReturnsNull()
+        {
+            Assert.Null(API.SpotifyAPI.GetPlaylistIdFromContext(null));
+        }
+
+        [Fact]
         internal void MapFullSpotifyAlbumToTrack_ReturnsExpectedTrack()
         {
             var fullAlbum = new FullAlbum

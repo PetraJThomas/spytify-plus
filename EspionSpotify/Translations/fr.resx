@@ -461,6 +461,14 @@
     <value>Aperçu</value>
     <comment>interface</comment>
   </data>
+  <data name="lblPlaylistAsAlbum" xml:space="preserve">
+    <value>Enregistrer la playlist en cours comme un album</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipPlaylistAsAlbum" xml:space="preserve">
+    <value>Nécessite la source de métadonnées API Spotify. Pendant la lecture d'une playlist Spotify, toutes les pistes enregistrées sont étiquetées comme un seul album nommé d'après la playlist (Various Artists), avec la pochette de la playlist et numérotées dans l'ordre de lecture.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblRecordAds" xml:space="preserve">
     <value>Incluant les annonces</value>
     <comment>interface</comment>

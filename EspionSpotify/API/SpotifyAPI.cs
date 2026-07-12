@@ -28,6 +28,13 @@ namespace EspionSpotify.API
         private string _refreshToken;
         private Token _token;
 
+        // Playlist-as-album state: cache fetched playlists and keep a per-playlist running counter
+        // (playback order) so a whole playlist records as one cohesive album.
+        private readonly Dictionary<string, FullPlaylist> _playlistCache = new Dictionary<string, FullPlaylist>();
+        private string _playlistAlbumId;
+        private int _playlistAlbumCounter;
+        private string _playlistAlbumLastTrackId;
+
         public SpotifyAPI()
         {
         }
@@ -39,8 +46,8 @@ namespace EspionSpotify.API
             if (!string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(secretId))
             {
                 _auth = new AuthorizationCodeAuth(clientId, secretId, redirectUrl, redirectUrl,
-                    Scope.Streaming | Scope.PlaylistReadCollaborative | Scope.UserReadCurrentlyPlaying |
-                    Scope.UserReadRecentlyPlayed | Scope.UserReadPlaybackState);
+                    Scope.Streaming | Scope.PlaylistReadCollaborative | Scope.PlaylistReadPrivate |
+                    Scope.UserReadCurrentlyPlaying | Scope.UserReadRecentlyPlayed | Scope.UserReadPlaybackState);
                 _auth.AuthReceived += AuthOnAuthReceived;
                 _auth.Start();
             }
@@ -85,6 +92,28 @@ namespace EspionSpotify.API
             track.AlbumPosition = spotifyTrack.TrackNumber;
             track.Performers = performers;
             track.Disc = spotifyTrack.DiscNumber;
+        }
+
+        // Overrides the album identity so a playlist records as one compilation album:
+        // Album = playlist name, album artist = Various Artists (keeps mixed artists in one folder),
+        // cover = playlist cover, position = playback-order counter. Per-track artist is untouched.
+        public void MapSpotifyPlaylistToTrack(Track track, FullPlaylist playlist, int? position)
+        {
+            if (playlist == null) return;
+
+            if (!string.IsNullOrWhiteSpace(playlist.Name)) track.Album = playlist.Name;
+            track.AlbumArtists = new[] {Constants.VARIOUS_ARTISTS};
+            if (position.HasValue) track.AlbumPosition = position;
+
+            if (playlist.Images != null && playlist.Images.Count > 0)
+            {
+                var cover = playlist.Images
+                    .OrderByDescending(i => i.Width)
+                    .Where(i => i.Width <= 640)
+                    .Select(i => i.Url)
+                    .FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(cover)) track.AlbumArtUrl = cover;
+            }
         }
 
         public void MapSpotifyAlbumToTrack(Track track, FullAlbum spotifyAlbum)
@@ -201,7 +230,73 @@ namespace EspionSpotify.API
 
             MapSpotifyAlbumToTrack(track, album);
 
+            await TryApplyPlaylistAlbum(track, playback);
+
             return true;
+        }
+
+        // When "record the current playlist as one album" is on and playback comes from a playlist,
+        // override the album identity with the playlist's. Cached per playlist; counter runs in
+        // playback order and is guarded against UpdateTrack retries by the last-track-id check.
+        private async Task TryApplyPlaylistAlbum(Track track, PlaybackContext playback)
+        {
+            if (!Settings.Default.advanced_playlist_as_album_enabled) return;
+
+            var playlistId = GetPlaylistIdFromContext(playback?.Context);
+            if (playlistId == null)
+            {
+                _playlistAlbumId = null;
+                return;
+            }
+
+            var playlist = await GetCachedPlaylistAsync(playlistId);
+            if (playlist == null) return;
+
+            if (playlistId != _playlistAlbumId)
+            {
+                _playlistAlbumId = playlistId;
+                _playlistAlbumCounter = 0;
+                _playlistAlbumLastTrackId = null;
+            }
+
+            var trackId = playback?.Item?.Id;
+            if (trackId != _playlistAlbumLastTrackId)
+            {
+                _playlistAlbumCounter++;
+                _playlistAlbumLastTrackId = trackId;
+            }
+
+            MapSpotifyPlaylistToTrack(track, playlist, _playlistAlbumCounter);
+        }
+
+        private async Task<FullPlaylist> GetCachedPlaylistAsync(string playlistId)
+        {
+            if (_playlistCache.TryGetValue(playlistId, out var cached)) return cached;
+
+            var playlist = await _api.GetPlaylistWithoutExceptionAsync(playlistId);
+            if (playlist == null || playlist.HasError()) return null;
+
+            _playlistCache[playlistId] = playlist;
+            return playlist;
+        }
+
+        public static string GetPlaylistIdFromContext(Context context)
+        {
+            if (context == null || !string.Equals(context.Type, "playlist", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            var uri = context.Uri;
+            if (string.IsNullOrEmpty(uri)) return null;
+
+            // "spotify:playlist:{id}" (and the legacy "spotify:user:x:playlist:{id}")
+            const string marker = "playlist:";
+            var idx = uri.LastIndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (idx < 0) return null;
+
+            var id = uri.Substring(idx + marker.Length);
+            var colon = id.IndexOf(':');
+            if (colon >= 0) id = id.Substring(0, colon);
+            return string.IsNullOrWhiteSpace(id) ? null : id;
         }
 
         #endregion Spotify Track updater

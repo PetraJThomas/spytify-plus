@@ -29,6 +29,8 @@
         lblFolderTemplate,
         lblFileTemplate,
         lblPreview,
+        lblPlaylistAsAlbum,
+        tipPlaylistAsAlbum,
         lblLanguage,
         lblListenToSpotifyPlayback,
         lblMinimizeToSystemTray,

@@ -461,6 +461,14 @@
     <value>Preview</value>
     <comment>interface</comment>
   </data>
+  <data name="lblPlaylistAsAlbum" xml:space="preserve">
+    <value>Record the current playlist as one album</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipPlaylistAsAlbum" xml:space="preserve">
+    <value>Requires the Spotify API metadata source. While playing a Spotify playlist, all recorded tracks are tagged as one album named after the playlist (Various Artists), with the playlist cover and numbered in playback order.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblRecordAds" xml:space="preserve">
     <value>Including ads</value>
     <comment>interface</comment>

@@ -8,5 +8,7 @@ namespace EspionSpotify.API
         void MapSpotifyTrackToTrack(Track track, FullTrack spotifyTrack);
 
         void MapSpotifyAlbumToTrack(Track track, FullAlbum spotifyAlbum);
+
+        void MapSpotifyPlaylistToTrack(Track track, FullPlaylist playlist, int? position);
     }
 }

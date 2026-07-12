@@ -32,6 +32,9 @@
     <Setting Name="advanced_file_name_template" Type="System.String" Scope="User">
       <Value Profile="(Default)">{track2} {title}</Value>
     </Setting>
+    <Setting Name="advanced_playlist_as_album_enabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="advanced_id3_counter_number_as_track_number_enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

@@ -35,5 +35,20 @@ namespace EspionSpotify.Extensions
 
             return album;
         }
+
+        public static async Task<FullPlaylist> GetPlaylistWithoutExceptionAsync(this SpotifyWebAPI api, string id)
+        {
+            FullPlaylist playlist = null;
+            try
+            {
+                playlist = await api.GetPlaylistAsync(id, "", "");
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return playlist;
+        }
     }
 }

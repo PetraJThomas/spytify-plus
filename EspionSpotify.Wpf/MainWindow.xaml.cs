@@ -592,6 +592,13 @@ namespace EspionSpotify.Wpf
         }
         public bool DuplicateVisible => RecordOverRecordings;
 
+        // --- Advanced: record the current Spotify playlist as one album (Spotify API only) ---
+        public bool PlaylistAsAlbum
+        {
+            get => Settings.Default.advanced_playlist_as_album_enabled;
+            set => SetToggle(value, v => { Settings.Default.advanced_playlist_as_album_enabled = v; });
+        }
+
         // --- Advanced: custom path templates (opt-in override of the naming/folder toggles) ---
         public bool PathTemplateEnabled
         {
@@ -748,6 +755,7 @@ namespace EspionSpotify.Wpf
                 nameof(AddSeparators), nameof(CounterToFilePrefix), nameof(AlbumTrackNumberPrefix),
                 nameof(RecordOverRecordings), nameof(DuplicateRecordings), nameof(DuplicateVisible),
                 nameof(CounterToMediaTag), nameof(ExtraTitleToSubtitle), nameof(UpdateId3Tags),
+                nameof(PlaylistAsAlbum),
                 nameof(PathTemplateEnabled), nameof(TemplateFieldsVisible), nameof(ClassicNamingEnabled),
                 nameof(FolderTemplate), nameof(FileTemplate), nameof(SpotifyApiConfigured), nameof(SpotifyOptionsVisible)
             }) OnPropertyChanged(p);
