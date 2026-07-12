@@ -9,6 +9,7 @@ import {
   Sparkles,
   Github,
   Cpu,
+  Code2,
   Check,
   Info,
   ZoomIn,
@@ -107,43 +108,52 @@ const heroItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
 }
 
+const STATS = ['325 tests, all green', 'FLAC · OPUS · MP3 · WAV', 'English + French', '.NET Framework 4.8', 'MIT licensed']
+
 const HIGHLIGHTS = [
   {
     icon: Workflow,
-    tag: 'Async Queue Engine',
-    summary: 'Capture is decoupled from encoding, so fast track changes never drop a recording.',
-    body: 'Recording and encoding were one inline, thread-blocking loop, so a slow encode or a fast track change silently dropped songs. I decoupled them into a single-consumer BlockingCollection<EncodeJob> pipeline: the recorder hands off the captured WAV and returns immediately, while a background worker encodes, moves, tags and cleans up off the capture path.',
+    tag: 'It stopped dropping songs',
+    summary: 'Recording and encoding run on separate lanes now, so a quick skip never loses a track.',
+    body: 'The recorder and the encoder used to be tangled in one blocking loop, so a slow encode or a fast track change would quietly lose a song. I split them apart: the recorder grabs the audio, hands it off, and moves straight on, while a background worker encodes, files and tags it out of the way.',
   },
   {
     icon: Combine,
-    tag: 'Unified FFmpeg Pipeline',
-    summary: 'One stateless FFmpeg chain for every format; the native LAME binaries are gone.',
-    body: 'Ripped out the legacy native LAME binaries (the libmp3lame DLLs plus the preset, resampler and validator) and routed every format — FLAC, OPUS, MP3, WAV — through one stateless FFmpeg encode/decode chain. Metadata travels via an ffmetadata file, so titles with quotes or backslashes can never corrupt the command.',
+    tag: 'One path for every format',
+    summary: 'FLAC, OPUS, MP3 and WAV all go through a single FFmpeg step. The old native encoders are gone.',
+    body: 'I pulled out the legacy native LAME encoder and its pile of helpers, and now every format runs through one FFmpeg chain. Tags travel in their own file, so a song title full of quotes or backslashes can never break the command.',
   },
   {
     icon: Microscope,
-    tag: 'Native Forensics Engine',
-    summary: "A built-in Spek-style analyzer that proves a file's real quality from its spectrum.",
-    body: 'Decode any file with the bundled FFmpeg (no ffprobe), run a Hann-windowed FFT into an averaged magnitude spectrum, detect the brick-wall low-pass a lossy encoder leaves, and render a WriteableBitmap spectrogram (Inferno / Magma / Viridis / Heat) with a plain-language verdict. The codec is authoritative, so a 320 kbps source hidden in a FLAC wrapper is flagged as a transcode.',
+    tag: 'It can prove the quality',
+    summary: "A built-in analyzer reads a file's spectrum and tells you, in plain English, what you really got.",
+    body: 'Point it at any audio file and it decodes with the bundled FFmpeg, runs the maths over the frequency spectrum, and spots the tell-tale wall a lossy encoder leaves behind. You get a spectrogram and a verdict, so a 320 kbps file dressed up as a FLAC gets caught.',
   },
   {
     icon: Library,
-    tag: 'Offline-Library Suite',
-    summary: 'Templates, playlist-as-album, rich tags, cover.jpg and .m3u export, all opt-in.',
-    body: 'Custom filename and folder templates with a click-to-insert tag builder, "record the current Spotify playlist as one album", recording-length verification, per-capture quality analysis, cover.jpg plus ISRC and Spotify track/album ID tags, and .m3u playlist export. All opt-in, and the captured audio is never resampled or transcoded.',
+    tag: 'Built for a tidy library',
+    summary: 'Name your files with templates, turn a playlist into an album, and get real tags, cover art and playlists.',
+    body: 'Name and file your recordings however you like with a click-to-build template, turn a whole Spotify playlist into one album, write ISRC and Spotify IDs into the tags, drop a cover.jpg in each folder, and export an .m3u. It is all optional, and none of it touches the audio itself.',
   },
   {
     icon: Sparkles,
-    tag: 'Crafted UX & Motion',
-    summary: 'A hand-tuned Fluent interface with a live album-art player card and fluid animations.',
-    body: 'The WinForms UI was fully retired for a ModernWpf (Fluent) shell, dark with a Spotify-green accent: a mini Spotify-style player card showing the current track’s live album art, snap-proof navigation transitions, a tier-reactive Analyze verdict with a circulating glow-streak border, an equalizer-style busy loader, and consistent hover and press motion throughout. Fully localized in English and French.',
+    tag: 'It actually feels good to use',
+    summary: 'A hand-built interface, dark and Spotify-green, with a live now-playing card and motion where it helps.',
+    body: 'I threw out the old WinForms interface and rebuilt it in WPF. There is a little now-playing card with the live album art, navigation that never stutters, a glowing verdict badge on the Analyze tab, an equalizer-style loader, and animation everywhere it earns its place. It is fully translated into English and French too.',
   },
   {
     icon: ShieldCheck,
-    tag: 'Production Hardening',
-    summary: '325/325 tests, English + French localization, and encrypted credentials at rest.',
-    body: '325 of 325 unit tests pass (xUnit), behind a localization framework whose resx string tables are enforced against a key enum in English and French. Spotify API credentials are encrypted at rest with DPAPI.',
+    tag: 'Solid, not just shiny',
+    summary: '325 tests passing, two languages kept in sync automatically, and your API keys encrypted on disk.',
+    body: 'There are 325 tests and they all pass. Every piece of on-screen text is translated across English and French, checked automatically so nothing slips through untranslated. And your Spotify API keys are encrypted where they are stored, not sitting in plain text.',
   },
+]
+
+const LIBRARY = [
+  'Build paths by clicking tags: {albumartist}/{album} ({year}), then {track2} {title}.',
+  'Turn a whole Spotify playlist into one album, cover art and all.',
+  'ISRC and Spotify IDs written into the tags, so nothing is a mystery later.',
+  'A cover.jpg in every folder and an .m3u playlist to match.',
 ]
 
 function FeatureCard({ h, delay }: { h: (typeof HIGHLIGHTS)[number]; delay: number }) {
@@ -159,7 +169,7 @@ function FeatureCard({ h, delay }: { h: (typeof HIGHLIGHTS)[number]; delay: numb
           <span className="card__tag">{h.tag}</span>
           <button
             className="card__info"
-            aria-label={open ? 'Hide details' : 'Show details'}
+            aria-label={open ? 'Hide details' : 'Show the detail'}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
@@ -184,13 +194,6 @@ function FeatureCard({ h, delay }: { h: (typeof HIGHLIGHTS)[number]; delay: numb
     </Reveal>
   )
 }
-
-const LIBRARY = [
-  'Templated paths: {albumartist}/{album} ({year}) and {track2} {title}, built by clicking tags.',
-  'Turn a Spotify playlist into one cohesive "Various Artists" album, with its cover art.',
-  'ISRC + Spotify track/album IDs written to tags, for de-duping and re-linking a library.',
-  'cover.jpg per album folder and a portable .m3u playlist, alongside the embedded metadata.',
-]
 
 export default function App() {
   const { scrollYProgress } = useScroll()
@@ -218,7 +221,7 @@ export default function App() {
           <span>Spytify+</span>
         </a>
         <nav className="nav__links">
-          <a href="#engineering">Engineering</a>
+          <a href="#build">The build</a>
           <a href="#quickstart">Quick start</a>
           <a className="nav__cta" href={REPO} target="_blank" rel="noreferrer">
             <Github size={16} /> GitHub
@@ -227,21 +230,21 @@ export default function App() {
       </header>
 
       <main id="top">
-        {/* Phase 1 — Hero */}
+        {/* Hero */}
         <section className="hero">
           <div className="hero__glow" aria-hidden />
           <motion.div className="hero__inner" variants={heroContainer} initial="hidden" animate="show">
             <motion.img className="hero__logo" variants={heroItem} src={logoFull} alt="Spytify+" />
             <motion.p className="hero__subtitle" variants={heroItem}>
-              A modernized, decoupled, high-fidelity fork of the original Spytify project, optimized for
-              bit-perfect lossless recording and native acoustic forensics.
+              A from-scratch rebuild of Spytify, the Spotify recorder. It captures your music cleanly,
+              keeps every track tagged and filed, and shows you exactly how lossless the result really is.
             </motion.p>
             <motion.div className="hero__cta" variants={heroItem}>
               <a className="btn btn--primary" href={REPO} target="_blank" rel="noreferrer">
                 <Github size={18} /> View on GitHub
               </a>
-              <a className="btn btn--ghost" href="#engineering">
-                <Cpu size={18} /> See the engineering
+              <a className="btn btn--ghost" href="#build">
+                <Cpu size={18} /> See how it's built
               </a>
             </motion.div>
           </motion.div>
@@ -255,48 +258,66 @@ export default function App() {
           >
             <Screenshot
               src={recordShot}
-              alt="Spytify+ Record tab: the player card with live album art and the async processing log"
-              caption="Record: live album-art player card + async capture log"
+              alt="Spytify+ Record tab: the player card with live album art and the capture log"
+              caption="Recording, with a live now-playing card and the capture log"
               onZoom={setZoom}
             />
             <Screenshot
               src={analyzeShot}
               alt="Spytify+ Analyze tab: waveform, frequency response and Inferno spectrogram with a lossless verdict"
-              caption="Analyze: waveform, spectrogram and a plain-language verdict"
+              caption="Analyzing a file: waveform, spectrogram and a plain-English verdict"
               onZoom={setZoom}
             />
           </motion.div>
         </section>
 
-        {/* Phase 2 — Origins & Credits */}
-        <Reveal as="section" className="section origins">
-          <h2 className="section__title">Origins &amp; Credits</h2>
+        {/* Stats strip */}
+        <Reveal className="stats">
+          {STATS.map((s) => (
+            <span className="stat" key={s}>
+              {s}
+            </span>
+          ))}
+        </Reveal>
+
+        {/* Why it exists */}
+        <Reveal as="section" className="section why">
+          <h2 className="section__title">The lossless illusion</h2>
           <p>
-            Spytify+ is built on the foundational work of{' '}
-            <a href={ORIGINAL} target="_blank" rel="noreferrer">
-              Spytify by jwallet
-            </a>
-            . Native FLAC output came from the intermediate{' '}
-            <a href={FLAC_FORK} target="_blank" rel="noreferrer">
-              spytify-flac fork by Fora888
-            </a>
-            . This project is the WPF rewrite, the forensics engine and the offline-library work on top.
-          </p>
-          <p>
-            Every layer stays{' '}
-            <strong>100% open-source under the original MIT License</strong>, preserving the full
-            historical and legal chain back to jwallet&apos;s project. No donation links, badges or
-            monetization live here: it is kept strictly altruistic.
+            Record Spotify through a loopback, get a <code>.flac</code>, and it looks lossless. Usually it
+            isn't. What Spotify plays out is capped: 320 kbps most of the time, and genuinely bit-perfect
+            only if you have Spotify Lossless and a cable set to 44.1 kHz. Spytify+ captures whatever comes
+            out, faithfully, and then hands you the tools to see exactly what that was.
           </p>
         </Reveal>
 
-        {/* Phase 3 — Engineering highlights */}
-        <section id="engineering" className="section">
+        {/* Origins & Credits */}
+        <Reveal as="section" className="section origins">
+          <h2 className="section__title">Origins &amp; credits</h2>
+          <p>
+            Spytify+ stands on{' '}
+            <a href={ORIGINAL} target="_blank" rel="noreferrer">
+              jwallet's original Spytify
+            </a>
+            , with FLAC support picked up from{' '}
+            <a href={FLAC_FORK} target="_blank" rel="noreferrer">
+              Fora888's fork
+            </a>{' '}
+            along the way. What I added on top is the WPF rewrite, the analysis engine, and everything
+            around building a proper offline library.
+          </p>
+          <p>
+            It all stays open-source under the same <strong>MIT license</strong>, straight back to the
+            original. No donation buttons, badges or trackers live here: it is kept purely for the love of
+            the thing.
+          </p>
+        </Reveal>
+
+        {/* The build (engineering highlights) */}
+        <section id="build" className="section">
           <Reveal>
-            <h2 className="section__title">Engineering highlights</h2>
-            <p className="section__lead">
-              The phased technical work behind the fork, not just &ldquo;it&apos;s better.&rdquo;
-            </p>
+            <h2 className="section__title">Under the hood</h2>
+            <p className="section__lead">The real work behind the rebuild, not just &ldquo;trust me, it's better.&rdquo;</p>
           </Reveal>
           <ul className="cards">
             {HIGHLIGHTS.map((h, i) => (
@@ -305,10 +326,10 @@ export default function App() {
           </ul>
         </section>
 
-        {/* Library / organisation, with the template builder shot */}
+        {/* Library, with the template builder shot */}
         <section className="section split">
           <Reveal className="split__text">
-            <h2 className="section__title">Built for a real library</h2>
+            <h2 className="section__title">A library, not a folder full of files</h2>
             <ul className="ticks">
               {LIBRARY.map((l) => (
                 <li key={l}>
@@ -327,20 +348,24 @@ export default function App() {
           </Reveal>
         </section>
 
-        {/* Phase 4 — Quick start */}
+        {/* Quick start */}
         <Reveal as="section" id="quickstart" className="section">
-          <h2 className="section__title">Quick start</h2>
+          <h2 className="section__title">Getting going</h2>
+          <p className="requirements">
+            Runs on Windows with .NET Framework 4.8 and the Spotify desktop app. A free account works;
+            Premium gets you 320 kbps, and Lossless gets you bit-perfect.
+          </p>
           <ol className="steps">
             <li>
               <span className="steps__icon">
                 <Cable size={20} />
               </span>
               <div>
-                <h3>Record from the loopback</h3>
+                <h3>Point it at a virtual cable</h3>
                 <p>
-                  Install a virtual audio cable (e.g. VB-Audio), set Windows playback and Spytify+ to it
-                  at <strong>44.1 kHz</strong>, and record. You capture exactly what Spotify plays out,
-                  with nothing else mixed in.
+                  Install a virtual audio cable like VB-Audio, set both Windows and Spytify+ to it at{' '}
+                  <strong>44.1 kHz</strong>, and hit record. You get exactly what Spotify plays, and
+                  nothing else mixed in.
                 </p>
               </div>
             </li>
@@ -349,22 +374,36 @@ export default function App() {
                 <ShieldAlert size={20} />
               </span>
               <div>
-                <h3>Get past Windows SmartScreen</h3>
+                <h3>Wave past the SmartScreen warning</h3>
                 <p>
-                  The release is unsigned, so SmartScreen shows an &ldquo;unknown publisher&rdquo; prompt
-                  the first time. Click <strong>More info &rarr; Run anyway</strong>, and unblock the
-                  downloaded <code>.zip</code> (right-click &rarr; Properties &rarr; Unblock) before
-                  extracting. Or build it yourself from source.
+                  Since it isn't code-signed, Windows will flag an &ldquo;unknown publisher&rdquo; the
+                  first time. Click <strong>More info &rarr; Run anyway</strong>, and if you grabbed the{' '}
+                  <code>.zip</code>, right-click it, open Properties and tick <strong>Unblock</strong>{' '}
+                  before extracting. Or just build it yourself.
                 </p>
               </div>
             </li>
           </ol>
         </Reveal>
+
+        {/* Closing CTA */}
+        <Reveal as="section" className="section cta-band">
+          <h2 className="section__title">Take it for a spin</h2>
+          <p>It's free and open. Poke around the code, build it yourself, or grab a release when there's one.</p>
+          <div className="hero__cta">
+            <a className="btn btn--primary" href={REPO} target="_blank" rel="noreferrer">
+              <Github size={18} /> View on GitHub
+            </a>
+            <a className="btn btn--ghost" href={`${REPO}#building-from-source`} target="_blank" rel="noreferrer">
+              <Code2 size={18} /> Read the code
+            </a>
+          </div>
+        </Reveal>
       </main>
 
       <footer className="footer">
         <div className="footer__credit">
-          Maintained and re-engineered by{' '}
+          Made and rebuilt by{' '}
           <a href={PORTFOLIO} target="_blank" rel="noreferrer">
             Petra J. Thomas
           </a>{' '}
