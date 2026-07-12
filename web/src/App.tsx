@@ -9,7 +9,7 @@ import {
   Sparkles,
   Github,
   Cpu,
-  Code2,
+  Download,
   Check,
   Info,
   ZoomIn,
@@ -389,13 +389,13 @@ export default function App() {
         {/* Closing CTA */}
         <Reveal as="section" className="section cta-band">
           <h2 className="section__title">Take it for a spin</h2>
-          <p>It's free and open. Poke around the code, build it yourself, or grab a release when there's one.</p>
+          <p>It's free and open. Grab the latest release, dig through the code, or build it yourself.</p>
           <div className="hero__cta">
-            <a className="btn btn--primary" href={REPO} target="_blank" rel="noreferrer">
-              <Github size={18} /> View on GitHub
+            <a className="btn btn--primary" href={`${REPO}/releases/latest`} target="_blank" rel="noreferrer">
+              <Download size={18} /> Latest release
             </a>
-            <a className="btn btn--ghost" href={`${REPO}#building-from-source`} target="_blank" rel="noreferrer">
-              <Code2 size={18} /> Read the code
+            <a className="btn btn--ghost" href={REPO} target="_blank" rel="noreferrer">
+              <Github size={18} /> View on GitHub
             </a>
           </div>
         </Reveal>
