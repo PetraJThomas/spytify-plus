@@ -9,6 +9,7 @@ namespace EspionSpotify
         void UpdateIconSpotify(bool isSpotifyPlaying, bool isRecording = false);
         void UpdatePlayingTitle(string text);
         void UpdatePlayingArt(string url);
+        void QueueQualityAnalysis(string filePath);
         void UpdateRecordedTime(int? time);
         void UpdateStartButton();
         void StopRecording();

@@ -172,6 +172,11 @@ namespace EspionSpotify
             _form.WriteIntoConsole(I18NKeys.LogRecorded, outputFile.ToString(), length);
 
             await UpdateMediaTagsAsync(outputFile, job).ConfigureAwait(false);
+
+            // Optional post-record quality check (spectral cut-off / transcode detection). Runs in the
+            // UI layer where the analyzer lives; fired after tagging so the file is final.
+            if (job.UserSettings.AnalyzeRecordings)
+                _form.QueueQualityAnalysis(outputFile.ToMediaFilePath());
         }
 
         // A capture counts as truncated when it is shorter than this fraction of the track length.

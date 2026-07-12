@@ -477,6 +477,18 @@
     <value>Discarding truncated: {0} ({1}s of {2}s)</value>
     <comment>console</comment>
   </data>
+  <data name="lblAnalyzeRecordings" xml:space="preserve">
+    <value>Analyze each recording and log its real quality</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipAnalyzeRecordings" xml:space="preserve">
+    <value>After each recording, runs the same spectral analysis as the Analyze tab and logs the detected quality (bit-perfect lossless, an estimated lossy bitrate, or a lossy source re-wrapped in a lossless container). Files are never modified or deleted.</value>
+    <comment>interface</comment>
+  </data>
+  <data name="logQuality" xml:space="preserve">
+    <value>Quality: {0}</value>
+    <comment>console</comment>
+  </data>
   <data name="tipPlaylistAsAlbum" xml:space="preserve">
     <value>Requires the Spotify API metadata source. While playing a Spotify playlist, all recorded tracks are tagged as one album named after the playlist (Various Artists), with the playlist cover and numbered in playback order.</value>
     <comment>interface</comment>

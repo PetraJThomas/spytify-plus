@@ -551,6 +551,8 @@
                             <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr lblRecorder}" />
                             <ui:ToggleSwitch Header="{l:Tr lblVerifyLength}" IsOn="{Binding VerifyRecordingLength, Mode=TwoWay}"
                                              ToolTip="{l:Tr tipVerifyLength}" />
+                            <ui:ToggleSwitch Header="{l:Tr lblAnalyzeRecordings}" IsOn="{Binding AnalyzeRecordings, Mode=TwoWay}"
+                                             ToolTip="{l:Tr tipAnalyzeRecordings}" />
                             <Border Height="1" Background="#18FFFFFF" Margin="0,10,0,12" />
                             <StackPanel Style="{StaticResource Row}"
                                         ToolTip="{l:Tr tipCounterDigits}">

@@ -71,6 +71,7 @@ namespace EspionSpotify.Translations
         public static TranslationKeys LogStopRecordingWhenSongEnds => TranslationKeys.logStopRecordingWhenSongEnds;
         public static TranslationKeys LogTrackExists => TranslationKeys.logTrackExists;
         public static TranslationKeys LogTruncated => TranslationKeys.logTruncated;
+        public static TranslationKeys LogQuality => TranslationKeys.logQuality;
         public static TranslationKeys LogUnknownException => TranslationKeys.logUnknownException;
         public static TranslationKeys LogUnsupportedNumberChannels => TranslationKeys.logUnsupportedNumberChannels;
         public static TranslationKeys LogUnsupportedRate => TranslationKeys.logUnsupportedRate;

@@ -477,6 +477,18 @@
     <value>Suppression tronqué: {0} ({1}s sur {2}s)</value>
     <comment>console</comment>
   </data>
+  <data name="lblAnalyzeRecordings" xml:space="preserve">
+    <value>Analyser chaque enregistrement et noter sa qualité réelle</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipAnalyzeRecordings" xml:space="preserve">
+    <value>Après chaque enregistrement, exécute la même analyse spectrale que l'onglet Analyse et note la qualité détectée (lossless bit-perfect, un débit lossy estimé, ou une source lossy réencapsulée dans un conteneur lossless). Les fichiers ne sont jamais modifiés ni supprimés.</value>
+    <comment>interface</comment>
+  </data>
+  <data name="logQuality" xml:space="preserve">
+    <value>Qualité: {0}</value>
+    <comment>console</comment>
+  </data>
   <data name="tipPlaylistAsAlbum" xml:space="preserve">
     <value>Nécessite la source de métadonnées API Spotify. Pendant la lecture d'une playlist Spotify, toutes les pistes enregistrées sont étiquetées comme un seul album nommé d'après la playlist (Various Artists), avec la pochette de la playlist et numérotées dans l'ordre de lecture.</value>
     <comment>interface</comment>

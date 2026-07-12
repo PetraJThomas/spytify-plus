@@ -38,6 +38,9 @@
     <Setting Name="advanced_verify_recording_length_enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="advanced_analyze_recordings_enabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="advanced_id3_counter_number_as_track_number_enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

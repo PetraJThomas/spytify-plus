@@ -21,6 +21,7 @@ using EspionSpotify.Extensions;
 using EspionSpotify.Models;
 using EspionSpotify.Native;
 using EspionSpotify.Translations;
+using EspionSpotify.Wpf.Analysis;
 using Settings = EspionSpotify.Properties.Settings;
 
 namespace EspionSpotify.Wpf
@@ -573,6 +574,7 @@ namespace EspionSpotify.Wpf
 
         // --- Advanced: Recorder / files ---
         public bool VerifyRecordingLength { get => _userSettings.VerifyRecordingLength; set => SetToggle(value, v => { _userSettings.VerifyRecordingLength = v; Settings.Default.advanced_verify_recording_length_enabled = v; }); }
+        public bool AnalyzeRecordings { get => _userSettings.AnalyzeRecordings; set => SetToggle(value, v => { _userSettings.AnalyzeRecordings = v; Settings.Default.advanced_analyze_recordings_enabled = v; }); }
         public bool AddFolders { get => _userSettings.GroupByFoldersEnabled; set => SetToggle(value, v => { _userSettings.GroupByFoldersEnabled = v; Settings.Default.advanced_file_group_media_in_folders_enabled = v; }); }
         public bool AddSeparators
         {
@@ -741,6 +743,7 @@ namespace EspionSpotify.Wpf
             _userSettings.OrderNumberMask = Settings.Default.app_counter_number_mask;
             _userSettings.ExtraTitleToSubtitleEnabled = Settings.Default.advanced_id3_extra_title_as_subtitle_enabled;
             _userSettings.VerifyRecordingLength = Settings.Default.advanced_verify_recording_length_enabled;
+            _userSettings.AnalyzeRecordings = Settings.Default.advanced_analyze_recordings_enabled;
             _userSettings.PathTemplateEnabled = Settings.Default.advanced_file_path_template_enabled;
             _userSettings.FolderTemplate = Settings.Default.advanced_file_folder_template ?? "";
             _userSettings.FileTemplate = Settings.Default.advanced_file_name_template ?? "";
@@ -753,7 +756,8 @@ namespace EspionSpotify.Wpf
             foreach (var p in new[]
             {
                 nameof(MuteAds), nameof(MinimizeToTray), nameof(ListenToPlayback), nameof(ForceSkip),
-                nameof(RecordEverything), nameof(RecordAds), nameof(RecordAdsVisible), nameof(VerifyRecordingLength), nameof(AddFolders),
+                nameof(RecordEverything), nameof(RecordAds), nameof(RecordAdsVisible),
+                nameof(VerifyRecordingLength), nameof(AnalyzeRecordings), nameof(AddFolders),
                 nameof(AddSeparators), nameof(CounterToFilePrefix), nameof(AlbumTrackNumberPrefix),
                 nameof(RecordOverRecordings), nameof(DuplicateRecordings), nameof(DuplicateVisible),
                 nameof(CounterToMediaTag), nameof(ExtraTitleToSubtitle), nameof(UpdateId3Tags),
@@ -922,6 +926,20 @@ namespace EspionSpotify.Wpf
             catch { AlbumArt = null; _currentArtUrl = null; }
         });
 
+        // Post-record quality check: decode the finished file and run the same spectral analyzer as
+        // the Analyze tab, then log the verdict (e.g. bit-perfect lossless, ~320 kbps, or a lossy
+        // source re-wrapped in a lossless container). Best-effort and off the recording path.
+        public void QueueQualityAnalysis(string filePath) => Task.Run(async () =>
+        {
+            try
+            {
+                var sample = await FfmpegDecoder.DecodeAsync(filePath).ConfigureAwait(false);
+                var result = QualityAnalyzer.Analyze(sample);
+                WriteIntoConsole(I18NKeys.LogQuality, result.Verdict);
+            }
+            catch { /* analysis is best-effort; never disrupt recording */ }
+        });
+
         public void UpdateRecordedTime(int? time) => RunOnUi(() =>
             RecordedTime = time.HasValue ? TimeSpan.FromSeconds(time.Value).ToString(@"mm\:ss") : "");
 
@@ -958,7 +976,7 @@ namespace EspionSpotify.Wpf
             var time = $"[{DateTime.Now:HH:mm:ss}] ";
             var isStatus = resource.Equals(I18NKeys.LogRecording) || resource.Equals(I18NKeys.LogRecorded)
                         || resource.Equals(I18NKeys.LogDeleting) || resource.Equals(I18NKeys.LogTrackExists)
-                        || resource.Equals(I18NKeys.LogTruncated);
+                        || resource.Equals(I18NKeys.LogTruncated) || resource.Equals(I18NKeys.LogQuality);
             var colon = text.IndexOf(": ", StringComparison.Ordinal);
             var typeBrush = resource.Equals(I18NKeys.LogRecording) ? GreenBrush : GrayBrush;
 
