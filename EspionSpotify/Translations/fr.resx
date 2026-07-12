@@ -521,6 +521,14 @@
     <value>Écrit l'ISRC et les identifiants de piste/album Spotify dans les tags du fichier (l'ISRC comme champ standard, les identifiants Spotify comme champs personnalisés). Nécessite la source de métadonnées API Spotify. Idéal pour dédupliquer et relier une bibliothèque.</value>
     <comment>interface</comment>
   </data>
+  <data name="lblCoverArtSize" xml:space="preserve">
+    <value>Taille de la pochette</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblCoverArtSizeHint" xml:space="preserve">
+    <value>L'API Spotify limite la pochette à 640 px. Les tailles supérieures récupèrent une pochette haute résolution depuis iTunes (pochettes d'album uniquement, pas les playlists), avec repli sur le 640 de Spotify en l'absence de correspondance. Les grandes pochettes alourdissent les fichiers.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblSaveCover" xml:space="preserve">
     <value>Enregistrer la pochette de l'album sous cover.jpg</value>
     <comment>interface</comment>

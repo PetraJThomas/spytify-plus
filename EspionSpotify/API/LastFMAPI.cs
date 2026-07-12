@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using EspionSpotify.Enums;
 using EspionSpotify.Extensions;
 using EspionSpotify.Models;
+using EspionSpotify.Properties;
 using EspionSpotify.Translations;
 using WebUtility = PCLWebUtility.WebUtility;
 
@@ -151,6 +152,7 @@ namespace EspionSpotify.API
             if (trackExtra?.Album != null)
             {
                 MapLastFMTrackToTrack(track, trackExtra);
+                await ITunesArtwork.ApplyHighResCoverAsync(track, Settings.Default.advanced_cover_art_size);
             }
             else
             {

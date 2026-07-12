@@ -41,6 +41,8 @@
         logQuality,
         lblExtendedTags,
         tipExtendedTags,
+        lblCoverArtSize,
+        lblCoverArtSizeHint,
         lblSaveCover,
         tipSaveCover,
         lblExportPlaylist,

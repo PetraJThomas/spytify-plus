@@ -217,6 +217,18 @@ namespace EspionSpotify.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("640")]
+        public int advanced_cover_art_size {
+            get {
+                return ((int)(this["advanced_cover_art_size"]));
+            }
+            set {
+                this["advanced_cover_art_size"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool advanced_id3_counter_number_as_track_number_enabled {
             get {

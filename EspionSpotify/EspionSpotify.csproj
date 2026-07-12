@@ -284,6 +284,7 @@
     <Compile Include="API\IExternalAPI.cs" />
     <Compile Include="API\IMapperID3.cs" />
     <Compile Include="API\MapperID3.cs" />
+    <Compile Include="API\ITunesArtwork.cs" />
     <Compile Include="API\SpotifyAPI.cs" />
     <Compile Include="Models\GitHub\Asset.cs" />
     <Compile Include="Models\GitHub\Release.cs" />

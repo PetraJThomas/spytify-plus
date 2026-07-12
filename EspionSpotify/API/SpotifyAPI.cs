@@ -243,6 +243,10 @@ namespace EspionSpotify.API
 
             await TryApplyPlaylistAlbum(track, playback);
 
+            // Optionally upgrade the 640px Spotify cover to a higher-res one from iTunes (skips
+            // playlist-album tracks, which keep the playlist's own cover).
+            await ITunesArtwork.ApplyHighResCoverAsync(track, Settings.Default.advanced_cover_art_size);
+
             return true;
         }
 

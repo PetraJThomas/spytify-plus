@@ -518,6 +518,17 @@
                             <ui:ToggleSwitch Header="{l:Tr lblExtendedTags}" IsOn="{Binding WriteExtendedTags, Mode=TwoWay}"
                                              ToolTip="{l:Tr tipExtendedTags}" />
 
+                            <StackPanel Style="{StaticResource Row}">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblCoverArtSize}" />
+                                <Slider Minimum="0" Maximum="2" TickFrequency="1" IsSnapToTickEnabled="True"
+                                        Value="{Binding CoverArtSizeIndex, Mode=TwoWay}" Width="200"
+                                        VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding CoverArtSizeDisplay}" Margin="12,0,0,0"
+                                           VerticalAlignment="Center" Foreground="#CCC" />
+                            </StackPanel>
+                            <TextBlock Text="{l:Tr lblCoverArtSizeHint}" Foreground="#888" FontSize="12"
+                                       TextWrapping="Wrap" Margin="0,0,0,4" />
+
                             <Border Height="1" Background="#22FFFFFF" Margin="0,14,0,12" />
 
                             <TextBlock Style="{StaticResource SubHeader}" Text="{l:Tr lblFilesAndFolders}" />

@@ -753,6 +753,26 @@ namespace EspionSpotify.Wpf
         public bool SaveCoverFile { get => _userSettings.SaveCoverFile; set => SetToggle(value, v => { _userSettings.SaveCoverFile = v; Settings.Default.advanced_save_cover_file_enabled = v; }); }
         public bool ExportPlaylist { get => _userSettings.ExportPlaylist; set => SetToggle(value, v => { _userSettings.ExportPlaylist = v; Settings.Default.advanced_export_m3u_enabled = v; }); }
 
+        // Preferred cover-art size, exposed as a 3-stop slider (640 / 1024 / 2048). 640 keeps Spotify's
+        // own art; larger sizes pull a high-res cover from iTunes.
+        private static readonly int[] CoverArtSizes = {640, 1024, 2048};
+        public double CoverArtSizeIndex
+        {
+            get { var i = Array.IndexOf(CoverArtSizes, _userSettings.CoverArtSize); return i < 0 ? 0 : i; }
+            set
+            {
+                var size = CoverArtSizes[Math.Max(0, Math.Min((int) Math.Round(value), CoverArtSizes.Length - 1))];
+                if (_userSettings.CoverArtSize == size) return;
+                _userSettings.CoverArtSize = size;
+                Settings.Default.advanced_cover_art_size = size;
+                if (!_loading) Settings.Default.Save();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CoverArtSizeDisplay));
+            }
+        }
+        public string CoverArtSizeDisplay =>
+            _userSettings.CoverArtSize <= 640 ? "640 px (Spotify)" : $"{_userSettings.CoverArtSize} px";
+
         #endregion Bindable state
 
         #region Load
@@ -828,6 +848,7 @@ namespace EspionSpotify.Wpf
             _userSettings.WriteExtendedTags = Settings.Default.advanced_extended_tags_enabled;
             _userSettings.SaveCoverFile = Settings.Default.advanced_save_cover_file_enabled;
             _userSettings.ExportPlaylist = Settings.Default.advanced_export_m3u_enabled;
+            _userSettings.CoverArtSize = Settings.Default.advanced_cover_art_size;
             _userSettings.VerifyRecordingLength = Settings.Default.advanced_verify_recording_length_enabled;
             _userSettings.AnalyzeRecordings = Settings.Default.advanced_analyze_recordings_enabled;
             _userSettings.PathTemplateEnabled = Settings.Default.advanced_file_path_template_enabled;
@@ -847,7 +868,8 @@ namespace EspionSpotify.Wpf
                 nameof(AddSeparators), nameof(CounterToFilePrefix), nameof(AlbumTrackNumberPrefix),
                 nameof(RecordOverRecordings), nameof(DuplicateRecordings), nameof(DuplicateVisible),
                 nameof(CounterToMediaTag), nameof(ExtraTitleToSubtitle), nameof(UpdateId3Tags),
-                nameof(WriteExtendedTags), nameof(SaveCoverFile), nameof(ExportPlaylist), nameof(PlaylistAsAlbum),
+                nameof(WriteExtendedTags), nameof(SaveCoverFile), nameof(ExportPlaylist),
+                nameof(CoverArtSizeIndex), nameof(CoverArtSizeDisplay), nameof(PlaylistAsAlbum),
                 nameof(PathTemplateEnabled), nameof(TemplateFieldsVisible), nameof(ClassicNamingEnabled),
                 nameof(FolderTemplate), nameof(FileTemplate), nameof(SpotifyApiConfigured), nameof(SpotifyOptionsVisible)
             }) OnPropertyChanged(p);

@@ -32,6 +32,10 @@ namespace EspionSpotify.Models
         public bool WriteExtendedTags { get; set; }
         public bool SaveCoverFile { get; set; }
         public bool ExportPlaylist { get; set; }
+
+        // Preferred embedded cover-art size. 640 keeps Spotify's own art (its API cap); larger sizes
+        // pull a high-res cover from the iTunes artwork API, falling back to Spotify's 640.
+        public int CoverArtSize { get; set; } = 640;
         public int InternalOrderNumber { get; set; } = 1;
         public RecordRecordingsStatus RecordRecordingsStatus { get; set; }
         public string AudioEndPointDeviceID { get; set; }

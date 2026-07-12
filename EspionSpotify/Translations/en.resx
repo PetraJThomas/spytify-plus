@@ -521,6 +521,14 @@
     <value>Writes the ISRC and the Spotify track/album IDs into the file tags (ISRC as a standard field, the Spotify IDs as custom fields). Requires the Spotify API metadata source. Great for de-duplicating and re-linking a library.</value>
     <comment>interface</comment>
   </data>
+  <data name="lblCoverArtSize" xml:space="preserve">
+    <value>Cover art size</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblCoverArtSizeHint" xml:space="preserve">
+    <value>Spotify's API caps cover art at 640 px. Larger sizes fetch a high-res cover from iTunes (album covers only, not playlists), falling back to Spotify's 640 if there's no match. Bigger covers make bigger files.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblSaveCover" xml:space="preserve">
     <value>Save the album cover as cover.jpg</value>
     <comment>interface</comment>
