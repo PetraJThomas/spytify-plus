@@ -500,6 +500,28 @@ img {
   font-size: 13px;
 }
 
+/* Scroll-to-top FAB */
+.fab {
+  position: fixed;
+  bottom: 26px;
+  right: 26px;
+  z-index: 120;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green);
+  color: #061206;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: background 0.2s ease;
+}
+.fab:hover {
+  background: #29e46c;
+}
+
 /* Lightbox */
 .lightbox {
   position: fixed;

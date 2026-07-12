@@ -1,5 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+} from 'framer-motion'
 import {
   Workflow,
   Combine,
@@ -19,6 +26,7 @@ import {
   SlidersHorizontal,
   ArrowRightLeft,
   CircleDot,
+  ArrowUp,
 } from 'lucide-react'
 import logoFull from './assets/logo-full.svg'
 import logoMark from './assets/logo-mark.svg'
@@ -230,6 +238,8 @@ export default function App() {
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 })
   const [zoom, setZoom] = useState<Zoom | null>(null)
+  const [showTop, setShowTop] = useState(false)
+  useMotionValueEvent(scrollYProgress, 'change', (v) => setShowTop(v > 0.12))
 
   useEffect(() => {
     if (!zoom) return
@@ -446,6 +456,25 @@ export default function App() {
         </div>
         <div className="footer__fine">MIT licensed. Not affiliated with Spotify.</div>
       </footer>
+
+      {/* Scroll-to-top FAB */}
+      <AnimatePresence>
+        {showTop && (
+          <motion.button
+            className="fab"
+            aria-label="Back to top"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            initial={{ opacity: 0, scale: 0.6, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.6, y: 12 }}
+            transition={{ duration: 0.2, ease: EASE }}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.92 }}
+          >
+            <ArrowUp size={22} />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Lightbox */}
       <AnimatePresence>
