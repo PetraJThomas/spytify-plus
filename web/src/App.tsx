@@ -19,9 +19,9 @@ import {
 } from 'lucide-react'
 import logoFull from './assets/logo-full.svg'
 import logoMark from './assets/logo-mark.svg'
-import recordShot from './assets/record.png'
-import analyzeShot from './assets/analyze.png'
-import templatesShot from './assets/templates.png'
+import recordShot from './assets/record.webp'
+import analyzeShot from './assets/analyze.webp'
+import templatesShot from './assets/templates.webp'
 
 const REPO = 'https://github.com/PetraJThomas/spytify-plus'
 const ORIGINAL = 'https://github.com/jwallet/spy-spotify'
