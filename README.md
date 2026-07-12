@@ -57,13 +57,23 @@ On top of the FLAC fork, Spytify+ adds:
 - Windows.
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48) runtime.
 - The Spotify desktop app.
-- A **free Spotify account works** (capped at 160 kbps); Premium enables 320 kbps, and Premium Lossless enables CD-quality capture. Using a fresh/secondary account is recommended.
+- A **free Spotify account works** (capped at 160 kbps); Premium enables 320 kbps, and Premium Lossless enables CD-quality capture.
 
-For best results, record through a virtual audio cable (e.g. VB-Audio) set to 44.1 kHz, and use the **Spotify API** metadata source (your own API keys) — some features (playlist-as-album, ISRC/Spotify-ID tags) require it.
+For best results, record through a virtual audio cable (e.g. VB-Audio) set to 44.1 kHz, and use the **Spotify API** metadata source. Some features (playlist-as-album, ISRC/Spotify-ID tags) require it; see [Spotify API setup](#spotify-api-setup) below.
+
+## Spotify API setup
+
+Spytify+ works out of the box using Last.fm for metadata. To unlock the features that use the **Spotify Web API** (more accurate tags, "record the current playlist as one album", and ISRC / Spotify-ID tagging), set up your own free Spotify API app and enter the keys in Spytify+:
+
+1. Open the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and log in.
+2. **Create an app** (any name and description). In its settings, add a **Redirect URI**, then copy the **Client ID** and **Client Secret**.
+3. In Spytify+, go to **Configuration**, choose the **Spotify API** metadata source, paste the Client ID and Client Secret, and set the **same Redirect URI** you used in the dashboard (Spytify+ defaults to `http://localhost:4002`). Click **Connect to Spotify** and authorize.
+
+Spytify+ only reads track metadata through the API and records the audio playback; it never downloads files from Spotify, so it stays within what the desktop app already plays.
 
 ## Installing & running (Windows SmartScreen)
 
-Spytify+ is **not code-signed** (a signing certificate is a paid yearly cost for a free, open-source tool). So the first time you run it, Windows **SmartScreen** shows a blue **"Windows protected your PC"** dialog listing an *unknown publisher*. This is the standard warning for any small unsigned app — it is **not** Windows detecting anything malicious in Spytify+ itself.
+Spytify+ is **not code-signed** (a signing certificate is a paid yearly cost for a free, open-source tool). So the first time you run it, Windows **SmartScreen** shows a blue **"Windows protected your PC"** dialog listing an *unknown publisher*. This is the standard warning for any small unsigned app, not Windows detecting anything malicious in Spytify+ itself.
 
 To run it:
 
@@ -74,7 +84,7 @@ If you downloaded the release **`.zip`**, Windows may mark it as "blocked" (mark
 
 The warning also fades on its own over time: SmartScreen builds a reputation score per file, and once enough people have downloaded and run a given release without issues, it stops flagging it. Early adopters see the prompt; later ones usually don't.
 
-Prefer not to trust a download at all? **Build it yourself from source** (below) — it's the same app.
+Prefer not to trust a download at all? **Build it yourself from source** (below). It's the same app.
 
 ## Building from source
 
@@ -97,16 +107,16 @@ Projects: `EspionSpotify` (engine, `EspionSpotify.dll`), `EspionSpotify.Wpf` (th
 
 Spytify+ stands on the work of others, all MIT-licensed:
 
-- **[Spytify](https://github.com/jwallet/spy-spotify) by jwallet** — the original Spotify recorder. Most of the recording engine and the general FAQ come from here.
-- **[spytify-flac](https://gitlab.com/Fora888/spytify-flac) by Fora888** — added native FLAC output.
-- **Spytify+** — the WPF rewrite, offline-library features, and quality tooling in this repo.
+- **[Spytify](https://github.com/jwallet/spy-spotify) by jwallet**: the original Spotify recorder. Most of the recording engine and the general FAQ come from here.
+- **[spytify-flac](https://gitlab.com/Fora888/spytify-flac) by Fora888**: added native FLAC output.
+- **Spytify+**: the WPF rewrite, offline-library features, and quality tooling in this repo.
 
 For setup basics (installing a virtual audio cable, isolating Spotify's audio, connecting the Spotify API), the upstream [Spytify FAQ](https://jwallet.github.io/spy-spotify/faq.html) still applies.
 
 ## Support
 
-😃 If you like Spytify+, you can help the original author **jwallet** out for a [couple of beers](https://jwallet.github.io/spy-spotify/donate.html) 🍺 — and give this repo a star ⭐
+😃 If you like Spytify+, you can help the original author **jwallet** out for a [couple of beers](https://jwallet.github.io/spy-spotify/donate.html) 🍺, and give this repo a star ⭐
 
 ## License
 
-[MIT](LICENSE) — see [Credits](#credits).
+[MIT](LICENSE). See [Credits](#credits).
