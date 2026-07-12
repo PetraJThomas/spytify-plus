@@ -126,6 +126,33 @@ discover; recorded here so they don't have to be rediscovered.
   stop `Rectangle`) toggled by `Visibility` bound to `IsRecording` via
   `BoolToVis`/`InverseBoolToVis` are more reliable than guessing a "stop" glyph.
 
+## Offline-library suite (Phase 10)
+
+- **Track metadata fills ~1s *after* the track change**, on the same `Track`
+  instance (a delayed task in `SpotifyStatus.GetTrack` calls `UpdateTrack`). So
+  `AlbumArtUrl`, `Length`, ISRC etc. are null at the `OnTrackChange` moment. The
+  player card pushes art on every 1s `OnTrackTimeChanged` tick (UI dedupes by URL)
+  to catch the late fill; a one-shot push at track-change misses it.
+- **The playback context carries the playlist.** `PlaybackContext.Context` (already
+  fetched in `UpdateTrack`) has `Type`/`Uri` — when `Type == "playlist"` the URI is
+  `spotify:playlist:{id}`. No extra scope for public playlists; **private** ones need
+  `PlaylistReadPrivate` added to the auth (users re-consent).
+- **ffmpeg passes arbitrary ffmetadata keys straight through to FLAC as UPPERCASE
+  Vorbis comments** — verified by round-trip that `SPOTIFY_TRACK_ID=...` in the
+  ffmetadata file reads back as a `SPOTIFY_TRACK_ID` comment. That's how the custom
+  IDs get written on the FLAC/OPUS path.
+- **`TagLib.Tag.ISRC` is writable cross-format** (nice), but there's **no generic
+  custom-field API** on the base `Tag`. Spotify IDs need format-specific writes: an
+  ID3 `UserTextInformationFrame` (TXXX) via `GetTag(TagTypes.Id3v2)`, and
+  `XiphComment.SetField` via `GetTag(TagTypes.Xiph)`.
+- **`Normalize.RemoveDiacritics` is misnamed** — it FormD-decomposes, strips invalid
+  *filename* chars, then FormC-recomposes, so diacritics are **preserved** (combining
+  marks aren't invalid). The whole app keeps accents; the templating path matches
+  that on purpose.
+- **A new engine `.cs` file must be added to the non-SDK csproj** `<Compile Include>`
+  by hand (`PathTemplate.cs` failed to compile until added) — packages.config
+  projects don't auto-glob like SDK-style ones.
+
 ## Process / engineering
 
 - **Spotify OAuth needs runtime deps the engine doesn't flow through the project
@@ -139,3 +166,12 @@ discover; recorded here so they don't have to be rediscovered.
 - **Rapid-fire polish is the right loop** for "feels off" UX: change a few px,
   rebuild, eyeball, repeat. You can't spec "beautiful"; the screen tells you when
   it's done.
+- **A new persisted setting touches three files**: `Properties/Settings.settings`,
+  `Properties/Settings.Designer.cs` (hand-edit — MSBuild doesn't regenerate it), and
+  `App.config`. `UserSettings` copies new properties automatically (`CopyAllTo` is
+  reflection-based).
+- **A ModernWpf `ToggleSwitch` can't be flipped via UIAutomation** — it exposes no
+  Toggle pattern and `SetFocus` is blocked. For automated GUI verification, set the
+  value in the persisted `user.config` and relaunch instead of clicking.
+- **`docs/*` is git-ignored except `.md`** (inherited rule). Committing README
+  screenshots needed a `!docs/screenshots/` exception.

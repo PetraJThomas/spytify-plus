@@ -14,6 +14,13 @@ get a `.flac`, and assume it's true lossless — when the loopback is quality-ca
 cable). The headline new feature, the **Analyze** tab, exists to make that
 audible/visible: drop any audio file and see its real quality.
 
+A later pass (Phase 10) added an **offline-library suite** on top: a live album-art
+player card, custom filename/folder templates with a tag builder, "record a Spotify
+playlist as one album", recording-length verification, auto quality-analysis of each
+capture, cover.jpg + ISRC/Spotify-ID tags, and .m3u playlist export. Guiding rule:
+**pure capture** — never resample, transcode, or loudness-process the audio; mirror
+Spotify's output faithfully.
+
 ## Goals
 
 1. **Replace the WinForms UI** with a modern, themeable WPF shell — without
@@ -57,7 +64,7 @@ audible/visible: drop any audio file and see its real quality.
 - UI: **ModernWpfUI 0.9.6** (Fluent styling, NavigationView, modern window
   chrome).
 - Build: Visual Studio MSBuild (engine project is non-SDK / packages.config; WPF
-  project is SDK-style). 290-test suite must stay green.
+  project is SDK-style). The test suite (325 tests) must stay green.
 
 ## Success criteria
 
@@ -66,6 +73,9 @@ audible/visible: drop any audio file and see its real quality.
 - Analyze tab correctly classifies: true-lossless FLAC/WAV, a 320/256/128 MP3
   (visible cut-off cliff), a FLAC transcoded from MP3 (lossy-source flag), and
   high-bitrate AAC/Opus (full-band but still lossy — codec is authoritative).
-- en/fr resx in sync (168 real keys), every key mirrored in the `TranslationKeys`
-  enum, **290/290 tests pass**.
+- en/fr resx in sync, every key mirrored in the `TranslationKeys` enum,
+  **325/325 tests pass**.
 - Consistent, polished UX; Spytify+ branding throughout.
+- Offline-library features (templates, playlist-as-album, verification, quality
+  gating, cover.jpg + ISRC/Spotify-ID tags, .m3u export) work without ever altering
+  the captured audio.

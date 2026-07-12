@@ -1,6 +1,7 @@
 # Spytify+ — Progress log
 
-Branch: `spytify-plus` (off `master`). ~106 commits, 2026-06-16 → 2026-06-19.
+Branch: `spytify-plus` (off `master`). ~106 commits 2026-06-16 → 2026-06-19,
+plus the offline-library suite (Phase 10) on 2026-07-12.
 This is a phase-ordered narrative; see `git log master..HEAD` for the full list.
 
 ## Phase 1 — Engine modernization
@@ -104,6 +105,38 @@ This is a phase-ordered narrative; see `git log master..HEAD` for the full list.
   at a larger size; three new resx keys (`anzPhaseDecode/Passes/Spectro`, en + fr,
   mirrored in the enum).
 
+## Phase 10 — Offline-library & metadata suite (2026-07-12)
+Guiding philosophy from the user: **pure capture** — the recorded audio faithfully
+mirrors Spotify's output (no upsampling, no forced CBR, no loudness processing).
+
+- **Mini player card**: the Record screen's now-playing strip became a Spotify-style
+  card with the current track's **live album art** (new `IFrmEspionSpotify.Update
+  PlayingArt`; art pushed each 1s tick because the API fills the URL ~1s after the
+  track change).
+- **FLAC/OPUS tag parity**: the "extra title as subtitle", "counter as track number",
+  and "re-tag on replay" toggles now apply to FLAC/OPUS (ffmetadata + a TagLib re-tag
+  path), not just MP3/WAV. Extracted `EncodeService.BuildFfmetadataContent`.
+- **Advanced tab reorg**: file/folder + tag settings consolidated into one **"Song
+  Metadata & Organisation"** card (Metadata tags + Files & folders sub-groups); the
+  Recorder card kept only the counter + timer.
+- **Custom filename/folder templates** (opt-in override) with a click-to-insert **tag
+  builder** legend. Engine: `Native/PathTemplate.cs`. Tokens: artist, albumartist,
+  album, title, titlefull, year, track, track2, disc, genre, counter.
+- **Record the current playlist as one album** (Spotify API): reads the playback
+  context, fetches the playlist name + cover, tags the set as a "Various Artists"
+  compilation. Added the `PlaylistReadPrivate` scope.
+- **Recording verification**: discard captures cut clearly short of the track length
+  (`EncodeService.IsTruncatedCapture`, 80% threshold). Populated `Track.Length` from
+  the Spotify API too (Last.fm already did).
+- **Auto quality-analysis**: after each recording, run the Analyze-tab analyzer and
+  log the real quality (flag-only, non-destructive; via `QueueQualityAnalysis`).
+- **cover.jpg per album folder** + **ISRC / Spotify track-album ID tags** (ISRC via
+  TagLib/ffmetadata; Spotify IDs as ID3 TXXX + Vorbis custom fields).
+- **.m3u playlist export** per folder (mirrors a recorded playlist; purity-safe).
+- Shipping prep: LICENSE gained a Spytify+ copyright line; README rewritten for the
+  fork with current screenshots.
+
 ## Current state
-All of the above is committed and building; 290/290 tests pass. Open items are in
-`completed.md` under "Remaining / future".
+All of the above is committed and building; **325/325 tests pass**. Open items are in
+`completed.md` under "Remaining / future". Pre-ship: the in-app updater still points
+at `jwallet/spy-spotify` and must be repointed before a public release.

@@ -5,7 +5,7 @@
 ```
 EspionSpotify/            engine (library, non-SDK csproj + packages.config, net48)
 EspionSpotify.Wpf/        WPF front-end (SDK-style csproj, net48, AssemblyName=Spytify)
-EspionSpotify.Tests/      xUnit test suite (290 tests)
+EspionSpotify.Tests/      xUnit test suite (325 tests)
 psd/new_assets/           Spytify+ brand source (.ai, SVG, @4x PNG)
 docs/                     this documentation
 ```
@@ -102,3 +102,43 @@ The WPF project references the engine project. `AssemblyName` is `Spytify`
 - The two in-app logos (footer wordmark + collapsed-pane icon) are **vector**
   `DrawingImage` resources in `MainWindow.xaml` (converted from the SVG: SVG path
   `d` data drops straight into WPF `Geometry`). The raster PNGs were removed.
+
+## Offline-library suite (Phase 10)
+
+Every feature here is opt-in (off by default), gated by a new `UserSettings` flag
+persisted across three files (`Settings.settings`, `Settings.Designer.cs`,
+`App.config`) plus a WPF toggle, and **never alters the captured audio**.
+
+### Naming templates (`Native/PathTemplate.cs`)
+- `ResolveFolders` / `ResolveFileName` expand `{token}` templates (artist,
+  albumartist, album, title, titlefull, year, track, track2, disc, genre, counter),
+  sanitising each path segment and dropping empty ones. `FileManager` uses them for
+  the output path and the "already recorded" check when `PathTemplateEnabled` and the
+  track is normal (ads/unknown keep the classic path). The WPF tag builder
+  (`TemplateTags` in `MainWindow.xaml.cs`) is a click-to-insert legend that writes
+  into the last-focused template box.
+
+### Playlist-as-album (`API/SpotifyAPI.cs`)
+- `UpdateTrack` reads `playback.Context`; when it's a playlist and the toggle is on,
+  `GetPlaylistIdFromContext` + a cached `GetPlaylistAsync` fetch the name + cover, and
+  `MapSpotifyPlaylistToTrack` overrides Album/AlbumArtists(=Various Artists)/cover/
+  position (playback-order counter). Uses the `PlaylistReadPrivate` scope.
+
+### Post-record steps (`EncodeService.cs`, after tagging)
+- `IsTruncatedCapture` (pure, testable): drop captures < 80% of `Track.Length`.
+- `SaveCoverFileAsync`: write `cover.jpg` once per album folder (grouped-only).
+- `AppendToPlaylist` / `BuildM3uEntry`: append an Extended-M3U entry to a per-folder
+  `.m3u8`.
+- `QueueQualityAnalysis` (via `IFrmEspionSpotify`): the WPF layer runs the Analyze
+  analyzer on the finished file and logs the verdict (flag-only).
+- `BuildFfmetadataContent` (extracted, testable): FLAC/OPUS tags now honour the
+  extra-title/counter toggles and write ISRC + `SPOTIFY_TRACK_ID`/`SPOTIFY_ALBUM_ID`.
+
+### Extended tags (`API/MapperID3.cs`)
+- MP3/WAV/re-tag path: `tags.ISRC` for ISRC; `WriteCustomIdTags` writes the Spotify
+  IDs as ID3 `TXXX` frames and Vorbis (`XiphComment`) custom fields.
+
+### Player card
+- `MainWindow.xaml` Record card + `UpdatePlayingArt` on `IFrmEspionSpotify`: a
+  bindable `AlbumArt` `ImageSource` (decoded small, deduped by URL). The engine
+  (`Watcher`) pushes `track.AlbumArtUrl` each 1s tick so the delayed API fill appears.

@@ -1,7 +1,7 @@
 # Spytify+ — Completed
 
 Checklist of what's done on `spytify-plus`. All items are committed and the
-solution builds; the 290-test suite passes.
+solution builds; the **325-test** suite passes.
 
 ## Engine
 - [x] Retarget all projects to .NET 4.8
@@ -74,19 +74,52 @@ solution builds; the 290-test suite passes.
 - [x] Left-aligned icons on all action buttons (`BtnIcon` style; state-driven
       Start/Stop record-dot/stop-square); footer icons sized 13
 
+## Offline library & metadata (Phase 10, 2026-07-12)
+- [x] Mini Spotify-style player card with live album art (`UpdatePlayingArt`; art
+      pushed each 1s tick to catch the delayed API fill)
+- [x] FLAC/OPUS honour the tag toggles (extra-title-as-subtitle, counter-as-track,
+      re-tag on replay) — `BuildFfmetadataContent` + a TagLib re-tag path
+- [x] Advanced tab consolidated into a "Song Metadata & Organisation" card
+- [x] Custom filename/folder templates (opt-in override) + click-to-insert tag
+      builder; engine `Native/PathTemplate.cs`
+- [x] Record the current playlist as one album (Spotify API: playback context →
+      playlist name + cover; Various Artists; `PlaylistReadPrivate` scope)
+- [x] Discard truncated recordings (`IsTruncatedCapture`, 80% of track length);
+      `Track.Length` populated from the Spotify API too
+- [x] Auto quality-analysis of each recording (flag-only log via `QueueQualityAnalysis`)
+- [x] Save cover.jpg per album folder
+- [x] ISRC + Spotify track/album ID tags (ISRC standard; Spotify IDs as ID3 TXXX +
+      Vorbis custom fields)
+- [x] Export an .m3u playlist per folder (`BuildM3uEntry`)
+- [x] LICENSE Spytify+ copyright line; README rewritten for the fork + screenshots
+
 ## Verification
 - Build: VS MSBuild, Release. Engine = packages.config; WPF = SDK-style.
-- Tests: **290/290** (xUnit). `TranslationTests` enforces resx ⇄ enum parity.
+- Tests: **325/325** (xUnit). `TranslationTests` enforces resx ⇄ enum parity.
 - Manual GUI checks (user-run): Analyze classification across FLAC/WAV/320/256/128
   MP3 + MP3-sourced FLAC; live language switch; title-bar icon + crisp vector
   footer; button icons render.
 
 ## Remaining / future
-- [ ] Confirm in-app (GUI) that the title-bar icon renders and the vector footer
-      reads crisp at all window scales (built clean; not visually verified here).
-- [ ] Optional: filled-glyph variants if a heavier icon weight is wanted (Segoe
-      MDL2 is single-weight; `FontWeight` is a no-op).
-- [ ] Optional: move analysis into the engine for headless reuse.
-- [ ] Optional: localize the spectrogram palette names if ever desired (currently
-      literal because the selection code matches on them).
+
+### Pre-ship (public release)
+- [ ] **Repoint the auto-updater** from `jwallet/spy-spotify` to the fork's own repo
+      — two files: `EspionSpotify/GitHub.cs` and `EspionSpotify.Updater/Utilities/
+      GitHub.cs`. Otherwise users get "updated" back to upstream.
+- [ ] Create the GitHub repo, bump the version (engine `AssemblyInfo` is 1.12.0.0;
+      WPF/tags are 1.0.x — pick a scheme, tag must be > the shipped version), and add
+      a tag-triggered release workflow (build → test → zip `net48/` → GitHub Release).
 - [ ] PR/merge `spytify-plus` → `master`.
+
+### Optional / polish
+- [ ] Playlist-as-album numbers in playback order, not true playlist index.
+- [ ] Quality-analysis gating is flag-only — could move/reject suspect files or tag
+      the detected quality.
+- [ ] Verify-length threshold (80%) is a code constant — could be a slider.
+- [ ] MP3/WAV Spotify-ID tag path (TXXX) is wired but only FLAC was round-trip
+      verified live.
+- [ ] Move the analyzer into the engine for headless reuse (currently the WPF layer
+      runs it via the `QueueQualityAnalysis` callback).
+- [ ] Filled-glyph icon variants (Segoe MDL2 is single-weight; `FontWeight` no-op).
+- [ ] Localize the spectrogram palette names (currently literal; selection matches
+      on them).
