@@ -17,16 +17,21 @@ namespace EspionSpotify
 {
     internal static class GitHub
     {
-        private const string API_LATEST_RELEASE_URL =
-            "https://api.github.com/repos/jwallet/spy-spotify/releases/latest";
+        // This fork's own repo (releases feed the in-app updater). If the repo moves, change these
+        // two lines here AND in EspionSpotify.Updater/Utilities/GitHub.cs.
+        private const string REPO_OWNER = "PetraJThomas";
+        private const string REPO_NAME = "spytify-plus";
 
+        private const string API_LATEST_RELEASE_URL =
+            "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/releases/latest";
+
+        // FAQ / donate still point to the original author (jwallet) as attribution.
         public const string WEBSITE_FAQ_URL = "https://jwallet.github.io/spy-spotify/faq.html";
 
         public const string WEBSITE_FAQ_SPOTIFY_API_URL =
             "https://jwallet.github.io/spy-spotify/faq.html#media-tags-not-found";
 
         public const string WEBSITE_DONATE_URL = "https://jwallet.github.io/spy-spotify/donate.html";
-        // public const string REPO_LATEST_RELEASE_URL = "https://github.com/jwallet/spy-spotify/releases/latest";
 
         public static async Task GetVersion()
         {
