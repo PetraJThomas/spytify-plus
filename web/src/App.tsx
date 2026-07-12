@@ -15,7 +15,10 @@ import {
   ZoomIn,
   X,
   Cable,
-  ShieldAlert,
+  BadgeCheck,
+  SlidersHorizontal,
+  ArrowRightLeft,
+  CircleDot,
 } from 'lucide-react'
 import logoFull from './assets/logo-full.svg'
 import logoMark from './assets/logo-mark.svg'
@@ -156,6 +159,34 @@ const LIBRARY = [
   'A cover.jpg in every folder and an .m3u playlist to match.',
 ]
 
+const SETUP = [
+  {
+    icon: BadgeCheck,
+    title: 'Turn on Lossless in Spotify',
+    body: "It's included with every Premium plan, just switched off by default. In Spotify, open Settings, find Audio quality, and set it to Lossless.",
+  },
+  {
+    icon: Cable,
+    title: 'Add the virtual audio cable',
+    body: 'Spytify+ can install the VB-Audio cable for you from its Settings, or you can grab it yourself. It gives Spotify a private lane that nothing else touches.',
+  },
+  {
+    icon: SlidersHorizontal,
+    title: 'Match the format: 44.1 kHz, 24-bit',
+    body: "In Windows Sound settings, open the CABLE Input device and set its format to 44.1 kHz, 24-bit. Matching Spotify's own output is the whole trick: nothing gets resampled, so the capture stays bit-perfect.",
+  },
+  {
+    icon: ArrowRightLeft,
+    title: "Send Spotify's audio to the cable",
+    body: 'In Windows, point Spotify at CABLE Input (Sound settings, or its per-app output in the volume mixer). Now everything it plays goes down the cable.',
+  },
+  {
+    icon: CircleDot,
+    title: 'Point Spytify+ at it and record',
+    body: 'In Spytify+ Settings, pick CABLE Input as the device, hit record, and away you go. The Analyze tab will confirm you got a true, full-band lossless capture.',
+  },
+]
+
 function FeatureCard({ h, delay }: { h: (typeof HIGHLIGHTS)[number]; delay: number }) {
   const [open, setOpen] = useState(false)
   const Icon = h.icon
@@ -222,7 +253,7 @@ export default function App() {
         </a>
         <nav className="nav__links">
           <a href="#build">The build</a>
-          <a href="#quickstart">Quick start</a>
+          <a href="#setup">Setup</a>
           <a className="nav__cta" href={REPO} target="_blank" rel="noreferrer">
             <Github size={16} /> GitHub
           </a>
@@ -348,42 +379,35 @@ export default function App() {
           </Reveal>
         </section>
 
-        {/* Quick start */}
-        <Reveal as="section" id="quickstart" className="section">
-          <h2 className="section__title">Getting going</h2>
-          <p className="requirements">
-            Runs on Windows with .NET Framework 4.8 and the Spotify desktop app. A free account works;
-            Premium gets you 320 kbps, and Lossless gets you bit-perfect.
+        {/* Bit-perfect setup */}
+        <Reveal as="section" id="setup" className="section">
+          <h2 className="section__title">Getting bit-perfect</h2>
+          <p className="section__lead">
+            Spotify Lossless is included with every Premium plan, it just needs enabling. Here's the
+            whole chain, end to end.
           </p>
           <ol className="steps">
-            <li>
-              <span className="steps__icon">
-                <Cable size={20} />
-              </span>
-              <div>
-                <h3>Point it at a virtual cable</h3>
-                <p>
-                  Install a virtual audio cable like VB-Audio, set both Windows and Spytify+ to it at{' '}
-                  <strong>44.1 kHz</strong>, and hit record. You get exactly what Spotify plays, and
-                  nothing else mixed in.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span className="steps__icon">
-                <ShieldAlert size={20} />
-              </span>
-              <div>
-                <h3>Wave past the SmartScreen warning</h3>
-                <p>
-                  Since it isn't code-signed, Windows will flag an &ldquo;unknown publisher&rdquo; the
-                  first time. Click <strong>More info &rarr; Run anyway</strong>, and if you grabbed the{' '}
-                  <code>.zip</code>, right-click it, open Properties and tick <strong>Unblock</strong>{' '}
-                  before extracting. Or just build it yourself.
-                </p>
-              </div>
-            </li>
+            {SETUP.map((s) => {
+              const Icon = s.icon
+              return (
+                <li key={s.title}>
+                  <span className="steps__icon">
+                    <Icon size={20} />
+                  </span>
+                  <div>
+                    <h3>{s.title}</h3>
+                    <p>{s.body}</p>
+                  </div>
+                </li>
+              )
+            })}
           </ol>
+          <p className="requirements">
+            Runs on Windows with .NET Framework 4.8 and the Spotify desktop app. On first launch,
+            Windows SmartScreen flags the unsigned app, so click <strong>More info</strong>, then{' '}
+            <strong>Run anyway</strong> (and Unblock the <code>.zip</code> in its Properties if you
+            downloaded it).
+          </p>
         </Reveal>
 
         {/* Closing CTA */}
