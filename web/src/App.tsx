@@ -79,11 +79,15 @@ function Screenshot({
   alt,
   caption,
   onZoom,
+  w,
+  h,
 }: {
   src: string
   alt: string
   caption?: string
   onZoom: (z: Zoom) => void
+  w: number
+  h: number
 }) {
   return (
     <figure className="shot">
@@ -91,7 +95,7 @@ function Screenshot({
         className="shot__frame"
         role="button"
         tabIndex={0}
-        aria-label={`View ${alt}`}
+        aria-label={`View a larger image: ${alt}`}
         onClick={() => onZoom({ src, alt })}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -100,7 +104,14 @@ function Screenshot({
           }
         }}
       >
-        <motion.img src={src} alt={alt} whileHover={{ y: -6 }} transition={{ duration: 0.35, ease: EASE }} />
+        <motion.img
+          src={src}
+          alt={alt}
+          width={w}
+          height={h}
+          whileHover={{ y: -6 }}
+          transition={{ duration: 0.35, ease: EASE }}
+        />
         <span className="shot__zoom" aria-hidden>
           <ZoomIn size={18} />
         </span>
@@ -239,6 +250,7 @@ export default function App() {
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 })
   const [zoom, setZoom] = useState<Zoom | null>(null)
   const [showTop, setShowTop] = useState(false)
+  const reduce = useReducedMotion()
   useMotionValueEvent(scrollYProgress, 'change', (v) => setShowTop(v > 0.12))
 
   useEffect(() => {
@@ -274,8 +286,15 @@ export default function App() {
         {/* Hero */}
         <section className="hero">
           <div className="hero__glow" aria-hidden />
-          <motion.div className="hero__inner" variants={heroContainer} initial="hidden" animate="show">
-            <motion.img className="hero__logo" variants={heroItem} src={logoFull} alt="Spytify+" />
+          <motion.div
+            className="hero__inner"
+            variants={heroContainer}
+            initial={reduce ? false : 'hidden'}
+            animate="show"
+          >
+            <motion.h1 className="hero__logo" variants={heroItem}>
+              <img src={logoFull} alt="Spytify+" width={1460} height={429} />
+            </motion.h1>
             <motion.p className="hero__subtitle" variants={heroItem}>
               A from-scratch rebuild of Spytify, the Spotify recorder. It captures your music cleanly,
               keeps every track tagged and filed, and shows you exactly how lossless the result really is.
@@ -293,18 +312,22 @@ export default function App() {
           <motion.div
             className="shots"
             variants={heroItem}
-            initial="hidden"
+            initial={reduce ? false : 'hidden'}
             animate="show"
             transition={{ delay: 0.5 }}
           >
             <Screenshot
               src={recordShot}
+              w={1092}
+              h={676}
               alt="Spytify+ Record tab: the player card with live album art and the capture log"
               caption="Recording, with a live now-playing card and the capture log"
               onZoom={setZoom}
             />
             <Screenshot
               src={analyzeShot}
+              w={1637}
+              h={1265}
               alt="Spytify+ Analyze tab: waveform, frequency response and Inferno spectrogram with a lossless verdict"
               caption="Analyzing a file: waveform, spectrogram and a plain-English verdict"
               onZoom={setZoom}
@@ -383,6 +406,8 @@ export default function App() {
           <Reveal className="split__media" delay={0.1}>
             <Screenshot
               src={templatesShot}
+              w={1000}
+              h={640}
               alt="Spytify+ filename and folder template builder with a click-to-insert tag legend"
               onZoom={setZoom}
             />
@@ -417,6 +442,37 @@ export default function App() {
             Windows SmartScreen flags the unsigned app, so click <strong>More info</strong>, then{' '}
             <strong>Run anyway</strong> (and Unblock the <code>.zip</code> in its Properties if you
             downloaded it).
+          </p>
+        </Reveal>
+
+        {/* Spotify API */}
+        <Reveal as="section" className="section spotify">
+          <h2 className="section__title">Go further with the Spotify API</h2>
+          <p>
+            Out of the box, Spytify+ pulls tags from Last.fm and works fine. But a free Spotify
+            developer account is recommended for the full experience, and it only ever reads metadata,
+            never the audio.
+          </p>
+          <ul className="ticks">
+            <li>
+              <Check className="tick__icon" size={18} strokeWidth={2.5} />
+              <span>Sharper, more accurate tags, straight from Spotify.</span>
+            </li>
+            <li>
+              <Check className="tick__icon" size={18} strokeWidth={2.5} />
+              <span>"Record the current playlist as one album", cover art and all.</span>
+            </li>
+            <li>
+              <Check className="tick__icon" size={18} strokeWidth={2.5} />
+              <span>ISRC and Spotify track / album IDs written into every file.</span>
+            </li>
+          </ul>
+          <p>
+            It's a two-minute job: create an app in the{' '}
+            <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer">
+              Spotify Developer Dashboard
+            </a>
+            , drop the Client ID and Secret into Spytify+'s Configuration, and hit Connect.
           </p>
         </Reveal>
 
@@ -481,13 +537,16 @@ export default function App() {
         {zoom && (
           <motion.div
             className="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label={zoom.alt}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setZoom(null)}
           >
-            <button className="lightbox__close" aria-label="Close" onClick={() => setZoom(null)}>
+            <button className="lightbox__close" aria-label="Close image" autoFocus onClick={() => setZoom(null)}>
               <X size={22} />
             </button>
             <motion.img
