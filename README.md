@@ -61,6 +61,19 @@ On top of the FLAC fork, Spytify+ adds:
 
 For best results, record through a virtual audio cable (e.g. VB-Audio) set to 44.1 kHz, and use the **Spotify API** metadata source (your own API keys) — some features (playlist-as-album, ISRC/Spotify-ID tags) require it.
 
+## Installing & running (Windows SmartScreen)
+
+Spytify+ is **not code-signed** (a signing certificate is a paid yearly cost for a free, open-source tool). So the first time you run it, Windows **SmartScreen** shows a blue **"Windows protected your PC"** dialog listing an *unknown publisher*. This is the standard warning for any small unsigned app — it is **not** Windows detecting anything malicious in Spytify+ itself.
+
+To run it:
+
+1. Click **More info** on the SmartScreen dialog.
+2. Click **Run anyway**.
+
+If you downloaded the release **`.zip`**, Windows may mark it as "blocked" (mark-of-the-web), which carries over to the extracted files. Before extracting: right-click the **`.zip` → Properties → tick "Unblock" → OK** (or do the same on `Spytify.exe` after extracting).
+
+Prefer not to trust a download at all? **Build it yourself from source** (below) — it's the same app.
+
 ## Building from source
 
 The engine still uses `packages.config`, so build with **Visual Studio's MSBuild** (not `dotnet build`):
