@@ -11,7 +11,14 @@
     <AssemblyTitle>Spytify+</AssemblyTitle>
     <Company>Spytify+</Company>
     <Copyright>Spytify by jwallet, Spytify+ by PetraJThomas (MIT)</Copyright>
+    <!-- Release/display version. Bump this (and the engine's AssemblyVersion, which the updater
+         reads) for each release. FileVersion follows it. -->
     <Version>2.0.0</Version>
+    <!-- PINNED. The .NET user-settings path embeds the ENTRY assembly's AssemblyVersion, so if this
+         tracked the release version, every bump would strand settings in a new user.config folder.
+         Keep it fixed at 2.0.0.0 forever so there is exactly one settings file across all releases.
+         Do NOT bump this. (The updater compares the engine AssemblyVersion, not this one.) -->
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ApplicationIcon>Assets\spytify.ico</ApplicationIcon>
