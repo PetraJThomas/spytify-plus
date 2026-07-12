@@ -267,10 +267,19 @@ namespace EspionSpotify
 
         private async Task UpdateMediaTagsWhenSkippingTrack()
         {
-            if (!_userSettings.UpdateRecordingsID3TagsEnabled) return;
+            // Nothing to refresh unless we're re-tagging and/or writing the sidecar cover.
+            if (!_userSettings.UpdateRecordingsID3TagsEnabled && !_userSettings.SaveCoverFile) return;
 
             _currentOutputFile = _fileManager.GetOutputFileAndInitDirectories();
-            await UpdateMediaTagsFileBasedOnMediaFormat();
+
+            if (_userSettings.UpdateRecordingsID3TagsEnabled)
+                await UpdateMediaTagsFileBasedOnMediaFormat();
+
+            // The embedded cover is refreshed by the re-tag above; also drop/refresh the sidecar
+            // cover.jpg / Folder.jpg so a skip-scrub backfills them onto folders recorded before
+            // the feature existed, not only on fresh recordings. Best-effort, once per folder.
+            if (_userSettings.SaveCoverFile)
+                await EncodeService.SaveCoverFilesAsync(_fileSystem, _currentOutputFile, _track);
         }
 
         private async Task UpdateMediaTagsFileBasedOnMediaFormat()

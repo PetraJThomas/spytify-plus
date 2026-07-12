@@ -186,33 +186,37 @@ namespace EspionSpotify
                 _form.QueueQualityAnalysis(outputFile.ToMediaFilePath());
         }
 
+        private Task SaveCoverFileAsync(OutputFile outputFile, Track track) =>
+            SaveCoverFilesAsync(_fileSystem, outputFile, track);
+
         // Saves the album art next to the track, once per album folder. Writes both "cover.jpg"
         // (the cross-player convention read by VLC, foobar, MusicBee, Kodi) and "Folder.jpg"
         // (the name the Windows shell and Media Player look for; they ignore cover.jpg). Only when
         // the track is grouped into a sub-folder (a shared cover at the output root would be
         // meaningless). Neither file is overwritten if it already exists, so a cover you dropped
-        // in yourself is left alone. Best-effort.
-        private async Task SaveCoverFileAsync(OutputFile outputFile, Track track)
+        // in yourself is left alone. Shared by the encode path and the skip/re-tag path so a
+        // skip-scrub backfills covers onto existing folders too. Best-effort.
+        public static async Task SaveCoverFilesAsync(IFileSystem fileSystem, OutputFile outputFile, Track track)
         {
             try
             {
-                if (string.IsNullOrEmpty(outputFile.FoldersPath)) return;
+                if (outputFile == null || string.IsNullOrEmpty(outputFile.FoldersPath)) return;
 
-                var dir = _fileSystem.Path.GetDirectoryName(outputFile.ToMediaFilePath());
+                var dir = fileSystem.Path.GetDirectoryName(outputFile.ToMediaFilePath());
                 if (string.IsNullOrEmpty(dir)) return;
 
-                var coverPath = _fileSystem.Path.Combine(dir, "cover.jpg");
-                var folderPath = _fileSystem.Path.Combine(dir, "Folder.jpg");
-                var needCover = !_fileSystem.File.Exists(coverPath);
-                var needFolder = !_fileSystem.File.Exists(folderPath);
+                var coverPath = fileSystem.Path.Combine(dir, "cover.jpg");
+                var folderPath = fileSystem.Path.Combine(dir, "Folder.jpg");
+                var needCover = !fileSystem.File.Exists(coverPath);
+                var needFolder = !fileSystem.File.Exists(folderPath);
                 if (!needCover && !needFolder) return;
                 if (string.IsNullOrWhiteSpace(track.AlbumArtUrl)) return;
 
                 var bytes = track.AlbumArtImage ?? await MapperID3.GetAlbumCover(track.AlbumArtUrl).ConfigureAwait(false);
                 if (bytes == null || bytes.Length == 0) return;
 
-                if (needCover) _fileSystem.File.WriteAllBytes(coverPath, bytes);
-                if (needFolder) _fileSystem.File.WriteAllBytes(folderPath, bytes);
+                if (needCover) fileSystem.File.WriteAllBytes(coverPath, bytes);
+                if (needFolder) fileSystem.File.WriteAllBytes(folderPath, bytes);
             }
             catch { /* best-effort; a missing cover file never fails a recording */ }
         }
