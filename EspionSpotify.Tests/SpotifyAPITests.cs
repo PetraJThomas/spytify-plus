@@ -265,6 +265,7 @@ namespace EspionSpotify.Tests
             Assert.Equal(5, track.AlbumPosition);
             Assert.Equal("http://640.img", track.AlbumArtUrl);
             Assert.Equal("Dua Lipa", track.Artist); // per-track artist preserved
+            Assert.True(track.IsPlaylistAlbum);
         }
 
         [Fact]

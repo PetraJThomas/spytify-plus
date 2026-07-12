@@ -507,6 +507,8 @@
 
                             <ui:ToggleSwitch Header="{l:Tr lblPlaylistAsAlbum}" IsOn="{Binding PlaylistAsAlbum, Mode=TwoWay}"
                                              ToolTip="{l:Tr tipPlaylistAsAlbum}" />
+                            <TextBlock Text="{l:Tr lblPlaylistAsAlbumHint}" Foreground="#888" FontSize="12"
+                                       TextWrapping="Wrap" Margin="0,2,0,2" />
                             <Border Height="1" Background="#18FFFFFF" Margin="0,10,0,12" />
 
                             <TextBlock Style="{StaticResource SubHeader}" Text="{l:Tr lblID3}" />

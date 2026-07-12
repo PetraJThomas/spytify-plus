@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
@@ -228,27 +229,63 @@ namespace EspionSpotify
                     : _fileSystem.Path.GetFileName(dir.TrimEnd('\\'));
                 var m3uPath = _fileSystem.Path.Combine(dir, playlistName + ".m3u8");
 
-                if (_fileSystem.File.Exists(m3uPath))
-                {
-                    if (_fileSystem.File.ReadAllText(m3uPath).Contains(fileName)) return; // already listed
-                }
-                else
-                {
-                    _fileSystem.File.AppendAllText(m3uPath, "#EXTM3U\r\n", new UTF8Encoding(false));
-                }
-
                 var seconds = job.Track.Length ?? job.CountSeconds;
-                _fileSystem.File.AppendAllText(m3uPath, BuildM3uEntry(job.Track, fileName, seconds),
-                    new UTF8Encoding(false));
+                var extinf = BuildM3uExtInf(job.Track, seconds);
+
+                // Playlist-as-album keeps the .m3u in playlist order (filenames are zero-padded by the
+                // real playlist position); everything else just appends in record order.
+                if (job.Track.IsPlaylistAlbum)
+                    WriteOrderedM3u(m3uPath, fileName, extinf);
+                else
+                    AppendM3u(m3uPath, fileName, extinf);
             }
             catch { /* best-effort; the playlist file is a convenience, never fail a recording */ }
         }
 
-        public static string BuildM3uEntry(Track track, string fileName, int seconds)
+        private void AppendM3u(string m3uPath, string fileName, string extinf)
+        {
+            if (_fileSystem.File.Exists(m3uPath))
+            {
+                if (_fileSystem.File.ReadAllText(m3uPath).Contains(fileName)) return; // already listed
+            }
+            else
+            {
+                _fileSystem.File.AppendAllText(m3uPath, "#EXTM3U\r\n", new UTF8Encoding(false));
+            }
+
+            _fileSystem.File.AppendAllText(m3uPath, extinf + "\r\n" + fileName + "\r\n", new UTF8Encoding(false));
+        }
+
+        private void WriteOrderedM3u(string m3uPath, string fileName, string extinf)
+        {
+            // Rebuild the file as filename -> EXTINF pairs sorted by filename (playlists are small).
+            var entries = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (_fileSystem.File.Exists(m3uPath))
+            {
+                var lines = _fileSystem.File.ReadAllLines(m3uPath);
+                for (var i = 0; i < lines.Length - 1; i++)
+                {
+                    if (!lines[i].StartsWith("#EXTINF")) continue;
+                    entries[lines[i + 1]] = lines[i];
+                    i++;
+                }
+            }
+
+            entries[fileName] = extinf;
+
+            var sb = new StringBuilder("#EXTM3U\r\n");
+            foreach (var kv in entries) sb.Append(kv.Value).Append("\r\n").Append(kv.Key).Append("\r\n");
+            _fileSystem.File.WriteAllText(m3uPath, sb.ToString(), new UTF8Encoding(false));
+        }
+
+        public static string BuildM3uEntry(Track track, string fileName, int seconds) =>
+            BuildM3uExtInf(track, seconds) + "\r\n" + fileName + "\r\n";
+
+        private static string BuildM3uExtInf(Track track, int seconds)
         {
             var title = track.ToTitleString();
             var label = string.IsNullOrEmpty(track.Artist) ? title : $"{track.Artist} - {title}";
-            return $"#EXTINF:{seconds},{label}\r\n{fileName}\r\n";
+            return $"#EXTINF:{seconds},{label}";
         }
 
         // A capture counts as truncated when it is shorter than this fraction of the track length.

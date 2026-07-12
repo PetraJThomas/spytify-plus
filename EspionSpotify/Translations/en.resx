@@ -469,6 +469,10 @@
     <value>Record the current playlist as one album</value>
     <comment>interface</comment>
   </data>
+  <data name="lblPlaylistAsAlbumHint" xml:space="preserve">
+    <value>Files go to a "Various Artists\&lt;playlist&gt;" album folder, numbered in playlist order. A custom template (in Files &amp; folders) overrides this layout.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblVerifyLength" xml:space="preserve">
     <value>Discard truncated recordings (verify length)</value>
     <comment>interface</comment>
@@ -494,7 +498,7 @@
     <comment>console</comment>
   </data>
   <data name="tipPlaylistAsAlbum" xml:space="preserve">
-    <value>Requires the Spotify API metadata source. While playing a Spotify playlist, all recorded tracks are tagged as one album named after the playlist (Various Artists), with the playlist cover and numbered in playback order.</value>
+    <value>Requires the Spotify API metadata source. While playing a Spotify playlist, all recorded tracks are tagged as one album named after the playlist (Various Artists), with the playlist cover and numbered by their position in the playlist.</value>
     <comment>interface</comment>
   </data>
   <data name="lblRecordAds" xml:space="preserve">

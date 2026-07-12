@@ -50,5 +50,18 @@ namespace EspionSpotify.Extensions
 
             return playlist;
         }
+
+        public static async Task<Paging<PlaylistTrack>> GetPlaylistTracksWithoutExceptionAsync(
+            this SpotifyWebAPI api, string id, int offset)
+        {
+            try
+            {
+                return await api.GetPlaylistTracksAsync(id, "", 100, offset, "");
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

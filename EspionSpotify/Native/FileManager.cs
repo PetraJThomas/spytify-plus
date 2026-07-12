@@ -17,6 +17,13 @@ namespace EspionSpotify.Native
         private const int MIN_PATH_LEFT_LENGTH = 100;
 
         private const int FILE_COUNTER_AND_EXTENSION_LENGTH = 10;
+
+        // Built-in compilation layout for a playlist recorded as one album, used when the user has no
+        // custom template. Album artist is "Various Artists", album is the playlist name, so this
+        // yields "Various Artists/<playlist>/NN Title". A custom template overrides it.
+        private const string PLAYLIST_ALBUM_FOLDER_TEMPLATE = "{albumartist}/{album}";
+        private const string PLAYLIST_ALBUM_FILE_TEMPLATE = "{track2} {title}";
+
         private readonly IFileSystem _fileSystem;
         private readonly DateTime _now;
         private readonly Track _track;
@@ -63,6 +70,13 @@ namespace EspionSpotify.Native
                 foldersPath = PathTemplate.ResolveFolders(_userSettings.FolderTemplate, _track, _userSettings);
                 CreateTemplateDirectories(foldersPath);
                 mediaFile = PathTemplate.ResolveFileName(_userSettings.FileTemplate, _track, _userSettings)
+                    .ToMaxLength(GetTemplateFileMaxLength(foldersPath));
+            }
+            else if (_track.IsPlaylistAlbum)
+            {
+                foldersPath = PathTemplate.ResolveFolders(PLAYLIST_ALBUM_FOLDER_TEMPLATE, _track, _userSettings);
+                CreateTemplateDirectories(foldersPath);
+                mediaFile = PathTemplate.ResolveFileName(PLAYLIST_ALBUM_FILE_TEMPLATE, _track, _userSettings)
                     .ToMaxLength(GetTemplateFileMaxLength(foldersPath));
             }
             else
@@ -125,7 +139,8 @@ namespace EspionSpotify.Native
                 if (_fileSystem.File.Exists(currentFile)) _fileSystem.File.Delete(currentFile);
 
                 var hasFolders = !GoesAtRoot(_userSettings.GroupByFoldersEnabled, _track.IsUnknown)
-                                 || UsesTemplate(_track, _userSettings);
+                                 || UsesTemplate(_track, _userSettings)
+                                 || _track.IsPlaylistAlbum;
                 if (hasFolders && Path.GetExtension(currentFile).ToLowerInvariant() != ".tmp")
                     DeleteFileFolder(currentFile);
             }
@@ -172,6 +187,11 @@ namespace EspionSpotify.Native
             {
                 foldersPath = PathTemplate.ResolveFolders(userSettings.FolderTemplate, track, userSettings);
                 fileName = PathTemplate.ResolveFileName(userSettings.FileTemplate, track, userSettings);
+            }
+            else if (track.IsPlaylistAlbum)
+            {
+                foldersPath = PathTemplate.ResolveFolders(PLAYLIST_ALBUM_FOLDER_TEMPLATE, track, userSettings);
+                fileName = PathTemplate.ResolveFileName(PLAYLIST_ALBUM_FILE_TEMPLATE, track, userSettings);
             }
             else
             {

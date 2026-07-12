@@ -104,6 +104,46 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        internal void GetOutputFile_PlaylistAlbum_UsesCompilationLayout()
+        {
+            var track = new Track
+            {
+                Artist = "Dua Lipa", Title = "Levitating", Album = "Summer 2024",
+                AlbumArtists = new[] {"Various Artists"}, AlbumPosition = 3,
+                IsPlaylistAlbum = true, Playing = true
+            };
+            _userSettings.PathTemplateEnabled = false;      // no custom template
+            _userSettings.GroupByFoldersEnabled = false;    // playlist layout applies regardless
+
+            _fileManager = new FileManager(_userSettings, track, _fileSystem, DateTime.Now);
+            var outputFile = _fileManager.GetOutputFileAndInitDirectories();
+
+            Assert.Equal(@"Various Artists\Summer 2024", outputFile.FoldersPath);
+            Assert.Equal($@"{PATH}\Various Artists\Summer 2024\03 Levitating.mp3", outputFile.ToMediaFilePath());
+            Assert.True(_fileSystem.Directory.Exists($@"{PATH}\Various Artists\Summer 2024"));
+        }
+
+        [Fact]
+        internal void GetOutputFile_PlaylistAlbumWithCustomTemplate_TemplateWins()
+        {
+            var track = new Track
+            {
+                Artist = "Dua Lipa", Title = "Levitating", Album = "Summer 2024",
+                AlbumArtists = new[] {"Various Artists"}, AlbumPosition = 3,
+                IsPlaylistAlbum = true, Playing = true
+            };
+            _userSettings.PathTemplateEnabled = true;
+            _userSettings.FolderTemplate = "{album}";
+            _userSettings.FileTemplate = "{title}";
+
+            _fileManager = new FileManager(_userSettings, track, _fileSystem, DateTime.Now);
+            var outputFile = _fileManager.GetOutputFileAndInitDirectories();
+
+            Assert.Equal("Summer 2024", outputFile.FoldersPath);
+            Assert.Equal($@"{PATH}\Summer 2024\Levitating.mp3", outputFile.ToMediaFilePath());
+        }
+
+        [Fact]
         internal void GetOutputFile_WithTemplateButUnknownTrack_FallsBackToClassicRoot()
         {
             _userSettings.PathTemplateEnabled = true;

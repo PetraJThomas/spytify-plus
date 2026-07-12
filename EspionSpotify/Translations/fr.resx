@@ -469,6 +469,10 @@
     <value>Enregistrer la playlist en cours comme un album</value>
     <comment>interface</comment>
   </data>
+  <data name="lblPlaylistAsAlbumHint" xml:space="preserve">
+    <value>Les fichiers vont dans un dossier d'album « Various Artists\&lt;playlist&gt; », numérotés dans l'ordre de la playlist. Un modèle personnalisé (dans Fichiers et dossiers) remplace cette disposition.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblVerifyLength" xml:space="preserve">
     <value>Rejeter les enregistrements tronqués (vérifier la durée)</value>
     <comment>interface</comment>
@@ -494,7 +498,7 @@
     <comment>console</comment>
   </data>
   <data name="tipPlaylistAsAlbum" xml:space="preserve">
-    <value>Nécessite la source de métadonnées API Spotify. Pendant la lecture d'une playlist Spotify, toutes les pistes enregistrées sont étiquetées comme un seul album nommé d'après la playlist (Various Artists), avec la pochette de la playlist et numérotées dans l'ordre de lecture.</value>
+    <value>Nécessite la source de métadonnées API Spotify. Pendant la lecture d'une playlist Spotify, toutes les pistes enregistrées sont étiquetées comme un seul album nommé d'après la playlist (Various Artists), avec la pochette de la playlist et numérotées selon leur position dans la playlist.</value>
     <comment>interface</comment>
   </data>
   <data name="lblRecordAds" xml:space="preserve">

@@ -31,6 +31,7 @@
         lblTemplateTagsHint,
         lblPreview,
         lblPlaylistAsAlbum,
+        lblPlaylistAsAlbumHint,
         tipPlaylistAsAlbum,
         lblVerifyLength,
         tipVerifyLength,

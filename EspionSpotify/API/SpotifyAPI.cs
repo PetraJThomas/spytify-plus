@@ -32,6 +32,9 @@ namespace EspionSpotify.API
         // Playlist-as-album state: cache fetched playlists and keep a per-playlist running counter
         // (playback order) so a whole playlist records as one cohesive album.
         private readonly Dictionary<string, FullPlaylist> _playlistCache = new Dictionary<string, FullPlaylist>();
+        // trackId -> 1-based position in the playlist (its real order, independent of playback order).
+        private readonly Dictionary<string, Dictionary<string, int>> _playlistPositions =
+            new Dictionary<string, Dictionary<string, int>>();
         private string _playlistAlbumId;
         private int _playlistAlbumCounter;
         private string _playlistAlbumLastTrackId;
@@ -108,6 +111,7 @@ namespace EspionSpotify.API
         {
             if (playlist == null) return;
 
+            track.IsPlaylistAlbum = true;
             if (!string.IsNullOrWhiteSpace(playlist.Name)) track.Album = playlist.Name;
             track.AlbumArtists = new[] {Constants.VARIOUS_ARTISTS};
             if (position.HasValue) track.AlbumPosition = position;
@@ -243,8 +247,9 @@ namespace EspionSpotify.API
         }
 
         // When "record the current playlist as one album" is on and playback comes from a playlist,
-        // override the album identity with the playlist's. Cached per playlist; counter runs in
-        // playback order and is guarded against UpdateTrack retries by the last-track-id check.
+        // override the album identity with the playlist's. The track number is the song's real
+        // position in the playlist (correct even on shuffle); a playback-order counter is the
+        // fallback for anything not found (e.g. a local file).
         private async Task TryApplyPlaylistAlbum(Track track, PlaybackContext playback)
         {
             if (!Settings.Default.advanced_playlist_as_album_enabled) return;
@@ -273,7 +278,12 @@ namespace EspionSpotify.API
                 _playlistAlbumLastTrackId = trackId;
             }
 
-            MapSpotifyPlaylistToTrack(track, playlist, _playlistAlbumCounter);
+            var positions = await GetPlaylistPositionsAsync(playlistId, playlist);
+            var position = trackId != null && positions.TryGetValue(trackId, out var idx)
+                ? idx
+                : _playlistAlbumCounter;
+
+            MapSpotifyPlaylistToTrack(track, playlist, position);
         }
 
         private async Task<FullPlaylist> GetCachedPlaylistAsync(string playlistId)
@@ -285,6 +295,40 @@ namespace EspionSpotify.API
 
             _playlistCache[playlistId] = playlist;
             return playlist;
+        }
+
+        // Builds (and caches) a trackId -> 1-based playlist position map, paginating through the whole
+        // playlist. Every slot advances the index (locals/duplicates included) so positions match the
+        // real order shown in Spotify.
+        private async Task<Dictionary<string, int>> GetPlaylistPositionsAsync(string playlistId, FullPlaylist playlist)
+        {
+            if (_playlistPositions.TryGetValue(playlistId, out var cached)) return cached;
+
+            var map = new Dictionary<string, int>();
+            var index = 0;
+
+            void AddPage(List<PlaylistTrack> items)
+            {
+                if (items == null) return;
+                foreach (var item in items)
+                {
+                    index++;
+                    var id = item?.Track?.Id;
+                    if (!string.IsNullOrEmpty(id) && !map.ContainsKey(id)) map[id] = index;
+                }
+            }
+
+            AddPage(playlist.Tracks?.Items);
+            var total = playlist.Tracks?.Total ?? index;
+            while (index < total)
+            {
+                var page = await _api.GetPlaylistTracksWithoutExceptionAsync(playlistId, index);
+                if (page?.Items == null || page.Items.Count == 0) break;
+                AddPage(page.Items);
+            }
+
+            _playlistPositions[playlistId] = map;
+            return map;
         }
 
         public static string GetPlaylistIdFromContext(Context context)
