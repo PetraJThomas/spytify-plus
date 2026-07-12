@@ -113,7 +113,7 @@ const STATS = ['325 tests, all green', 'FLAC · OPUS · MP3 · WAV', 'English + 
 const HIGHLIGHTS = [
   {
     icon: Workflow,
-    tag: 'It stopped dropping songs',
+    tag: 'Perfect file recordings, every time',
     summary: 'Recording and encoding run on separate lanes now, so a quick skip never loses a track.',
     body: 'The recorder and the encoder used to be tangled in one blocking loop, so a slow encode or a fast track change would quietly lose a song. I split them apart: the recorder grabs the audio, hands it off, and moves straight on, while a background worker encodes, files and tags it out of the way.',
   },
