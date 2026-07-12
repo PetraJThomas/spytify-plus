@@ -517,6 +517,14 @@
     <value>Save the album cover as cover.jpg</value>
     <comment>interface</comment>
   </data>
+  <data name="lblExportPlaylist" xml:space="preserve">
+    <value>Save an .m3u playlist in each folder</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipExportPlaylist" xml:space="preserve">
+    <value>Writes an .m3u8 playlist in each folder listing its recorded tracks (portable, relative paths). Combined with "record the current playlist as one album", this mirrors a Spotify playlist as a playable .m3u. At the output root the playlist is named Spytify.m3u8.</value>
+    <comment>interface</comment>
+  </data>
   <data name="tipSaveCover" xml:space="preserve">
     <value>Saves the album art as cover.jpg in each album folder (once per folder), alongside the embedded cover. Only applies when tracks are grouped into folders.</value>
     <comment>interface</comment>

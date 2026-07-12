@@ -674,6 +674,7 @@ namespace EspionSpotify.Wpf
         public bool UpdateId3Tags { get => _userSettings.UpdateRecordingsID3TagsEnabled; set => SetToggle(value, v => { _userSettings.UpdateRecordingsID3TagsEnabled = v; Settings.Default.advanced_id3_update_recordings_tags_enabled = v; }); }
         public bool WriteExtendedTags { get => _userSettings.WriteExtendedTags; set => SetToggle(value, v => { _userSettings.WriteExtendedTags = v; Settings.Default.advanced_extended_tags_enabled = v; }); }
         public bool SaveCoverFile { get => _userSettings.SaveCoverFile; set => SetToggle(value, v => { _userSettings.SaveCoverFile = v; Settings.Default.advanced_save_cover_file_enabled = v; }); }
+        public bool ExportPlaylist { get => _userSettings.ExportPlaylist; set => SetToggle(value, v => { _userSettings.ExportPlaylist = v; Settings.Default.advanced_export_m3u_enabled = v; }); }
 
         #endregion Bindable state
 
@@ -746,6 +747,7 @@ namespace EspionSpotify.Wpf
             _userSettings.ExtraTitleToSubtitleEnabled = Settings.Default.advanced_id3_extra_title_as_subtitle_enabled;
             _userSettings.WriteExtendedTags = Settings.Default.advanced_extended_tags_enabled;
             _userSettings.SaveCoverFile = Settings.Default.advanced_save_cover_file_enabled;
+            _userSettings.ExportPlaylist = Settings.Default.advanced_export_m3u_enabled;
             _userSettings.VerifyRecordingLength = Settings.Default.advanced_verify_recording_length_enabled;
             _userSettings.AnalyzeRecordings = Settings.Default.advanced_analyze_recordings_enabled;
             _userSettings.PathTemplateEnabled = Settings.Default.advanced_file_path_template_enabled;
@@ -765,7 +767,7 @@ namespace EspionSpotify.Wpf
                 nameof(AddSeparators), nameof(CounterToFilePrefix), nameof(AlbumTrackNumberPrefix),
                 nameof(RecordOverRecordings), nameof(DuplicateRecordings), nameof(DuplicateVisible),
                 nameof(CounterToMediaTag), nameof(ExtraTitleToSubtitle), nameof(UpdateId3Tags),
-                nameof(WriteExtendedTags), nameof(SaveCoverFile), nameof(PlaylistAsAlbum),
+                nameof(WriteExtendedTags), nameof(SaveCoverFile), nameof(ExportPlaylist), nameof(PlaylistAsAlbum),
                 nameof(PathTemplateEnabled), nameof(TemplateFieldsVisible), nameof(ClassicNamingEnabled),
                 nameof(FolderTemplate), nameof(FileTemplate), nameof(SpotifyApiConfigured), nameof(SpotifyOptionsVisible)
             }) OnPropertyChanged(p);

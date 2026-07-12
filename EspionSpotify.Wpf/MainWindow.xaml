@@ -547,6 +547,8 @@
                                       Margin="0,4,0,0" />
                             <ui:ToggleSwitch Header="{l:Tr lblSaveCover}" IsOn="{Binding SaveCoverFile, Mode=TwoWay}"
                                              ToolTip="{l:Tr tipSaveCover}" Margin="0,6,0,0" />
+                            <ui:ToggleSwitch Header="{l:Tr lblExportPlaylist}" IsOn="{Binding ExportPlaylist, Mode=TwoWay}"
+                                             ToolTip="{l:Tr tipExportPlaylist}" />
                         </StackPanel>
                     </Border>
 

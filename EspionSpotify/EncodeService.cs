@@ -176,6 +176,9 @@ namespace EspionSpotify
             if (job.UserSettings.SaveCoverFile)
                 await SaveCoverFileAsync(outputFile, job.Track).ConfigureAwait(false);
 
+            if (job.UserSettings.ExportPlaylist)
+                AppendToPlaylist(outputFile, job);
+
             // Optional post-record quality check (spectral cut-off / transcode detection). Runs in the
             // UI layer where the analyzer lives; fired after tagging so the file is final.
             if (job.UserSettings.AnalyzeRecordings)
@@ -204,6 +207,48 @@ namespace EspionSpotify
                 _fileSystem.File.WriteAllBytes(coverPath, bytes);
             }
             catch { /* best-effort; a missing cover.jpg never fails a recording */ }
+        }
+
+        // Appends the recording to an Extended-M3U playlist in its folder, named after the folder
+        // (or "Spytify" at the output root). Mirrors a recorded playlist/album as a portable .m3u8
+        // (relative filenames, UTF-8). Skips a track already listed. Best-effort.
+        private void AppendToPlaylist(OutputFile outputFile, EncodeJob job)
+        {
+            try
+            {
+                var filePath = outputFile.ToMediaFilePath();
+                if (string.IsNullOrEmpty(filePath)) return;
+
+                var dir = _fileSystem.Path.GetDirectoryName(filePath);
+                if (string.IsNullOrEmpty(dir)) return;
+                var fileName = _fileSystem.Path.GetFileName(filePath);
+
+                var playlistName = string.IsNullOrWhiteSpace(outputFile.FoldersPath)
+                    ? Constants.SPYTIFY
+                    : _fileSystem.Path.GetFileName(dir.TrimEnd('\\'));
+                var m3uPath = _fileSystem.Path.Combine(dir, playlistName + ".m3u8");
+
+                if (_fileSystem.File.Exists(m3uPath))
+                {
+                    if (_fileSystem.File.ReadAllText(m3uPath).Contains(fileName)) return; // already listed
+                }
+                else
+                {
+                    _fileSystem.File.AppendAllText(m3uPath, "#EXTM3U\r\n", new UTF8Encoding(false));
+                }
+
+                var seconds = job.Track.Length ?? job.CountSeconds;
+                _fileSystem.File.AppendAllText(m3uPath, BuildM3uEntry(job.Track, fileName, seconds),
+                    new UTF8Encoding(false));
+            }
+            catch { /* best-effort; the playlist file is a convenience, never fail a recording */ }
+        }
+
+        public static string BuildM3uEntry(Track track, string fileName, int seconds)
+        {
+            var title = track.ToTitleString();
+            var label = string.IsNullOrEmpty(track.Artist) ? title : $"{track.Artist} - {title}";
+            return $"#EXTINF:{seconds},{label}\r\n{fileName}\r\n";
         }
 
         // A capture counts as truncated when it is shorter than this fraction of the track length.

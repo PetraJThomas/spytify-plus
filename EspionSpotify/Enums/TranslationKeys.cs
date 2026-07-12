@@ -41,6 +41,8 @@
         tipExtendedTags,
         lblSaveCover,
         tipSaveCover,
+        lblExportPlaylist,
+        tipExportPlaylist,
         lblLanguage,
         lblListenToSpotifyPlayback,
         lblMinimizeToSystemTray,

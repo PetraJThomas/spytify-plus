@@ -90,6 +90,22 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        public void BuildM3uEntry_FormatsExtInf()
+        {
+            var track = new Track {Artist = "Dua Lipa", Title = "Levitating"};
+            var entry = EncodeService.BuildM3uEntry(track, "01 Levitating.flac", 203);
+            Assert.Equal("#EXTINF:203,Dua Lipa - Levitating\r\n01 Levitating.flac\r\n", entry);
+        }
+
+        [Fact]
+        public void BuildM3uEntry_NoArtist_UsesTitleOnly()
+        {
+            var track = new Track {Title = "Untitled"};
+            var entry = EncodeService.BuildM3uEntry(track, "Untitled.flac", 100);
+            Assert.Equal("#EXTINF:100,Untitled\r\nUntitled.flac\r\n", entry);
+        }
+
+        [Fact]
         public void IsTruncatedCapture_Disabled_NeverTruncated()
         {
             Assert.False(EncodeService.IsTruncatedCapture(false, 10, 240));
