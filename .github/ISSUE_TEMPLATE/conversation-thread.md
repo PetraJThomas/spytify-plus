@@ -8,4 +8,4 @@ assignees: ''
 ---
 
 You can now use the Discussions section
-https://github.com/jwallet/spy-spotify/discussions
+https://github.com/PetraJThomas/spytify-plus/discussions
