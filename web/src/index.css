@@ -37,6 +37,12 @@ a {
 a:hover {
   text-decoration: underline;
 }
+/* Inline links in prose need a non-colour cue too (WCAG 1.4.1). */
+p a,
+.footer__credit a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 /* Visible keyboard focus for every interactive element (WCAG 2.4.7). */
 a:focus-visible,
@@ -49,6 +55,7 @@ button:focus-visible,
 
 img {
   max-width: 100%;
+  height: auto;
   display: block;
 }
 
