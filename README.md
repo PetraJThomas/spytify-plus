@@ -1,78 +1,97 @@
-New features in this version:
-    Native OPUS format support: Added in version 0.2, using FFmpeg conversion for high-efficiency audio.
-    OGG format support: Only in version 0.1.
+# Spytify+
 
-[![Spytify Logo](https://user-images.githubusercontent.com/23088305/29906214-6daad21c-8de1-11e7-80f5-ef6791cc7825.png)](https://jwallet.github.io/spy-spotify/)
+**Spytify+** is a Windows recorder that captures Spotify to a clean, tagged, offline music library. It records what Spotify plays out (WASAPI loopback), skips ads, splits songs into separate tracks, and writes full metadata and cover art. FLAC is a first-class format, and with Spotify Lossless plus a matched sample rate the capture can be bit-perfect.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/s26ibv6ls9j56enr/branch/master?svg=true)](https://ci.appveyor.com/project/jwallet/spy-spotify/branch/master)
-[![AppVeyor tests](https://img.shields.io/appveyor/tests/jwallet/spy-spotify/master?compact_message)](https://ci.appveyor.com/project/jwallet/spy-spotify/branch/master/tests)
-[![Latest release](https://img.shields.io/github/tag/jwallet/spy-spotify.svg?label=version)](https://github.com/jwallet/spy-spotify/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/jwallet/spy-spotify/total.svg?color=yellow&label=downloads)](https://github.com/jwallet/spy-spotify/releases/latest)
-[![Sub Reddit](https://img.shields.io/reddit/subreddit-subscribers/spytify.svg?label=r%2Fspytify)](https://www.reddit.com/r/spytify)
-[![Donate](https://img.shields.io/badge/support-donate-ff69b4)](https://jwallet.github.io/spy-spotify/donate.html)
-[![Issuehunt](https://jwallet.github.io/spy-spotify/assets/images/isohunt_badge.svg)](https://issuehunt.io/r/jwallet/spy-spotify)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-Windows-blue)
+![.NET Framework 4.8](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4)
 
-Spytify is a Spotify recorder for Windows which records Spotify audio without recording or playing ads. It automatically splits songs into separate tracks and records to WAV or MP3 with media metadata, meaning you can easily start enjoying your music offline.
+> This is a fork. Spytify+ builds on [`Fora888/spytify-flac`](https://gitlab.com/Fora888/spytify-flac) (which added FLAC), itself a fork of the original [Spytify by jwallet](https://github.com/jwallet/spy-spotify). All three are MIT-licensed. See [Credits](#credits).
 
-<p align="center"><img alt="Spotify Recorder logs" src="https://jwallet.github.io/spy-spotify/assets/images/ui_record.png" /></p>
+## Screenshots
 
+<p align="center">
+  <img alt="Record screen with the live album-art player card" src="docs/screenshots/record.png" width="80%" />
+</p>
+<p align="center">
+  <img alt="Filename and folder template builder" src="docs/screenshots/templates.png" width="49%" />
+  <img alt="Audio quality analysis" src="docs/screenshots/analyze_empty.png" width="49%" />
+</p>
 
-### [How does it work?](#how-does-it-work)
+## How it works
 
-Spytify records what Spotify outputs, which is a longer process than downloading a Spotify playlist with a tool.
+Spytify+ records the decoded audio at the Windows audio device, so the captured quality is exactly what Spotify plays back. It is not a downloader: it listens in real time, detects track changes, and saves each song as its own file with metadata from Last.fm or the Spotify API.
 
-However, Spytify ensures that all tracks will be the official released one, all sound volume normalized and with media tags and album cover. Playlist Downloaders get mostly all tracks from YouTube which means that they can't guarantee the choosen track will fit 100% the one in your playlist and they will all be the same quality.
+Because it captures the playback path, the audio ceiling is whatever Spotify outputs:
 
-Spytify encodes to the same quality that Spotify outputs ([Spotify Free 160kbps, Spotify Premium 320kbps](https://support.spotify.com/us/article/audio-quality/)), so the recorded copy will be indistinguishable from Spotify’s one.
+- **Spotify "Very High" (320 kbps Ogg)** → a FLAC recording is a lossless wrapper around 320-quality audio (a ~20 kHz brick wall in a spectrogram). Clean, but not lossless music.
+- **Spotify Lossless (Premium, 16/24-bit 44.1 kHz)** → the capture can be **bit-perfect** if the Windows/virtual-cable output is set to **44.1 kHz** so nothing resamples.
 
-**Spytify is meant to be used with a Spotify free account**, even better a fresh new one (Spotify may monitor your account activities).
+The philosophy is pure capture: Spytify+ mirrors Spotify's output faithfully and never resamples, transcodes, or applies loudness processing to the audio.
 
-### [How to install it?](#how-to-install-it)
+## What's new in Spytify+
 
-Follow the steps shown in the F.A.Q section : [_How to install Spytify?_](https://jwallet.github.io/spy-spotify/faq.html#install-spytify)
+On top of the FLAC fork, Spytify+ adds:
 
-### [How to use it?](#how-to-use-it)
+**Recording UI**
+- A modern WPF interface (Fluent, Spotify-green), English + French.
+- A mini Spotify-style **player card** on the Record screen showing the current track's album art live.
+- An **Analyze** tab: drop any audio file to see a spectral quality verdict (real bitrate, lossy brick-wall cut-off, and lossy-in-a-lossless-container transcode detection).
 
-A standard use is to install the Virtual Audio Cable and start a recording session on it using your favorite playlist and let it record overnight, so you avoid waiting for it to end, because Spytify does not download but records. You will then get all your songs automatically split into separate tracks without ads and with metadata.
+**Song metadata & organisation**
+- **Custom filename & folder templates** (opt-in) with a click-to-insert tag builder: `{artist} {albumartist} {album} {title} {titlefull} {year} {track} {track2} {disc} {genre} {counter}`.
+- **Record the current playlist as one album** (Spotify API): tags a whole playlist as a single compilation, using the playlist name, its cover art, and "Various Artists".
+- **ISRC + Spotify track/album ID tags** for de-duping and re-linking (Spotify API).
+- **Save the album cover as `cover.jpg`** in each album folder.
+- **Export an `.m3u` playlist** per folder (mirrors a recorded Spotify playlist as a portable playlist).
+- FLAC/OPUS now honour the tag toggles (extra-title-as-subtitle, counter-as-track-number, re-tag on replay) just like MP3/WAV.
 
-A recorder requires a good sound card to be able to record good quality, that's why Spytify comes with a Virtual Audio Cable device, if you have issues with your sound card (volume slider and other apps sound affects the recordings, or overall recorded sound quality is worst than Spotify) you can install this virtual device using the **Speakers+** icon in Spytify settings.
+**Recording integrity**
+- **Discard truncated recordings**: drops captures cut clearly short of the track's real length.
+- **Analyze each recording** and log its real quality automatically.
 
-Don't forget to hit the [F.A.Q.](https://jwallet.github.io/spy-spotify/faq.html) for tips on:
+**Formats:** FLAC, OPUS, MP3, WAV.
 
-- [_How to install Virtual Audio Cable device for better recording quality?_](https://jwallet.github.io/spy-spotify/faq.html#install-better-audio-endpoint-device)
-- [_How to isolate Spytify and Spotify on a virtual audio device to avoid background noises?_](https://jwallet.github.io/spy-spotify/faq.html#isolate-spotify-audio-endpoint)
-- [_How to reroute sound/output of a virtual audio device to my main audio device to listen to it?_](https://jwallet.github.io/spy-spotify/faq.html#listen-to-virtual-device)
-- [_How to connect to Spotify API for more accurate media tags?_](https://jwallet.github.io/spy-spotify/faq.html#media-tags-not-found)
+## Requirements
 
+- Windows.
+- [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48) runtime.
+- The Spotify desktop app.
+- A **free Spotify account works** (capped at 160 kbps); Premium enables 320 kbps, and Premium Lossless enables CD-quality capture. Using a fresh/secondary account is recommended.
 
-### [Features](#features)
+For best results, record through a virtual audio cable (e.g. VB-Audio) set to 44.1 kHz, and use the **Spotify API** metadata source (your own API keys) — some features (playlist-as-album, ISRC/Spotify-ID tags) require it.
 
-Splits the recorded sound into individual tracks using the artist and track names as the title, like so:
-> Artist - Track.mp3
-  
-Saves all recordings under the same path:
-> ../My Music/
-  
-Automatically adds metadata from Last.fm (or [Spotify API](https://jwallet.github.io/spy-spotify/faq.html#media-tags-not-found)) to .mp3 file:
+## Building from source
 
-- Last.FM : Spytify won't need to be connected to Spotify. It's safer than Spotify API, however the metadata won't be as accurate as the official API.
-- Spotify API: You need to create your own [Spotify API keys](https://jwallet.github.io/spy-spotify/faq.html#media-tags-not-found) and set it in Spytify. Doing this gives better metadata results, however because you are connected to Spotify API, it's easier for them to know that you linked an app that fetches album cover. So you might get a warning from them using this API, but since Spytify does not download directly from Spotify (using the Connect API to receive OGG files which requires Premium), you have less chance to have your account suspended. Anyway, just to be sure, create a new one.
+The engine still uses `packages.config`, so build with **Visual Studio's MSBuild** (not `dotnet build`):
 
-<p align="center"><img alt="Recorded songs with album cover and media tags in Windows Explorer" src="https://jwallet.github.io/spy-spotify/assets/images/saved_songs_list.png" /></p>
+```powershell
+# Restore
+& "<VS>\MSBuild\Current\Bin\MSBuild.exe" EspionSpotify.sln -t:Restore -p:RestorePackagesConfig=true
+# Build
+& "<VS>\MSBuild\Current\Bin\MSBuild.exe" EspionSpotify.sln -p:Configuration=Release -m
+```
 
-### [Requirements](#requirements)
+Output: `EspionSpotify.Wpf/bin/Release/net48/Spytify.exe`.
 
-Spytify runs on Windows only.
+Run the tests with `vstest.console.exe EspionSpotify.Tests/bin/Release/EspionSpotify.Tests.dll`.
 
-- Microsoft Framework ([.NET 4.6.1](https://www.microsoft.com/en-ca/download/details.aspx?id=49981) or higher).
-- Spotify Desktop application.
+Projects: `EspionSpotify` (engine, `EspionSpotify.dll`), `EspionSpotify.Wpf` (the shipped `Spytify.exe`), `EspionSpotify.Updater`, and `EspionSpotify.Tests`.
 
-A **free Spotify account** will work and its recommanded since Spotify may monitor your account, so go create a new one! However, Spotify restricts audio quality to 160 kbps. Having a Premium Spotify subscription will enable recording of up to 320 kbps audio.
+## Credits
 
+Spytify+ stands on the work of others, all MIT-licensed:
 
-## Support Spytify
+- **[Spytify](https://github.com/jwallet/spy-spotify) by jwallet** — the original Spotify recorder. Most of the recording engine and the general FAQ come from here.
+- **[spytify-flac](https://gitlab.com/Fora888/spytify-flac) by Fora888** — added native FLAC output.
+- **Spytify+** — the WPF rewrite, offline-library features, and quality tooling in this repo.
 
-😃 If you like Spytify, you can help jwallet out for a [couple of beers](https://jwallet.github.io/spy-spotify/donate.html) 🍺 or give it a star ⭐ 
+For setup basics (installing a virtual audio cable, isolating Spotify's audio, connecting the Spotify API), the upstream [Spytify FAQ](https://jwallet.github.io/spy-spotify/faq.html) still applies.
 
-## [Download OGG](https://gitlab.com/-/project/77426707/uploads/171f559b8cb4ebe91b05144cba34bb71/Spytify-ogg.7z)
-## [Download Opus](https://gitlab.com/-/project/77426707/uploads/b1634460dde01a6efb9c94ff918733c6/Spytify-opus.7z)
+## Support
+
+😃 If you like Spytify+, you can help the original author **jwallet** out for a [couple of beers](https://jwallet.github.io/spy-spotify/donate.html) 🍺 — and give this repo a star ⭐
+
+## License
+
+[MIT](LICENSE) — see [Credits](#credits).
