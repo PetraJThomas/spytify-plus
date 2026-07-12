@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using EspionSpotify.API;
 using EspionSpotify.AudioSessions;
@@ -173,6 +174,12 @@ namespace EspionSpotify.Wpf
 
         private string _nowPlaying = "Spotify";
         public string NowPlaying { get => _nowPlaying; set => Set(ref _nowPlaying, value); }
+
+        // Cover art of the track currently playing/recording, shown on the player card.
+        // Null when idle, during ads, or before the API has filled the URL (placeholder shows through).
+        private ImageSource _albumArt;
+        public ImageSource AlbumArt { get => _albumArt; set { if (Set(ref _albumArt, value)) OnPropertyChanged(nameof(HasAlbumArt)); } }
+        public bool HasAlbumArt => _albumArt != null;
 
         private string _recordedTime = "";
         public string RecordedTime { get => _recordedTime; set => Set(ref _recordedTime, value); }
@@ -803,6 +810,36 @@ namespace EspionSpotify.Wpf
         public void UpdateIconSpotify(bool isSpotifyPlaying, bool isRecording = false) { }
 
         public void UpdatePlayingTitle(string text) => RunOnUi(() => NowPlaying = text);
+
+        // Engine pushes the current cover URL on every track tick; reload only when it actually
+        // changes so per-second calls are a cheap no-op. The bitmap downloads asynchronously and
+        // decodes small (card art is tiny). On failure we drop back to the placeholder and clear the
+        // cached URL so a later tick can retry.
+        private string _currentArtUrl;
+        public void UpdatePlayingArt(string url) => RunOnUi(() =>
+        {
+            if (string.Equals(url, _currentArtUrl, StringComparison.Ordinal)) return;
+            _currentArtUrl = url;
+
+            if (string.IsNullOrWhiteSpace(url)) { AlbumArt = null; return; }
+
+            try
+            {
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.DecodePixelWidth = 160;
+                bmp.UriSource = new Uri(url, UriKind.Absolute);
+                bmp.EndInit();
+                bmp.DownloadFailed += (s, e) =>
+                {
+                    if (ReferenceEquals(AlbumArt, bmp)) AlbumArt = null;
+                    if (string.Equals(_currentArtUrl, url, StringComparison.Ordinal)) _currentArtUrl = null;
+                };
+                AlbumArt = bmp;
+            }
+            catch { AlbumArt = null; _currentArtUrl = null; }
+        });
 
         public void UpdateRecordedTime(int? time) => RunOnUi(() =>
             RecordedTime = time.HasValue ? TimeSpan.FromSeconds(time.Value).ToString(@"mm\:ss") : "");

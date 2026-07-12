@@ -8,6 +8,7 @@ namespace EspionSpotify
         ResourceManager Rm { get; }
         void UpdateIconSpotify(bool isSpotifyPlaying, bool isRecording = false);
         void UpdatePlayingTitle(string text);
+        void UpdatePlayingArt(string url);
         void UpdateRecordedTime(int? time);
         void UpdateStartButton();
         void StopRecording();

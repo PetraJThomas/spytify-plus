@@ -234,6 +234,9 @@ namespace EspionSpotify
         {
             _currentTrack.CurrentPosition = e.TrackTime;
             _form.UpdateRecordedTime(RecorderUpAndRunning ? (int?) e.TrackTime : null);
+            // The album art URL is fetched asynchronously after the track change, so re-push it
+            // each tick; the UI ignores repeats and only reloads when the URL actually changes.
+            _form.UpdatePlayingArt(_currentTrack.AlbumArtUrl);
         }
 
         private void UpdateInterfaceOnNewTrack()
@@ -243,6 +246,9 @@ namespace EspionSpotify
                 ? $"{_form.Rm?.GetString(I18NKeys.LblAd) ?? "Ad"}: "
                 : "";
             _form.UpdatePlayingTitle($"{adTitle}{_currentTrack}");
+            // Ads carry no cover; the real art arrives ~1s later once the API fills the track
+            // (see the per-second push in OnTrackTimeChanged).
+            _form.UpdatePlayingArt(isAd ? null : _currentTrack.AlbumArtUrl);
 
             // will mute even if the window title is "Spotify"
             MutesSpotifyAds(isAd || _currentTrack.ToString().IsNullOrAdOrSpotifyIdleState());
@@ -343,6 +349,7 @@ namespace EspionSpotify
                 _form.UpdateIconSpotify(_isPlaying);
 
                 _form.UpdatePlayingTitle(track.ToString());
+                _form.UpdatePlayingArt(track.AlbumArtUrl);
                 MutesSpotifyAds(track.Ad);
             }
 
@@ -408,6 +415,7 @@ namespace EspionSpotify
 
             _form.UpdateStartButton();
             _form.UpdatePlayingTitle(Constants.SPOTIFY);
+            _form.UpdatePlayingArt(null);
             _form.UpdateIconSpotify(false);
             _form.UpdateRecordedTime(null);
             _form.StopRecording();
