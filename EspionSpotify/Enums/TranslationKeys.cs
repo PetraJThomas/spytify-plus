@@ -23,6 +23,8 @@
         lblFormat,
         lblGeneral,
         lblID3,
+        lblFilesAndFolders,
+        lblMetadataOrganisation,
         lblLanguage,
         lblListenToSpotifyPlayback,
         lblMinimizeToSystemTray,
