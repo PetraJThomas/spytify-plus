@@ -41,6 +41,10 @@ namespace EspionSpotify.Models
 
             AlbumArtUrl = track.AlbumArtUrl;
             AlbumArtImage = track.AlbumArtImage;
+
+            Isrc = track.Isrc;
+            SpotifyTrackId = track.SpotifyTrackId;
+            SpotifyAlbumId = track.SpotifyAlbumId;
         }
 
         public string Artists
@@ -90,8 +94,14 @@ namespace EspionSpotify.Models
         public int? Year { get; set; }
 
         public string AlbumArtUrl { get; set; }
-        
+
         public byte[] AlbumArtImage { get; set; }
+
+        // Extended identifiers (Spotify API only): ISRC and the Spotify track/album IDs, written as
+        // tags when the user enables extended tagging (great for dedupe and re-linking).
+        public string Isrc { get; set; }
+        public string SpotifyTrackId { get; set; }
+        public string SpotifyAlbumId { get; set; }
 
         private bool IsNormal =>
             !string.IsNullOrEmpty(Artist)

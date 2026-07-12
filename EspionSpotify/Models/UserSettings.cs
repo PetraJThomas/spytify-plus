@@ -29,6 +29,8 @@ namespace EspionSpotify.Models
         public bool RecordEverythingEnabled { get; set; }
         public bool RecordAdsEnabled { get; set; }
         public bool ExtraTitleToSubtitleEnabled { get; set; }
+        public bool WriteExtendedTags { get; set; }
+        public bool SaveCoverFile { get; set; }
         public int InternalOrderNumber { get; set; } = 1;
         public RecordRecordingsStatus RecordRecordingsStatus { get; set; }
         public string AudioEndPointDeviceID { get; set; }

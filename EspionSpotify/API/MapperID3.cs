@@ -16,6 +16,7 @@ namespace EspionSpotify.API
     public class MapperID3
     {
         private readonly bool _extraTitleToSubtitleEnabled;
+        private readonly bool _writeExtendedTags;
 
         private readonly IFileSystem _fileSystem;
         private readonly UserSettings _userSettings;
@@ -36,6 +37,7 @@ namespace EspionSpotify.API
             OrderNumberInMediaTagEnabled = _userSettings.OrderNumberInMediaTagEnabled;
             Count = _userSettings.OrderNumberAsTag;
             _extraTitleToSubtitleEnabled = _userSettings.ExtraTitleToSubtitleEnabled;
+            _writeExtendedTags = _userSettings.WriteExtendedTags;
         }
 
         private string CurrentFile { get; }
@@ -70,6 +72,8 @@ namespace EspionSpotify.API
             tags.Disc = (uint) (Track.Disc ?? 0);
             tags.Year = (uint) (Track.Year ?? 0);
 
+            if (_writeExtendedTags && !string.IsNullOrEmpty(Track.Isrc)) tags.ISRC = Track.Isrc;
+
             await FetchMediaPicture();
             var albumArtCover = GetAlbumCoverToPicture(Track.AlbumArtImage);
             tags.Pictures = albumArtCover != null ? new IPicture[] { albumArtCover } : null;
@@ -83,9 +87,39 @@ namespace EspionSpotify.API
             using (var mp3 = File.Create(CurrentFile))
             {
                 await MapTags(mp3.Tag);
+                if (_writeExtendedTags) WriteCustomIdTags(mp3);
 
                 if (_fileSystem.File.Exists(CurrentFile)) mp3.Save();
             }
+        }
+
+        // The Spotify IDs have no standard tag frame, so write them as custom fields: a TXXX frame
+        // for ID3 (MP3/WAV) and a Vorbis comment for Xiph (FLAC/OPUS). ISRC is handled in MapTags.
+        private void WriteCustomIdTags(File file)
+        {
+            if (file.GetTag(TagTypes.Id3v2, false) is TagLib.Id3v2.Tag id3)
+            {
+                SetTxxx(id3, "SPOTIFY_TRACK_ID", Track.SpotifyTrackId);
+                SetTxxx(id3, "SPOTIFY_ALBUM_ID", Track.SpotifyAlbumId);
+            }
+
+            if (file.GetTag(TagTypes.Xiph, false) is TagLib.Ogg.XiphComment xiph)
+            {
+                SetXiph(xiph, "SPOTIFY_TRACK_ID", Track.SpotifyTrackId);
+                SetXiph(xiph, "SPOTIFY_ALBUM_ID", Track.SpotifyAlbumId);
+            }
+        }
+
+        private static void SetTxxx(TagLib.Id3v2.Tag id3, string key, string value)
+        {
+            if (string.IsNullOrEmpty(value)) return;
+            TagLib.Id3v2.UserTextInformationFrame.Get(id3, key, true).Text = new[] {value};
+        }
+
+        private static void SetXiph(TagLib.Ogg.XiphComment xiph, string key, string value)
+        {
+            if (string.IsNullOrEmpty(value)) return;
+            xiph.SetField(key, value);
         }
 
         #endregion MP3 Tags updater

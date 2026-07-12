@@ -498,6 +498,8 @@
                             <ui:ToggleSwitch Header="{l:Tr lblCounterToMediaTag}" IsOn="{Binding CounterToMediaTag, Mode=TwoWay}" />
                             <ui:ToggleSwitch Header="{l:Tr lblExtraTitleToSubtitle}" IsOn="{Binding ExtraTitleToSubtitle, Mode=TwoWay}" />
                             <ui:ToggleSwitch Header="{l:Tr lblUpdateRecordingsID3Tags}" IsOn="{Binding UpdateId3Tags, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="{l:Tr lblExtendedTags}" IsOn="{Binding WriteExtendedTags, Mode=TwoWay}"
+                                             ToolTip="{l:Tr tipExtendedTags}" />
 
                             <Border Height="1" Background="#22FFFFFF" Margin="0,14,0,12" />
 
@@ -543,6 +545,8 @@
                                       IsChecked="{Binding DuplicateRecordings, Mode=TwoWay}"
                                       Visibility="{Binding DuplicateVisible, Converter={StaticResource BoolToVis}}"
                                       Margin="0,4,0,0" />
+                            <ui:ToggleSwitch Header="{l:Tr lblSaveCover}" IsOn="{Binding SaveCoverFile, Mode=TwoWay}"
+                                             ToolTip="{l:Tr tipSaveCover}" Margin="0,6,0,0" />
                         </StackPanel>
                     </Border>
 

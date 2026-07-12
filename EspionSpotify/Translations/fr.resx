@@ -505,6 +505,22 @@
     <value>// Erreur: {0}</value>
     <comment>console</comment>
   </data>
+  <data name="lblExtendedTags" xml:space="preserve">
+    <value>Écrire l'ISRC et les identifiants Spotify dans les tags</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipExtendedTags" xml:space="preserve">
+    <value>Écrit l'ISRC et les identifiants de piste/album Spotify dans les tags du fichier (l'ISRC comme champ standard, les identifiants Spotify comme champs personnalisés). Nécessite la source de métadonnées API Spotify. Idéal pour dédupliquer et relier une bibliothèque.</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblSaveCover" xml:space="preserve">
+    <value>Enregistrer la pochette de l'album sous cover.jpg</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipSaveCover" xml:space="preserve">
+    <value>Enregistre la pochette sous cover.jpg dans chaque dossier d'album (une fois par dossier), en plus de la pochette intégrée. Ne s'applique que lorsque les pistes sont regroupées en dossiers.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblUpdateRecordingsID3Tags" xml:space="preserve">
     <value>Remettre à jour les tags ID3 des pistes audio déjà enregistrées lors de leur lecture</value>
     <comment>interface</comment>

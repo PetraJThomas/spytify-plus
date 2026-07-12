@@ -74,6 +74,24 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        internal void MapSpotifyTrackToTrack_SetsIsrcAndSpotifyIds()
+        {
+            var fullTrack = new FullTrack
+            {
+                Name = "Title",
+                Id = "trackid123",
+                Album = new SimpleAlbum {Id = "albumid456"},
+                ExternalIds = new Dictionary<string, string> {{"isrc", "USABC1234567"}}
+            };
+
+            _spotifyAPI.MapSpotifyTrackToTrack(_track, fullTrack);
+
+            Assert.Equal("trackid123", _track.SpotifyTrackId);
+            Assert.Equal("albumid456", _track.SpotifyAlbumId);
+            Assert.Equal("USABC1234567", _track.Isrc);
+        }
+
+        [Fact]
         internal void MapSpotifyTrackToTrack_OverwritesSpytifyTrack()
         {
             var fulltrack = new FullTrack

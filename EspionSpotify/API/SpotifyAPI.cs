@@ -93,6 +93,11 @@ namespace EspionSpotify.API
             track.Performers = performers;
             track.Disc = spotifyTrack.DiscNumber;
             track.Length = spotifyTrack.DurationMs > 0 ? (int?) (spotifyTrack.DurationMs / 1000) : null;
+
+            track.SpotifyTrackId = spotifyTrack.Id;
+            track.SpotifyAlbumId = spotifyTrack.Album?.Id;
+            if (spotifyTrack.ExternalIds != null && spotifyTrack.ExternalIds.TryGetValue("isrc", out var isrc))
+                track.Isrc = isrc;
         }
 
         // Overrides the album identity so a playlist records as one compilation album:

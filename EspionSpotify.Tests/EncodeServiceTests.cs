@@ -62,6 +62,34 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        public void ExtendedTags_Enabled_WritesIsrcAndSpotifyIds()
+        {
+            var track = TrackWithExtended();
+            track.Isrc = "USABC1234567";
+            track.SpotifyTrackId = "trk";
+            track.SpotifyAlbumId = "alb";
+
+            var content = EncodeService.BuildFfmetadataContent(track, new UserSettings {WriteExtendedTags = true});
+
+            Assert.Contains("ISRC=USABC1234567\n", content);
+            Assert.Contains("SPOTIFY_TRACK_ID=trk\n", content);
+            Assert.Contains("SPOTIFY_ALBUM_ID=alb\n", content);
+        }
+
+        [Fact]
+        public void ExtendedTags_Disabled_OmitsIsrcAndSpotifyIds()
+        {
+            var track = TrackWithExtended();
+            track.Isrc = "USABC1234567";
+            track.SpotifyTrackId = "trk";
+
+            var content = EncodeService.BuildFfmetadataContent(track, new UserSettings {WriteExtendedTags = false});
+
+            Assert.DoesNotContain("ISRC=", content);
+            Assert.DoesNotContain("SPOTIFY_TRACK_ID=", content);
+        }
+
+        [Fact]
         public void IsTruncatedCapture_Disabled_NeverTruncated()
         {
             Assert.False(EncodeService.IsTruncatedCapture(false, 10, 240));

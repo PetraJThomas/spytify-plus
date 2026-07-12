@@ -505,6 +505,22 @@
     <value>// Error: {0}</value>
     <comment>console</comment>
   </data>
+  <data name="lblExtendedTags" xml:space="preserve">
+    <value>Write ISRC and Spotify IDs to tags</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipExtendedTags" xml:space="preserve">
+    <value>Writes the ISRC and the Spotify track/album IDs into the file tags (ISRC as a standard field, the Spotify IDs as custom fields). Requires the Spotify API metadata source. Great for de-duplicating and re-linking a library.</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblSaveCover" xml:space="preserve">
+    <value>Save the album cover as cover.jpg</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipSaveCover" xml:space="preserve">
+    <value>Saves the album art as cover.jpg in each album folder (once per folder), alongside the embedded cover. Only applies when tracks are grouped into folders.</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblUpdateRecordingsID3Tags" xml:space="preserve">
     <value>Re-update already recorded track ID3 tags when they are played</value>
     <comment>interface</comment>

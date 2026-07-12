@@ -173,10 +173,37 @@ namespace EspionSpotify
 
             await UpdateMediaTagsAsync(outputFile, job).ConfigureAwait(false);
 
+            if (job.UserSettings.SaveCoverFile)
+                await SaveCoverFileAsync(outputFile, job.Track).ConfigureAwait(false);
+
             // Optional post-record quality check (spectral cut-off / transcode detection). Runs in the
             // UI layer where the analyzer lives; fired after tagging so the file is final.
             if (job.UserSettings.AnalyzeRecordings)
                 _form.QueueQualityAnalysis(outputFile.ToMediaFilePath());
+        }
+
+        // Saves the album art as "cover.jpg" in the track's folder, once per album folder. Only when
+        // the track is grouped into a sub-folder (a shared cover at the output root would be
+        // meaningless), and skipped if a cover already exists. Best-effort.
+        private async Task SaveCoverFileAsync(OutputFile outputFile, Track track)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(outputFile.FoldersPath)) return;
+
+                var dir = _fileSystem.Path.GetDirectoryName(outputFile.ToMediaFilePath());
+                if (string.IsNullOrEmpty(dir)) return;
+
+                var coverPath = _fileSystem.Path.Combine(dir, "cover.jpg");
+                if (_fileSystem.File.Exists(coverPath)) return;
+                if (string.IsNullOrWhiteSpace(track.AlbumArtUrl)) return;
+
+                var bytes = track.AlbumArtImage ?? await MapperID3.GetAlbumCover(track.AlbumArtUrl).ConfigureAwait(false);
+                if (bytes == null || bytes.Length == 0) return;
+
+                _fileSystem.File.WriteAllBytes(coverPath, bytes);
+            }
+            catch { /* best-effort; a missing cover.jpg never fails a recording */ }
         }
 
         // A capture counts as truncated when it is shorter than this fraction of the track length.
@@ -377,6 +404,14 @@ namespace EspionSpotify
             if (trackNumber.HasValue) Add("track", trackNumber.Value.ToString());
 
             if (track.Disc.HasValue) Add("disc", track.Disc.Value.ToString());
+
+            // Extended identifiers as Vorbis comments (ISRC is standard; the Spotify IDs are custom).
+            if (userSettings.WriteExtendedTags)
+            {
+                Add("ISRC", track.Isrc);
+                Add("SPOTIFY_TRACK_ID", track.SpotifyTrackId);
+                Add("SPOTIFY_ALBUM_ID", track.SpotifyAlbumId);
+            }
 
             return sb.ToString();
         }
