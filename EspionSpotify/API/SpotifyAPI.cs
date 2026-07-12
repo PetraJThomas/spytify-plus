@@ -38,6 +38,9 @@ namespace EspionSpotify.API
         private string _playlistAlbumId;
         private int _playlistAlbumCounter;
         private string _playlistAlbumLastTrackId;
+        // Spotify only tags genre at the artist level (album/track genres are almost always empty),
+        // so we look it up on demand and cache per artist id: an album's tracks cost one call, not one each.
+        private readonly Dictionary<string, string[]> _artistGenresCache = new Dictionary<string, string[]>();
 
         public SpotifyAPI()
         {
@@ -241,6 +244,11 @@ namespace EspionSpotify.API
 
             MapSpotifyAlbumToTrack(track, album);
 
+            // Spotify almost never fills album-level genre, so silently fall back to the primary
+            // artist's genres (the only place genre actually lives) when the album has none.
+            if (track.Genres == null || track.Genres.Length == 0)
+                track.Genres = await GetArtistGenresAsync(album.Artists?.FirstOrDefault()?.Id);
+
             await TryApplyPlaylistAlbum(track, playback);
 
             // Optionally upgrade the 640px Spotify cover to a higher-res one from iTunes (skips
@@ -359,6 +367,22 @@ namespace EspionSpotify.API
         private string[] GetAlbumArtistFromSimpleArtistList(List<SimpleArtist> artists)
         {
             return (artists ?? new List<SimpleArtist>()).Select(a => a.Name).ToArray();
+        }
+
+        // Returns the artist's Spotify genres, cached per id. Empty when the id is unknown, the
+        // artist has no genres, or the call fails: genre stays best-effort and never blocks a tag.
+        private async Task<string[]> GetArtistGenresAsync(string artistId)
+        {
+            if (string.IsNullOrEmpty(artistId)) return new string[] { };
+            if (_artistGenresCache.TryGetValue(artistId, out var cached)) return cached;
+
+            var artist = await _api.GetArtistWithoutExceptionAsync(artistId);
+            var genres = artist?.Genres == null || artist.HasError()
+                ? new string[] { }
+                : artist.Genres.ToArray();
+
+            _artistGenresCache[artistId] = genres;
+            return genres;
         }
 
         private bool IsPlaybackTrackDetectedTrack(Track track, FullTrack spotifyTrack)
