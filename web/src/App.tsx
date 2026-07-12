@@ -438,10 +438,12 @@ export default function App() {
             })}
           </ol>
           <p className="requirements">
-            Runs on Windows with .NET Framework 4.8 and the Spotify desktop app. On first launch,
-            Windows SmartScreen flags the unsigned app, so click <strong>More info</strong>, then{' '}
-            <strong>Run anyway</strong> (and Unblock the <code>.zip</code> in its Properties if you
-            downloaded it).
+            Runs on Windows with the Spotify desktop app and .NET Framework 4.8 (already on most
+            machines). It's unsigned, so Windows may warn on first launch: the{' '}
+            <a href={`${REPO}#installation`} target="_blank" rel="noreferrer">
+              README
+            </a>{' '}
+            has the two-click walkthrough.
           </p>
         </Reveal>
 

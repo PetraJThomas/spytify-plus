@@ -260,7 +260,7 @@ img {
 .section {
   max-width: var(--container);
   margin: 0 auto;
-  padding: clamp(56px, 9vw, 104px) clamp(16px, 4vw, 40px);
+  padding: clamp(38px, 6vw, 64px) clamp(16px, 4vw, 40px);
 }
 .section__title {
   font-size: clamp(26px, 4vw, 38px);
