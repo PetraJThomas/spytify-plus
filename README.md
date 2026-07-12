@@ -67,7 +67,7 @@ Spytify+ works out of the box using Last.fm for metadata. To unlock the features
 
 1. Open the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and log in.
 2. **Create an app** (any name and description). In its settings, add a **Redirect URI**, then copy the **Client ID** and **Client Secret**.
-3. In Spytify+, go to **Configuration**, choose the **Spotify API** metadata source, paste the Client ID and Client Secret, and set the **same Redirect URI** you used in the dashboard (Spytify+ defaults to `http://localhost:4002`). Click **Connect to Spotify** and authorize.
+3. In Spytify+, go to **Configuration**, choose the **Spotify API** metadata source, paste the Client ID and Client Secret, and set the **same Redirect URI** you used in the dashboard (Spytify+ defaults to `http://127.0.0.1:8000`; Spotify no longer accepts `localhost`, so use the `127.0.0.1` loopback IP). Click **Connect to Spotify** and authorize.
 
 Spytify+ only reads track metadata through the API and records the audio playback; it never downloads files from Spotify, so it stays within what the desktop app already plays.
 
