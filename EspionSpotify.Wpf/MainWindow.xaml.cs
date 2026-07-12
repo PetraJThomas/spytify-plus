@@ -572,6 +572,7 @@ namespace EspionSpotify.Wpf
         public bool RecordAdsVisible => RecordEverything;
 
         // --- Advanced: Recorder / files ---
+        public bool VerifyRecordingLength { get => _userSettings.VerifyRecordingLength; set => SetToggle(value, v => { _userSettings.VerifyRecordingLength = v; Settings.Default.advanced_verify_recording_length_enabled = v; }); }
         public bool AddFolders { get => _userSettings.GroupByFoldersEnabled; set => SetToggle(value, v => { _userSettings.GroupByFoldersEnabled = v; Settings.Default.advanced_file_group_media_in_folders_enabled = v; }); }
         public bool AddSeparators
         {
@@ -739,6 +740,7 @@ namespace EspionSpotify.Wpf
             _userSettings.TrackTitleSeparator = Settings.Default.advanced_file_replace_space_by_underscore_enabled ? "_" : " ";
             _userSettings.OrderNumberMask = Settings.Default.app_counter_number_mask;
             _userSettings.ExtraTitleToSubtitleEnabled = Settings.Default.advanced_id3_extra_title_as_subtitle_enabled;
+            _userSettings.VerifyRecordingLength = Settings.Default.advanced_verify_recording_length_enabled;
             _userSettings.PathTemplateEnabled = Settings.Default.advanced_file_path_template_enabled;
             _userSettings.FolderTemplate = Settings.Default.advanced_file_folder_template ?? "";
             _userSettings.FileTemplate = Settings.Default.advanced_file_name_template ?? "";
@@ -751,7 +753,7 @@ namespace EspionSpotify.Wpf
             foreach (var p in new[]
             {
                 nameof(MuteAds), nameof(MinimizeToTray), nameof(ListenToPlayback), nameof(ForceSkip),
-                nameof(RecordEverything), nameof(RecordAds), nameof(RecordAdsVisible), nameof(AddFolders),
+                nameof(RecordEverything), nameof(RecordAds), nameof(RecordAdsVisible), nameof(VerifyRecordingLength), nameof(AddFolders),
                 nameof(AddSeparators), nameof(CounterToFilePrefix), nameof(AlbumTrackNumberPrefix),
                 nameof(RecordOverRecordings), nameof(DuplicateRecordings), nameof(DuplicateVisible),
                 nameof(CounterToMediaTag), nameof(ExtraTitleToSubtitle), nameof(UpdateId3Tags),
@@ -955,7 +957,8 @@ namespace EspionSpotify.Wpf
 
             var time = $"[{DateTime.Now:HH:mm:ss}] ";
             var isStatus = resource.Equals(I18NKeys.LogRecording) || resource.Equals(I18NKeys.LogRecorded)
-                        || resource.Equals(I18NKeys.LogDeleting) || resource.Equals(I18NKeys.LogTrackExists);
+                        || resource.Equals(I18NKeys.LogDeleting) || resource.Equals(I18NKeys.LogTrackExists)
+                        || resource.Equals(I18NKeys.LogTruncated);
             var colon = text.IndexOf(": ", StringComparison.Ordinal);
             var typeBrush = resource.Equals(I18NKeys.LogRecording) ? GreenBrush : GrayBrush;
 

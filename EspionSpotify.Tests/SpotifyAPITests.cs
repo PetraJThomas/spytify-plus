@@ -58,6 +58,22 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        internal void MapSpotifyTrackToTrack_SetsLengthInSeconds()
+        {
+            var fullTrack = new FullTrack {Name = "Title", DurationMs = 245000};
+            _spotifyAPI.MapSpotifyTrackToTrack(_track, fullTrack);
+            Assert.Equal(245, _track.Length);
+        }
+
+        [Fact]
+        internal void MapSpotifyTrackToTrack_ZeroDuration_LeavesLengthNull()
+        {
+            var fullTrack = new FullTrack {Name = "Title", DurationMs = 0};
+            _spotifyAPI.MapSpotifyTrackToTrack(_track, fullTrack);
+            Assert.Null(_track.Length);
+        }
+
+        [Fact]
         internal void MapSpotifyTrackToTrack_OverwritesSpytifyTrack()
         {
             var fulltrack = new FullTrack

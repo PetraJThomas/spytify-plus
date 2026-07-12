@@ -9,6 +9,7 @@ namespace EspionSpotify.Models
         public Bitrate Bitrate { get; set; }
         public MediaFormat MediaFormat { get; set; }
         public int MinimumRecordedLengthSeconds { get; set; }
+        public bool VerifyRecordingLength { get; set; }
         public bool GroupByFoldersEnabled { get; set; }
         public string TrackTitleSeparator { get; set; } = " ";
 

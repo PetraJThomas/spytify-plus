@@ -60,5 +60,29 @@ namespace EspionSpotify.Tests
 
             Assert.Contains("track=7\n", content);
         }
+
+        [Fact]
+        public void IsTruncatedCapture_Disabled_NeverTruncated()
+        {
+            Assert.False(EncodeService.IsTruncatedCapture(false, 10, 240));
+        }
+
+        [Fact]
+        public void IsTruncatedCapture_UnknownLength_NotTruncated()
+        {
+            Assert.False(EncodeService.IsTruncatedCapture(true, 10, null));
+            Assert.False(EncodeService.IsTruncatedCapture(true, 10, 0));
+        }
+
+        [Theory]
+        [InlineData(120, 240, true)]  // half of the track -> truncated
+        [InlineData(191, 240, true)]  // just under 80%
+        [InlineData(192, 240, false)] // exactly 80% -> kept
+        [InlineData(235, 240, false)] // near-complete (lost intro/crossfade) -> kept
+        [InlineData(260, 240, false)] // longer than expected -> kept
+        public void IsTruncatedCapture_ComparesAgainstEightyPercent(int captured, int expected, bool truncated)
+        {
+            Assert.Equal(truncated, EncodeService.IsTruncatedCapture(true, captured, expected));
+        }
     }
 }

@@ -549,6 +549,9 @@
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
                             <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr lblRecorder}" />
+                            <ui:ToggleSwitch Header="{l:Tr lblVerifyLength}" IsOn="{Binding VerifyRecordingLength, Mode=TwoWay}"
+                                             ToolTip="{l:Tr tipVerifyLength}" />
+                            <Border Height="1" Background="#18FFFFFF" Margin="0,10,0,12" />
                             <StackPanel Style="{StaticResource Row}"
                                         ToolTip="{l:Tr tipCounterDigits}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblRecordingNum}" />

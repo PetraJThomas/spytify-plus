@@ -465,6 +465,18 @@
     <value>Enregistrer la playlist en cours comme un album</value>
     <comment>interface</comment>
   </data>
+  <data name="lblVerifyLength" xml:space="preserve">
+    <value>Rejeter les enregistrements tronqués (vérifier la durée)</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipVerifyLength" xml:space="preserve">
+    <value>Compare chaque enregistrement à la durée de la piste fournie par la source de métadonnées et rejette les captures nettement écourtées (piste passée en cours de lecture, fondu enchaîné, départ tardif). Nécessite une source de métadonnées qui fournit la durée de la piste.</value>
+    <comment>interface</comment>
+  </data>
+  <data name="logTruncated" xml:space="preserve">
+    <value>Suppression tronqué: {0} ({1}s sur {2}s)</value>
+    <comment>console</comment>
+  </data>
   <data name="tipPlaylistAsAlbum" xml:space="preserve">
     <value>Nécessite la source de métadonnées API Spotify. Pendant la lecture d'une playlist Spotify, toutes les pistes enregistrées sont étiquetées comme un seul album nommé d'après la playlist (Various Artists), avec la pochette de la playlist et numérotées dans l'ordre de lecture.</value>
     <comment>interface</comment>

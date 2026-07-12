@@ -465,6 +465,18 @@
     <value>Record the current playlist as one album</value>
     <comment>interface</comment>
   </data>
+  <data name="lblVerifyLength" xml:space="preserve">
+    <value>Discard truncated recordings (verify length)</value>
+    <comment>interface</comment>
+  </data>
+  <data name="tipVerifyLength" xml:space="preserve">
+    <value>Compares each recording against the track length from the metadata source and discards captures cut clearly short (skipped mid-song, crossfade, late start). Needs a metadata source that provides the track length.</value>
+    <comment>interface</comment>
+  </data>
+  <data name="logTruncated" xml:space="preserve">
+    <value>Discarding truncated: {0} ({1}s of {2}s)</value>
+    <comment>console</comment>
+  </data>
   <data name="tipPlaylistAsAlbum" xml:space="preserve">
     <value>Requires the Spotify API metadata source. While playing a Spotify playlist, all recorded tracks are tagged as one album named after the playlist (Various Artists), with the playlist cover and numbered in playback order.</value>
     <comment>interface</comment>

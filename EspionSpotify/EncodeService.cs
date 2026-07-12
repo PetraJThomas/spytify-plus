@@ -132,6 +132,17 @@ namespace EspionSpotify
                 return;
             }
 
+            // Length verification: drop captures clearly cut short versus the known track length
+            // (skipped mid-song, crossfade cut, late start) so the library isn't polluted with
+            // partial files. Only runs when enabled and the expected length is known.
+            if (IsTruncatedCapture(job.UserSettings.VerifyRecordingLength, job.CountSeconds, job.Track.Length))
+            {
+                _form.WriteIntoConsole(I18NKeys.LogTruncated, outputFile.ToString(),
+                    job.CountSeconds, job.Track.Length);
+                fileManager.DeleteFile(tempEncodeFile);
+                return;
+            }
+
             try
             {
                 fileManager.RenameFile(tempEncodeFile, outputFile.ToMediaFilePath());
@@ -161,6 +172,17 @@ namespace EspionSpotify
             _form.WriteIntoConsole(I18NKeys.LogRecorded, outputFile.ToString(), length);
 
             await UpdateMediaTagsAsync(outputFile, job).ConfigureAwait(false);
+        }
+
+        // A capture counts as truncated when it is shorter than this fraction of the track length.
+        // 0.80 keeps near-complete captures (lost intro/crossfade) while dropping obvious mid-song cuts.
+        public const double RECORDING_LENGTH_MIN_RATIO = 0.80;
+
+        public static bool IsTruncatedCapture(bool enabled, int countSeconds, int? expectedLengthSeconds)
+        {
+            if (!enabled) return false;
+            if (!expectedLengthSeconds.HasValue || expectedLengthSeconds.Value <= 0) return false;
+            return countSeconds < expectedLengthSeconds.Value * RECORDING_LENGTH_MIN_RATIO;
         }
 
         private async Task EncodeAsync(EncodeJob job, string tempEncodeFile)

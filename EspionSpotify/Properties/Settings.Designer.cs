@@ -158,6 +158,18 @@ namespace EspionSpotify.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool advanced_verify_recording_length_enabled {
+            get {
+                return ((bool)(this["advanced_verify_recording_length_enabled"]));
+            }
+            set {
+                this["advanced_verify_recording_length_enabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool advanced_id3_counter_number_as_track_number_enabled {
             get {
                 return ((bool)(this["advanced_id3_counter_number_as_track_number_enabled"]));
