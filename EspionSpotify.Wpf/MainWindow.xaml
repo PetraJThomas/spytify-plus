@@ -513,16 +513,42 @@
                                         Margin="0,4,0,4">
                                 <StackPanel Style="{StaticResource Row}">
                                     <TextBlock Style="{StaticResource FieldLabel}" MinWidth="80" Text="{l:Tr lblFolderTemplate}" />
-                                    <TextBox Text="{Binding FolderTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox x:Name="FolderTemplateBox" GotFocus="TemplateBox_GotFocus"
+                                             Text="{Binding FolderTemplate, UpdateSourceTrigger=PropertyChanged}"
                                              Width="430" FontFamily="Consolas" />
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource Row}">
                                     <TextBlock Style="{StaticResource FieldLabel}" MinWidth="80" Text="{l:Tr lblFileTemplate}" />
-                                    <TextBox Text="{Binding FileTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox x:Name="FileTemplateBox" GotFocus="TemplateBox_GotFocus"
+                                             Text="{Binding FileTemplate, UpdateSourceTrigger=PropertyChanged}"
                                              Width="430" FontFamily="Consolas" />
                                 </StackPanel>
-                                <TextBlock Foreground="#888" FontSize="12" Margin="90,2,0,0" TextWrapping="Wrap"
-                                           Text="{}{artist} {albumartist} {album} {title} {titlefull} {year} {track} {track2} {disc} {genre} {counter}" />
+
+                                <!-- Tag builder: click a tag to insert it into the last-focused box; hover for details. -->
+                                <TextBlock Text="{l:Tr lblTemplateTagsHint}" Foreground="#888" FontSize="12" Margin="90,8,0,4" />
+                                <ItemsControl ItemsSource="{Binding TemplateTags}" Margin="90,0,0,2">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="2" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3,14,3">
+                                                <Border Background="#182018" BorderBrush="#2E7D4F" BorderThickness="1"
+                                                        CornerRadius="4" Padding="7,1" Cursor="Hand"
+                                                        ToolTip="{Binding Detail}" MouseLeftButtonUp="InsertTemplateTag">
+                                                    <TextBlock Text="{Binding Token}" FontFamily="Consolas"
+                                                               FontSize="12" Foreground="#1ED760" />
+                                                </Border>
+                                                <TextBlock Text="{Binding Name}" Foreground="#9A9A9A" FontSize="12"
+                                                           VerticalAlignment="Center" Margin="9,0,0,0"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
                                 <StackPanel Orientation="Horizontal" Margin="90,8,0,0">
                                     <TextBlock Text="{l:Tr lblPreview}" Foreground="#888" FontSize="12"
                                                VerticalAlignment="Center" Margin="0,0,8,0" />

@@ -457,6 +457,10 @@
     <value>Nom du fichier</value>
     <comment>interface</comment>
   </data>
+  <data name="lblTemplateTagsHint" xml:space="preserve">
+    <value>Cliquez sur une balise pour l'ajouter au champ actif (survolez pour les détails) :</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblPreview" xml:space="preserve">
     <value>Aperçu</value>
     <comment>interface</comment>

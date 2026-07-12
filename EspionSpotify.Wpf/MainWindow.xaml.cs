@@ -668,6 +668,51 @@ namespace EspionSpotify.Wpf
             TemplatePreview = FileManager.ConcatPaths(folders, $"{file}.{ext}");
         }
 
+        // Legend for the template builder: each tag, its short meaning, and a fuller tooltip with an
+        // example. Clicking a tag inserts it into the last-focused template box (see InsertTemplateTag).
+        public sealed class TemplateTag
+        {
+            public string Token { get; set; }
+            public string Name { get; set; }
+            public string Detail { get; set; }
+        }
+
+        public IReadOnlyList<TemplateTag> TemplateTags { get; } = new List<TemplateTag>
+        {
+            new TemplateTag { Token = "{artist}", Name = "Track artist", Detail = "Primary track artist.  e.g. Radiohead" },
+            new TemplateTag { Token = "{albumartist}", Name = "Album artist", Detail = "Album artist, or \"Various Artists\" for a playlist album.  e.g. Radiohead" },
+            new TemplateTag { Token = "{album}", Name = "Album name", Detail = "Album name (\"Untitled\" if unknown).  e.g. In Rainbows" },
+            new TemplateTag { Token = "{title}", Name = "Track title", Detail = "Track title.  e.g. 15 Step" },
+            new TemplateTag { Token = "{titlefull}", Name = "Title + extra", Detail = "Title including any \"(feat. ...)\" or \"- Live\" part.  e.g. 15 Step" },
+            new TemplateTag { Token = "{year}", Name = "Release year", Detail = "Album release year.  e.g. 2007" },
+            new TemplateTag { Token = "{track}", Name = "Track number", Detail = "Track number on the album.  e.g. 1" },
+            new TemplateTag { Token = "{track2}", Name = "Track no. (2-digit)", Detail = "Track number padded to two digits.  e.g. 01" },
+            new TemplateTag { Token = "{disc}", Name = "Disc number", Detail = "Disc number.  e.g. 1" },
+            new TemplateTag { Token = "{genre}", Name = "First genre", Detail = "First genre from the metadata.  e.g. Alternative" },
+            new TemplateTag { Token = "{counter}", Name = "Recording counter", Detail = "The app's recording counter, with its digit mask.  e.g. 001" }
+        };
+
+        // Track which template box the user last edited so a clicked tag inserts into the right one.
+        private System.Windows.Controls.TextBox _activeTemplateBox;
+
+        private void TemplateBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.TextBox tb) _activeTemplateBox = tb;
+        }
+
+        private void InsertTemplateTag(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is TemplateTag tag)) return;
+            var box = _activeTemplateBox ?? FileTemplateBox;
+            if (box == null) return;
+
+            var caret = Math.Max(0, Math.Min(box.CaretIndex, box.Text.Length));
+            box.Text = box.Text.Insert(caret, tag.Token);
+            box.CaretIndex = caret + tag.Token.Length;
+            box.Focus();
+            e.Handled = true;
+        }
+
         // --- Advanced: ID3 ---
         public bool CounterToMediaTag { get => _userSettings.OrderNumberInMediaTagEnabled; set => SetToggle(value, v => { _userSettings.OrderNumberInMediaTagEnabled = v; Settings.Default.advanced_id3_counter_number_as_track_number_enabled = v; }); }
         public bool ExtraTitleToSubtitle { get => _userSettings.ExtraTitleToSubtitleEnabled; set => SetToggle(value, v => { _userSettings.ExtraTitleToSubtitleEnabled = v; Settings.Default.advanced_id3_extra_title_as_subtitle_enabled = v; }); }

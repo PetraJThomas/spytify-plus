@@ -28,6 +28,7 @@
         lblUseCustomTemplate,
         lblFolderTemplate,
         lblFileTemplate,
+        lblTemplateTagsHint,
         lblPreview,
         lblPlaylistAsAlbum,
         tipPlaylistAsAlbum,

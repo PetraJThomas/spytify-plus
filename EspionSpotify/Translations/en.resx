@@ -457,6 +457,10 @@
     <value>File name</value>
     <comment>interface</comment>
   </data>
+  <data name="lblTemplateTagsHint" xml:space="preserve">
+    <value>Click a tag to add it to the focused field (hover for details):</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblPreview" xml:space="preserve">
     <value>Preview</value>
     <comment>interface</comment>
