@@ -72,6 +72,8 @@ To run it:
 
 If you downloaded the release **`.zip`**, Windows may mark it as "blocked" (mark-of-the-web), which carries over to the extracted files. Before extracting: right-click the **`.zip` → Properties → tick "Unblock" → OK** (or do the same on `Spytify.exe` after extracting).
 
+The warning also fades on its own over time: SmartScreen builds a reputation score per file, and once enough people have downloaded and run a given release without issues, it stops flagging it. Early adopters see the prompt; later ones usually don't.
+
 Prefer not to trust a download at all? **Build it yourself from source** (below) — it's the same app.
 
 ## Building from source
