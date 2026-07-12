@@ -648,6 +648,16 @@ img {
   }
 }
 
+@media (max-width: 560px) {
+  .hero__logo {
+    width: min(280px, 62vw);
+    margin-bottom: 20px;
+  }
+  .hero__logo img {
+    filter: drop-shadow(0 6px 22px rgba(30, 215, 96, 0.12));
+  }
+}
+
 /* Respect reduced-motion (the JS reveals are also gated via useReducedMotion). */
 @media (prefers-reduced-motion: reduce) {
   html {
