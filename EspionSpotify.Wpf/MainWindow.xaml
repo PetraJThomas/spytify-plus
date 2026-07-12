@@ -405,12 +405,21 @@
                                     <Grid Width="430">
                                         <TextBox Text="{Binding SpotifyClientId, UpdateSourceTrigger=LostFocus}"
                                                  Visibility="{Binding ShowClientId, Converter={StaticResource BoolToVis}}" />
-                                        <TextBox Text="{Binding ClientIdMasked, Mode=OneWay}" IsReadOnly="True" Focusable="False"
-                                                 Visibility="{Binding ShowClientId, Converter={StaticResource InverseBoolToVis}}" />
+                                        <!-- PasswordBox masks the value but stays editable, so you can paste
+                                             without revealing first (the old read-only box blocked that). -->
+                                        <PasswordBox x:Name="ClientIdPassword" LostFocus="ClientIdPassword_LostFocus"
+                                                     Visibility="{Binding ShowClientId, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
                                     <ToggleButton Style="{StaticResource IconToggleButton}" IsChecked="{Binding ShowClientId, Mode=TwoWay}"
                                                   Width="36" Margin="6,0,0,0" ToolTip="{l:Tr lblShowHide}">
-                                        <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
+                                        <Grid Width="16" Height="16">
+                                            <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
+                                            <!-- diagonal slash = "hidden" when the value is masked -->
+                                            <Line X1="1.5" Y1="14.5" X2="14.5" Y2="1.5" StrokeThickness="1.5"
+                                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                                  Visibility="{Binding ShowClientId, Converter={StaticResource InverseBoolToVis}}" />
+                                        </Grid>
                                     </ToggleButton>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource Row}">
@@ -418,12 +427,18 @@
                                     <Grid Width="430">
                                         <TextBox Text="{Binding SpotifySecretId, UpdateSourceTrigger=LostFocus}"
                                                  Visibility="{Binding ShowSecret, Converter={StaticResource BoolToVis}}" />
-                                        <TextBox Text="{Binding SecretMasked, Mode=OneWay}" IsReadOnly="True" Focusable="False"
-                                                 Visibility="{Binding ShowSecret, Converter={StaticResource InverseBoolToVis}}" />
+                                        <PasswordBox x:Name="SecretPassword" LostFocus="SecretPassword_LostFocus"
+                                                     Visibility="{Binding ShowSecret, Converter={StaticResource InverseBoolToVis}}" />
                                     </Grid>
                                     <ToggleButton Style="{StaticResource IconToggleButton}" IsChecked="{Binding ShowSecret, Mode=TwoWay}"
                                                   Width="36" Margin="6,0,0,0" ToolTip="{l:Tr lblShowHide}">
-                                        <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
+                                        <Grid Width="16" Height="16">
+                                            <ui:FontIcon Glyph="&#xE7B3;" FontSize="14" />
+                                            <Line X1="1.5" Y1="14.5" X2="14.5" Y2="1.5" StrokeThickness="1.5"
+                                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                                  Visibility="{Binding ShowSecret, Converter={StaticResource InverseBoolToVis}}" />
+                                        </Grid>
                                     </ToggleButton>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource Row}">

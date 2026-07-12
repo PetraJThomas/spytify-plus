@@ -461,10 +461,42 @@ namespace EspionSpotify.Wpf
 
         // Reveal/hide state (hidden by default on boot) and the masked dots shown when hidden.
         private bool _showClientId;
-        public bool ShowClientId { get => _showClientId; set => Set(ref _showClientId, value); }
+        public bool ShowClientId
+        {
+            get => _showClientId;
+            set { if (Set(ref _showClientId, value) && !value) PushToPasswordBox(ClientIdPassword, _spotifyClientId); }
+        }
 
         private bool _showSecret;
-        public bool ShowSecret { get => _showSecret; set => Set(ref _showSecret, value); }
+        public bool ShowSecret
+        {
+            get => _showSecret;
+            set { if (Set(ref _showSecret, value) && !value) PushToPasswordBox(SecretPassword, _spotifySecretId); }
+        }
+
+        // The masked PasswordBox isn't data-bindable, so sync it by hand: push the current value in
+        // when hiding/loading, and read it back on focus loss (mirrors the plaintext box's LostFocus).
+        private bool _syncingPassword;
+
+        private void PushToPasswordBox(System.Windows.Controls.PasswordBox box, string value)
+        {
+            if (box == null) return;
+            _syncingPassword = true;
+            box.Password = value ?? "";
+            _syncingPassword = false;
+        }
+
+        private void ClientIdPassword_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (_syncingPassword) return;
+            SpotifyClientId = ClientIdPassword.Password;
+        }
+
+        private void SecretPassword_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (_syncingPassword) return;
+            SpotifySecretId = SecretPassword.Password;
+        }
 
         public string ClientIdMasked => Mask(_spotifyClientId);
         public string SecretMasked => Mask(_spotifySecretId);
@@ -764,6 +796,9 @@ namespace EspionSpotify.Wpf
             SpotifyClientId = _userSettings.SpotifyAPIClientId;
             SpotifySecretId = _userSettings.SpotifyAPISecretId;
             SpotifyRedirectUrl = _userSettings.SpotifyAPIRedirectURL;
+            // Seed the masked boxes with the loaded (still hidden) values.
+            PushToPasswordBox(ClientIdPassword, _spotifyClientId);
+            PushToPasswordBox(SecretPassword, _spotifySecretId);
 
             // Migrate any legacy plaintext values to encrypted at rest.
             var migrated = false;
