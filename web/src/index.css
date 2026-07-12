@@ -333,6 +333,45 @@ img {
   font-size: 0.92em;
 }
 
+/* First-launch SmartScreen callout: noticeable, reassuring, not fine print. */
+.notice {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 20px 0 0;
+  padding: 18px 20px;
+  border: 1px solid rgba(30, 215, 96, 0.28);
+  border-left: 3px solid var(--green);
+  border-radius: 12px;
+  background: rgba(30, 215, 96, 0.06);
+}
+.notice__icon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--green);
+}
+.notice__body > strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff;
+  font-size: 15.5px;
+}
+.notice__body p {
+  margin: 0;
+  color: #cbcbcb;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.notice__body strong {
+  color: #fff;
+}
+.notice__body code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 0.92em;
+}
+
 /* Spotify API section */
 .spotify {
   max-width: 820px;

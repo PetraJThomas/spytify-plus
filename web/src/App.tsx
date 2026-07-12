@@ -438,13 +438,22 @@ export default function App() {
             })}
           </ol>
           <p className="requirements">
-            Runs on Windows with the Spotify desktop app and .NET Framework 4.8 (already on most
-            machines). It's unsigned, so Windows may warn on first launch: the{' '}
-            <a href={`${REPO}#installation`} target="_blank" rel="noreferrer">
-              README
-            </a>{' '}
-            has the two-click walkthrough.
+            Runs on Windows with the Spotify desktop app and .NET Framework 4.8, already on most
+            machines.
           </p>
+          <div className="notice" role="note">
+            <ShieldCheck className="notice__icon" size={24} aria-hidden />
+            <div className="notice__body">
+              <strong>Heads up: Windows will warn you on first launch.</strong>
+              <p>
+                Spytify+ is open-source and unsigned, so Windows SmartScreen shows a blue &ldquo;unrecognised
+                app&rdquo; screen the first time you run it. That's expected, not a virus. Click{' '}
+                <strong>More info</strong>, then <strong>Run anyway</strong>. If you downloaded the{' '}
+                <code>.zip</code>, right-click it first → Properties → tick <strong>Unblock</strong>,
+                then extract.
+              </p>
+            </div>
+          </div>
         </Reveal>
 
         {/* Spotify API */}
