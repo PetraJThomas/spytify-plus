@@ -106,7 +106,43 @@ namespace EspionSpotify.Properties {
                 this["advanced_file_counter_number_prefix_enabled"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool advanced_file_path_template_enabled {
+            get {
+                return ((bool)(this["advanced_file_path_template_enabled"]));
+            }
+            set {
+                this["advanced_file_path_template_enabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{albumartist}/{album} ({year})")]
+        public string advanced_file_folder_template {
+            get {
+                return ((string)(this["advanced_file_folder_template"]));
+            }
+            set {
+                this["advanced_file_folder_template"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{track2} {title}")]
+        public string advanced_file_name_template {
+            get {
+                return ((string)(this["advanced_file_name_template"]));
+            }
+            set {
+                this["advanced_file_name_template"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]

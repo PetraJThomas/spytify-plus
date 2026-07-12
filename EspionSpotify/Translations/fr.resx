@@ -445,6 +445,22 @@
     <value>Métadonnées et organisation</value>
     <comment>interface</comment>
   </data>
+  <data name="lblUseCustomTemplate" xml:space="preserve">
+    <value>Utiliser un modèle de nom de fichier et de dossier</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblFolderTemplate" xml:space="preserve">
+    <value>Dossier</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblFileTemplate" xml:space="preserve">
+    <value>Nom du fichier</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblPreview" xml:space="preserve">
+    <value>Aperçu</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblRecordAds" xml:space="preserve">
     <value>Incluant les annonces</value>
     <comment>interface</comment>

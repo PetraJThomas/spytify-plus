@@ -257,6 +257,7 @@
     <Compile Include="Native\Combase.cs" />
     <Compile Include="Native\Models\Process.cs" />
     <Compile Include="Native\FileManager.cs" />
+    <Compile Include="Native\PathTemplate.cs" />
     <Compile Include="IFrmEspionSpotify.cs" />
     <Compile Include="Native\Models\IProcess.cs" />
     <Compile Include="Native\IProcessManager.cs" />

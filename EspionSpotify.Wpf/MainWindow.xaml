@@ -498,10 +498,42 @@
                             <Border Height="1" Background="#22FFFFFF" Margin="0,14,0,12" />
 
                             <TextBlock Style="{StaticResource SubHeader}" Text="{l:Tr lblFilesAndFolders}" />
-                            <ui:ToggleSwitch Header="{l:Tr lblAddFolders}" IsOn="{Binding AddFolders, Mode=TwoWay}" />
-                            <ui:ToggleSwitch Header="{l:Tr lblAddSeparators}" IsOn="{Binding AddSeparators, Mode=TwoWay}" />
-                            <ui:ToggleSwitch Header="{l:Tr lblCounterToFilePrefix}" IsOn="{Binding CounterToFilePrefix, Mode=TwoWay}" />
-                            <ui:ToggleSwitch Header="{l:Tr lblAlbumTrackNumberToFilePrefix}" IsOn="{Binding AlbumTrackNumberPrefix, Mode=TwoWay}" />
+
+                            <!-- Opt-in template override. When on it drives folder + file naming; the
+                                 toggles below are greyed out because the template supersedes them. -->
+                            <ui:ToggleSwitch Header="{l:Tr lblUseCustomTemplate}" IsOn="{Binding PathTemplateEnabled, Mode=TwoWay}" />
+
+                            <StackPanel Visibility="{Binding TemplateFieldsVisible, Converter={StaticResource BoolToVis}}"
+                                        Margin="0,4,0,4">
+                                <StackPanel Style="{StaticResource Row}">
+                                    <TextBlock Style="{StaticResource FieldLabel}" MinWidth="80" Text="{l:Tr lblFolderTemplate}" />
+                                    <TextBox Text="{Binding FolderTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="430" FontFamily="Consolas" />
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource Row}">
+                                    <TextBlock Style="{StaticResource FieldLabel}" MinWidth="80" Text="{l:Tr lblFileTemplate}" />
+                                    <TextBox Text="{Binding FileTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="430" FontFamily="Consolas" />
+                                </StackPanel>
+                                <TextBlock Foreground="#888" FontSize="12" Margin="90,2,0,0" TextWrapping="Wrap"
+                                           Text="{}{artist} {albumartist} {album} {title} {titlefull} {year} {track} {track2} {disc} {genre} {counter}" />
+                                <StackPanel Orientation="Horizontal" Margin="90,8,0,0">
+                                    <TextBlock Text="{l:Tr lblPreview}" Foreground="#888" FontSize="12"
+                                               VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding TemplatePreview}" Foreground="#1ED760" FontSize="12"
+                                               FontFamily="Consolas" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Border Height="1" Background="#18FFFFFF" Margin="0,8,0,10" />
+
+                            <StackPanel IsEnabled="{Binding ClassicNamingEnabled}">
+                                <ui:ToggleSwitch Header="{l:Tr lblAddFolders}" IsOn="{Binding AddFolders, Mode=TwoWay}" />
+                                <ui:ToggleSwitch Header="{l:Tr lblAddSeparators}" IsOn="{Binding AddSeparators, Mode=TwoWay}" />
+                                <ui:ToggleSwitch Header="{l:Tr lblCounterToFilePrefix}" IsOn="{Binding CounterToFilePrefix, Mode=TwoWay}" />
+                                <ui:ToggleSwitch Header="{l:Tr lblAlbumTrackNumberToFilePrefix}" IsOn="{Binding AlbumTrackNumberPrefix, Mode=TwoWay}" />
+                            </StackPanel>
                             <ui:ToggleSwitch Header="{l:Tr lblRecordOverRecordings}" IsOn="{Binding RecordOverRecordings, Mode=TwoWay}" />
                             <CheckBox Content="{l:Tr lblDuplicate}"
                                       IsChecked="{Binding DuplicateRecordings, Mode=TwoWay}"

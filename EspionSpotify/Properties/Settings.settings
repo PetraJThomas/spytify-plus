@@ -23,6 +23,15 @@
     <Setting Name="advanced_file_counter_number_prefix_enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="advanced_file_path_template_enabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="advanced_file_folder_template" Type="System.String" Scope="User">
+      <Value Profile="(Default)">{albumartist}/{album} ({year})</Value>
+    </Setting>
+    <Setting Name="advanced_file_name_template" Type="System.String" Scope="User">
+      <Value Profile="(Default)">{track2} {title}</Value>
+    </Setting>
     <Setting Name="advanced_id3_counter_number_as_track_number_enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

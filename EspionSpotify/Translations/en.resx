@@ -445,6 +445,22 @@
     <value>Song Metadata &amp; Organisation</value>
     <comment>interface</comment>
   </data>
+  <data name="lblUseCustomTemplate" xml:space="preserve">
+    <value>Use a custom filename and folder template</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblFolderTemplate" xml:space="preserve">
+    <value>Folder</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblFileTemplate" xml:space="preserve">
+    <value>File name</value>
+    <comment>interface</comment>
+  </data>
+  <data name="lblPreview" xml:space="preserve">
+    <value>Preview</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblRecordAds" xml:space="preserve">
     <value>Including ads</value>
     <comment>interface</comment>

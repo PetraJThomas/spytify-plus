@@ -87,6 +87,38 @@ namespace EspionSpotify.Tests
         }
 
         [Fact]
+        internal void GetOutputFile_WithTemplate_UsesTemplatePathAndCreatesDirectories()
+        {
+            _userSettings.PathTemplateEnabled = true;
+            _userSettings.FolderTemplate = "{albumartist}/{album}";
+            _userSettings.FileTemplate = "{track2} {title}";
+            _track.AlbumPosition = 3;
+            _track.AlbumArtists = new[] {"Artist"};
+
+            _fileManager = new FileManager(_userSettings, _track, _fileSystem, DateTime.Now);
+            var outputFile = _fileManager.GetOutputFileAndInitDirectories();
+
+            Assert.Equal(@"Artist\Single", outputFile.FoldersPath);
+            Assert.Equal($@"{PATH}\Artist\Single\03 Title.mp3", outputFile.ToMediaFilePath());
+            Assert.True(_fileSystem.Directory.Exists($@"{PATH}\Artist\Single"));
+        }
+
+        [Fact]
+        internal void GetOutputFile_WithTemplateButUnknownTrack_FallsBackToClassicRoot()
+        {
+            _userSettings.PathTemplateEnabled = true;
+            _userSettings.FolderTemplate = "{albumartist}/{album}";
+            _userSettings.FileTemplate = "{title}";
+            var unknown = new Track {Artist = "123 Podcast", Title = null, Playing = true};
+
+            _fileManager = new FileManager(_userSettings, unknown, _fileSystem, DateTime.Now);
+            var outputFile = _fileManager.GetOutputFileAndInitDirectories();
+
+            Assert.Equal(string.Empty, outputFile.FoldersPath);
+            Assert.Equal($@"{PATH}\123 Podcast.mp3", outputFile.ToMediaFilePath());
+        }
+
+        [Fact]
         internal void GetOutputFile_ReturnsExistingFileNameDuplicated()
         {
             _userSettings.RecordRecordingsStatus = RecordRecordingsStatus.Duplicate;

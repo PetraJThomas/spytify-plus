@@ -55,16 +55,30 @@ namespace EspionSpotify.Native
 
         public OutputFile GetOutputFileAndInitDirectories()
         {
-            var (artistDirectory, albumDirectory) = GetFolderPath(_track, _userSettings);
-            CreateDirectories(_userSettings, artistDirectory, albumDirectory);
+            string foldersPath;
+            string mediaFile;
 
-            var (fileMaxLength, _) = GetFileMaxLength(_track, _userSettings);
+            if (UsesTemplate(_track, _userSettings))
+            {
+                foldersPath = PathTemplate.ResolveFolders(_userSettings.FolderTemplate, _track, _userSettings);
+                CreateTemplateDirectories(foldersPath);
+                mediaFile = PathTemplate.ResolveFileName(_userSettings.FileTemplate, _track, _userSettings)
+                    .ToMaxLength(GetTemplateFileMaxLength(foldersPath));
+            }
+            else
+            {
+                var (artistDirectory, albumDirectory) = GetFolderPath(_track, _userSettings);
+                CreateDirectories(_userSettings, artistDirectory, albumDirectory);
+                var (fileMaxLength, _) = GetFileMaxLength(_track, _userSettings);
+                foldersPath = ConcatPaths(artistDirectory, albumDirectory);
+                mediaFile = GenerateFileName(_track, _userSettings, _now).ToMaxLength(fileMaxLength);
+            }
 
             var outputFile = new OutputFile
             {
                 BasePath = _userSettings.OutputPath,
-                FoldersPath = ConcatPaths(artistDirectory, albumDirectory),
-                MediaFile = GenerateFileName(_track, _userSettings, _now).ToMaxLength(fileMaxLength),
+                FoldersPath = foldersPath,
+                MediaFile = mediaFile,
                 Separator = _userSettings.TrackTitleSeparator,
                 Extension = GetMediaFormatExtension(_userSettings)
             };
@@ -79,6 +93,30 @@ namespace EspionSpotify.Native
             }
         }
 
+        // Template mode applies only to normal tracks; ads and unknown tracks keep the classic path
+        // (root placement, timestamped ad names) so nothing weird lands in a templated library.
+        private static bool UsesTemplate(Track track, UserSettings userSettings)
+        {
+            var isAd = track.Ad && !track.IsUnknownPlaying;
+            return userSettings.PathTemplateEnabled
+                   && !string.IsNullOrWhiteSpace(userSettings.FileTemplate)
+                   && !track.IsUnknown
+                   && !isAd;
+        }
+
+        private void CreateTemplateDirectories(string foldersPath)
+        {
+            if (string.IsNullOrEmpty(foldersPath)) return;
+            var full = ConcatPaths(_userSettings.OutputPath, foldersPath);
+            if (!_fileSystem.Directory.Exists(full)) _fileSystem.Directory.CreateDirectory(full);
+        }
+
+        private int GetTemplateFileMaxLength(string foldersPath)
+        {
+            var pathShape = ConcatPaths(_userSettings.OutputPath, foldersPath) + @"\";
+            return Math.Max(MAX_PATH_LENGTH - pathShape.Length - FILE_COUNTER_AND_EXTENSION_LENGTH, 0);
+        }
+
         public void DeleteFile(string currentFile)
         {
             if (string.IsNullOrWhiteSpace(currentFile)) throw new Exception("File name cannot be null.");
@@ -86,8 +124,10 @@ namespace EspionSpotify.Native
             {
                 if (_fileSystem.File.Exists(currentFile)) _fileSystem.File.Delete(currentFile);
 
-                if (!GoesAtRoot(_userSettings.GroupByFoldersEnabled, _track.IsUnknown) &&
-                    Path.GetExtension(currentFile).ToLowerInvariant() != ".tmp") DeleteFileFolder(currentFile);
+                var hasFolders = !GoesAtRoot(_userSettings.GroupByFoldersEnabled, _track.IsUnknown)
+                                 || UsesTemplate(_track, _userSettings);
+                if (hasFolders && Path.GetExtension(currentFile).ToLowerInvariant() != ".tmp")
+                    DeleteFileFolder(currentFile);
             }
             catch (Exception ex)
             {
@@ -126,9 +166,21 @@ namespace EspionSpotify.Native
 
         public bool IsPathFileNameExists(Track track, UserSettings userSettings, IFileSystem fileSystem)
         {
-            var (artistDirectory, albumDirectory) = GetFolderPath(track, userSettings);
-            var pathWithFolder = ConcatPaths(userSettings.OutputPath, ConcatPaths(artistDirectory, albumDirectory));
-            var fileName = GenerateFileName(track, userSettings, _now);
+            string foldersPath;
+            string fileName;
+            if (UsesTemplate(track, userSettings))
+            {
+                foldersPath = PathTemplate.ResolveFolders(userSettings.FolderTemplate, track, userSettings);
+                fileName = PathTemplate.ResolveFileName(userSettings.FileTemplate, track, userSettings);
+            }
+            else
+            {
+                var (artistDirectory, albumDirectory) = GetFolderPath(track, userSettings);
+                foldersPath = ConcatPaths(artistDirectory, albumDirectory);
+                fileName = GenerateFileName(track, userSettings, _now);
+            }
+
+            var pathWithFolder = ConcatPaths(userSettings.OutputPath, foldersPath);
             var filePath = ConcatPaths(pathWithFolder, $"{fileName}.{GetMediaFormatExtension(userSettings)}");
             return fileSystem.File.Exists(filePath);
         }
@@ -274,6 +326,11 @@ namespace EspionSpotify.Native
         private void DeleteFileFolder(string currentFile)
         {
             var folderPath = _fileSystem.Path.GetDirectoryName(currentFile);
+            // Never remove the output root itself, only sub-folders we created under it.
+            if (string.IsNullOrEmpty(folderPath) ||
+                string.Equals(folderPath.TrimEnd('\\'), (_userSettings.OutputPath ?? "").TrimEnd('\\'),
+                    StringComparison.OrdinalIgnoreCase))
+                return;
             if (!_fileSystem.Directory.EnumerateFiles(folderPath).Any())
             {
                 try

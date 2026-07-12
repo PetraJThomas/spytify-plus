@@ -11,6 +11,12 @@ namespace EspionSpotify.Models
         public int MinimumRecordedLengthSeconds { get; set; }
         public bool GroupByFoldersEnabled { get; set; }
         public string TrackTitleSeparator { get; set; } = " ";
+
+        // Opt-in custom path templates. When enabled (and a file template is set) these override the
+        // folder/naming toggles above for normal tracks; ads and unknown tracks keep the classic path.
+        public bool PathTemplateEnabled { get; set; }
+        public string FolderTemplate { get; set; } = "";
+        public string FileTemplate { get; set; } = "";
         public bool OrderNumberInMediaTagEnabled { get; set; }
         public bool OrderNumberInfrontOfFileEnabled { get; set; }
         public bool AlbumTrackNumberInfrontOfFileEnabled { get; set; }

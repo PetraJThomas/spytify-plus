@@ -592,6 +592,72 @@ namespace EspionSpotify.Wpf
         }
         public bool DuplicateVisible => RecordOverRecordings;
 
+        // --- Advanced: custom path templates (opt-in override of the naming/folder toggles) ---
+        public bool PathTemplateEnabled
+        {
+            get => _userSettings.PathTemplateEnabled;
+            set => SetToggle(value, v =>
+            {
+                _userSettings.PathTemplateEnabled = v;
+                Settings.Default.advanced_file_path_template_enabled = v;
+                OnPropertyChanged(nameof(TemplateFieldsVisible));
+                OnPropertyChanged(nameof(ClassicNamingEnabled));
+                UpdateTemplatePreview();
+            });
+        }
+        public bool TemplateFieldsVisible => PathTemplateEnabled;
+        // The folder/prefix/underscore toggles are overridden by the template, so grey them out when it is on.
+        public bool ClassicNamingEnabled => !PathTemplateEnabled;
+
+        public string FolderTemplate
+        {
+            get => _userSettings.FolderTemplate;
+            set
+            {
+                _userSettings.FolderTemplate = value ?? "";
+                Settings.Default.advanced_file_folder_template = _userSettings.FolderTemplate;
+                if (!_loading) Settings.Default.Save();
+                OnPropertyChanged();
+                UpdateTemplatePreview();
+            }
+        }
+
+        public string FileTemplate
+        {
+            get => _userSettings.FileTemplate;
+            set
+            {
+                _userSettings.FileTemplate = value ?? "";
+                Settings.Default.advanced_file_name_template = _userSettings.FileTemplate;
+                if (!_loading) Settings.Default.Save();
+                OnPropertyChanged();
+                UpdateTemplatePreview();
+            }
+        }
+
+        private string _templatePreview = "";
+        public string TemplatePreview { get => _templatePreview; private set => Set(ref _templatePreview, value); }
+
+        // Renders both templates against a fixed sample track so the user sees the resulting path live.
+        private void UpdateTemplatePreview()
+        {
+            var sample = new Track
+            {
+                Artist = "Radiohead",
+                Title = "15 Step",
+                Album = "In Rainbows",
+                Year = 2007,
+                AlbumPosition = 1,
+                Disc = 1,
+                AlbumArtists = new[] { "Radiohead" },
+                Genres = new[] { "Alternative" }
+            };
+            var folders = PathTemplate.ResolveFolders(_userSettings.FolderTemplate, sample, _userSettings);
+            var file = PathTemplate.ResolveFileName(_userSettings.FileTemplate, sample, _userSettings);
+            var ext = SelectedFormat.ToString().ToLower();
+            TemplatePreview = FileManager.ConcatPaths(folders, $"{file}.{ext}");
+        }
+
         // --- Advanced: ID3 ---
         public bool CounterToMediaTag { get => _userSettings.OrderNumberInMediaTagEnabled; set => SetToggle(value, v => { _userSettings.OrderNumberInMediaTagEnabled = v; Settings.Default.advanced_id3_counter_number_as_track_number_enabled = v; }); }
         public bool ExtraTitleToSubtitle { get => _userSettings.ExtraTitleToSubtitleEnabled; set => SetToggle(value, v => { _userSettings.ExtraTitleToSubtitleEnabled = v; Settings.Default.advanced_id3_extra_title_as_subtitle_enabled = v; }); }
@@ -666,9 +732,13 @@ namespace EspionSpotify.Wpf
             _userSettings.TrackTitleSeparator = Settings.Default.advanced_file_replace_space_by_underscore_enabled ? "_" : " ";
             _userSettings.OrderNumberMask = Settings.Default.app_counter_number_mask;
             _userSettings.ExtraTitleToSubtitleEnabled = Settings.Default.advanced_id3_extra_title_as_subtitle_enabled;
+            _userSettings.PathTemplateEnabled = Settings.Default.advanced_file_path_template_enabled;
+            _userSettings.FolderTemplate = Settings.Default.advanced_file_folder_template ?? "";
+            _userSettings.FileTemplate = Settings.Default.advanced_file_name_template ?? "";
             RecordingNumber = _userSettings.InternalOrderNumber.ToString(_userSettings.OrderNumberMask);
 
             _loading = false;
+            UpdateTemplatePreview();
 
             // refresh toggle-backed properties (they read straight from _userSettings/Settings)
             foreach (var p in new[]
@@ -678,7 +748,8 @@ namespace EspionSpotify.Wpf
                 nameof(AddSeparators), nameof(CounterToFilePrefix), nameof(AlbumTrackNumberPrefix),
                 nameof(RecordOverRecordings), nameof(DuplicateRecordings), nameof(DuplicateVisible),
                 nameof(CounterToMediaTag), nameof(ExtraTitleToSubtitle), nameof(UpdateId3Tags),
-                nameof(SpotifyApiConfigured), nameof(SpotifyOptionsVisible)
+                nameof(PathTemplateEnabled), nameof(TemplateFieldsVisible), nameof(ClassicNamingEnabled),
+                nameof(FolderTemplate), nameof(FileTemplate), nameof(SpotifyApiConfigured), nameof(SpotifyOptionsVisible)
             }) OnPropertyChanged(p);
         }
 
