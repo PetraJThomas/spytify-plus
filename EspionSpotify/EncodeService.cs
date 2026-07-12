@@ -186,9 +186,12 @@ namespace EspionSpotify
                 _form.QueueQualityAnalysis(outputFile.ToMediaFilePath());
         }
 
-        // Saves the album art as "cover.jpg" in the track's folder, once per album folder. Only when
+        // Saves the album art next to the track, once per album folder. Writes both "cover.jpg"
+        // (the cross-player convention read by VLC, foobar, MusicBee, Kodi) and "Folder.jpg"
+        // (the name the Windows shell and Media Player look for; they ignore cover.jpg). Only when
         // the track is grouped into a sub-folder (a shared cover at the output root would be
-        // meaningless), and skipped if a cover already exists. Best-effort.
+        // meaningless). Neither file is overwritten if it already exists, so a cover you dropped
+        // in yourself is left alone. Best-effort.
         private async Task SaveCoverFileAsync(OutputFile outputFile, Track track)
         {
             try
@@ -199,15 +202,19 @@ namespace EspionSpotify
                 if (string.IsNullOrEmpty(dir)) return;
 
                 var coverPath = _fileSystem.Path.Combine(dir, "cover.jpg");
-                if (_fileSystem.File.Exists(coverPath)) return;
+                var folderPath = _fileSystem.Path.Combine(dir, "Folder.jpg");
+                var needCover = !_fileSystem.File.Exists(coverPath);
+                var needFolder = !_fileSystem.File.Exists(folderPath);
+                if (!needCover && !needFolder) return;
                 if (string.IsNullOrWhiteSpace(track.AlbumArtUrl)) return;
 
                 var bytes = track.AlbumArtImage ?? await MapperID3.GetAlbumCover(track.AlbumArtUrl).ConfigureAwait(false);
                 if (bytes == null || bytes.Length == 0) return;
 
-                _fileSystem.File.WriteAllBytes(coverPath, bytes);
+                if (needCover) _fileSystem.File.WriteAllBytes(coverPath, bytes);
+                if (needFolder) _fileSystem.File.WriteAllBytes(folderPath, bytes);
             }
-            catch { /* best-effort; a missing cover.jpg never fails a recording */ }
+            catch { /* best-effort; a missing cover file never fails a recording */ }
         }
 
         // Appends the recording to an Extended-M3U playlist in its folder, named after the folder
