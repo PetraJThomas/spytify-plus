@@ -12,6 +12,7 @@ import {
   Combine,
   Microscope,
   Library,
+  ListChecks,
   ShieldCheck,
   Sparkles,
   Github,
@@ -130,7 +131,7 @@ const heroItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
 }
 
-const STATS = ['325 tests, all green', 'FLAC · OPUS · MP3 · WAV', 'English + French', '.NET Framework 4.8', 'MIT licensed']
+const STATS = ['342 tests, all green', 'FLAC · OPUS · MP3 · WAV', 'English + French', '.NET Framework 4.8', 'MIT licensed']
 
 const HIGHLIGHTS = [
   {
@@ -158,6 +159,12 @@ const HIGHLIGHTS = [
     body: 'Name and file your recordings however you like with a click-to-build template, turn a whole Spotify playlist into one album, write ISRC and Spotify IDs into the tags, drop a cover.jpg in each folder, and export an .m3u. It is all optional, and none of it touches the audio itself.',
   },
   {
+    icon: ListChecks,
+    tag: 'Keep an existing library honest',
+    summary: 'The Check Library tab sweeps a whole folder of recordings: grade every file’s real quality, and refresh tags and cover art from Spotify.',
+    body: 'It works over music you already have, not just new captures. Analyse Library grades each file’s true quality in one batch and flags anything that is not what it claims. Update Library Metadata refreshes tags and cover art straight from Spotify, matched exactly by each file’s embedded ISRC so it can never mistag, with no re-recording involved.',
+  },
+  {
     icon: Sparkles,
     tag: 'It actually feels good to use',
     summary: 'A hand-built interface, dark and Spotify-green, with a live now-playing card and motion where it helps.',
@@ -166,8 +173,8 @@ const HIGHLIGHTS = [
   {
     icon: ShieldCheck,
     tag: 'Solid, not just shiny',
-    summary: '325 tests passing, two languages kept in sync automatically, and your API keys encrypted on disk.',
-    body: 'There are 325 tests and they all pass. Every piece of on-screen text is translated across English and French, checked automatically so nothing slips through untranslated. And your Spotify API keys are encrypted where they are stored, not sitting in plain text.',
+    summary: '342 tests passing, two languages kept in sync automatically, and your API keys encrypted on disk.',
+    body: 'There are 342 tests and they all pass. Every piece of on-screen text is translated across English and French, checked automatically so nothing slips through untranslated. And your Spotify API keys are encrypted where they are stored, not sitting in plain text.',
   },
 ]
 
