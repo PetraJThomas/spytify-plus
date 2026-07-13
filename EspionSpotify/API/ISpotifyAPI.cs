@@ -15,5 +15,8 @@ namespace EspionSpotify.API
         // Builds a fully-enriched Track from an ISRC (exact library-refresh lookup, no playback).
         // Returns null when the API isn't ready or nothing matches.
         Task<Track> GetTrackByIsrcAsync(string isrc);
+
+        // Exact lookup by Spotify track id (the fallback when isrc: search can't find the track).
+        Task<Track> GetTrackByIdAsync(string trackId);
     }
 }

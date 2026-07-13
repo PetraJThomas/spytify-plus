@@ -167,30 +167,54 @@ namespace EspionSpotify.API
             try
             {
                 var search = await _api.SearchItemsAsync($"isrc:{isrc}", SearchType.Track, 1, 0, "");
-                var full = search?.Tracks?.Items?.FirstOrDefault();
-                if (full == null || string.IsNullOrEmpty(full.Id)) return null;
-
-                var track = new Track();
-                MapSpotifyTrackToTrack(track, full);
-
-                if (full.Album?.Id != null)
-                {
-                    var album = await GetCachedAlbumAsync(full.Album.Id);
-                    if (album != null && !album.HasError())
-                    {
-                        MapSpotifyAlbumToTrack(track, album);
-                        if (track.Genres == null || track.Genres.Length == 0)
-                            track.Genres = await GetArtistGenresAsync(album.Artists?.FirstOrDefault()?.Id);
-                    }
-                }
-
-                await ITunesArtwork.ApplyHighResCoverAsync(track, Settings.Default.advanced_cover_art_size);
-                return track;
+                return await BuildTrackFromFullAsync(search?.Tracks?.Items?.FirstOrDefault());
             }
             catch
             {
                 return null;
             }
+        }
+
+        // Exact lookup by Spotify track id: the fallback when isrc: search can't find a track that is
+        // nonetheless on Spotify (common for DIY-distributor ISRCs the search index doesn't cover).
+        public async Task<Track> GetTrackByIdAsync(string trackId)
+        {
+            if (string.IsNullOrWhiteSpace(trackId)) return null;
+            await GetSpotifyWebAPI();
+            if (_api == null) return null;
+
+            try
+            {
+                var full = await _api.GetTrackAsync(trackId, "");
+                return full == null || full.HasError() ? null : await BuildTrackFromFullAsync(full);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        // Shared enrichment: map the track + its album, fill genre from the artist, upgrade the cover.
+        private async Task<Track> BuildTrackFromFullAsync(FullTrack full)
+        {
+            if (full == null || string.IsNullOrEmpty(full.Id)) return null;
+
+            var track = new Track();
+            MapSpotifyTrackToTrack(track, full);
+
+            if (full.Album?.Id != null)
+            {
+                var album = await GetCachedAlbumAsync(full.Album.Id);
+                if (album != null && !album.HasError())
+                {
+                    MapSpotifyAlbumToTrack(track, album);
+                    if (track.Genres == null || track.Genres.Length == 0)
+                        track.Genres = await GetArtistGenresAsync(album.Artists?.FirstOrDefault()?.Id);
+                }
+            }
+
+            await ITunesArtwork.ApplyHighResCoverAsync(track, Settings.Default.advanced_cover_art_size);
+            return track;
         }
 
         // Album fetch with a per-id cache, so a sweep over many tracks of the same album makes one
