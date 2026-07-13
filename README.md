@@ -50,6 +50,10 @@ On top of the FLAC fork, Spytify+ adds:
 - **Discard truncated recordings**: drops captures cut clearly short of the track's real length.
 - **Analyze each recording** and log its real quality automatically.
 
+**Library maintenance (Check Library tab)**
+- **Analyse Library**: sweep a whole folder of existing recordings and grade each file's real quality in one batch, flagging anything that isn't what it claims (quality-tier and "no match" badges).
+- **Update Library Metadata**: refresh tags and cover art straight from Spotify, matched exactly by each file's embedded **ISRC** so it can never mistag (files without an ISRC are skipped and counted). No playback or re-recording; needs the Spotify API connected.
+
 **Formats:** FLAC, OPUS, MP3, WAV.
 
 ## Requirements
