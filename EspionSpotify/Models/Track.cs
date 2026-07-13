@@ -46,6 +46,7 @@ namespace EspionSpotify.Models
             SpotifyTrackId = track.SpotifyTrackId;
             SpotifyAlbumId = track.SpotifyAlbumId;
             IsPlaylistAlbum = track.IsPlaylistAlbum;
+            AlbumTotalTracks = track.AlbumTotalTracks;
         }
 
         public string Artists
@@ -107,6 +108,10 @@ namespace EspionSpotify.Models
         // Set when this track was tagged as part of a playlist recorded as one album, so the file
         // layer can use a compilation folder layout unless a custom template overrides it.
         public bool IsPlaylistAlbum { get; set; }
+
+        // Total tracks in the album/playlist, so the filename number can be zero-padded to the right
+        // width (e.g. 100 tracks -> 3 digits) and sort correctly. Null for a normal single track.
+        public int? AlbumTotalTracks { get; set; }
 
         private bool IsNormal =>
             !string.IsNullOrEmpty(Artist)

@@ -32,6 +32,19 @@ namespace EspionSpotify.Tests
             Assert.Equal("01 15 Step", file);
         }
 
+        [Theory]
+        [InlineData(5, 100, "005 15 Step")]    // 100-track album -> 3 digits
+        [InlineData(5, 9, "05 15 Step")]       // small album -> min 2 digits
+        [InlineData(5, null, "05 15 Step")]    // unknown total -> 2 digits
+        [InlineData(7, 1000, "0007 15 Step")]  // 1000-track album -> 4 digits
+        public void ResolveFileName_Trackpad_PadsToTotalWidth(int position, int? total, string expected)
+        {
+            var track = Sample();
+            track.AlbumPosition = position;
+            track.AlbumTotalTracks = total;
+            Assert.Equal(expected, PathTemplate.ResolveFileName("{trackpad} {title}", track, new UserSettings()));
+        }
+
         [Fact]
         public void ResolveFolders_EmptyTemplate_ReturnsNull()
         {

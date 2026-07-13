@@ -297,7 +297,9 @@ namespace EspionSpotify
         private void WriteOrderedM3u(string m3uPath, string fileName, string extinf)
         {
             // Rebuild the file as filename -> EXTINF pairs sorted by filename (playlists are small).
-            var entries = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            // Natural (numeric-aware) sort so "9" < "10" and "100" follows "99" even when the leading
+            // track number's zero-padding is inconsistent (custom templates, legacy 2-digit files).
+            var entries = new SortedDictionary<string, string>(NaturalFileNameComparer.Instance);
             if (_fileSystem.File.Exists(m3uPath))
             {
                 var lines = _fileSystem.File.ReadAllLines(m3uPath);

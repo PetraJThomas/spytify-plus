@@ -20,7 +20,7 @@ namespace EspionSpotify.Native
         public static readonly string[] Tokens =
         {
             "artist", "artists", "albumartist", "title", "titlefull",
-            "album", "year", "track", "track2", "disc", "genre", "counter"
+            "album", "year", "track", "track2", "trackpad", "disc", "genre", "counter"
         };
 
         /// <summary>
@@ -81,6 +81,18 @@ namespace EspionSpotify.Native
                 case "year": return track.Year?.ToString() ?? "";
                 case "track": return track.AlbumPosition?.ToString() ?? "";
                 case "track2": return track.AlbumPosition.HasValue ? track.AlbumPosition.Value.ToString("00") : "";
+                case "trackpad":
+                {
+                    // Zero-pad the position to the width of the album's total track count (min 2), so
+                    // a 100-track album numbers 001..100 and sorts correctly everywhere, not just in
+                    // natural-sort Explorer. Falls back to 2 digits when the total is unknown.
+                    if (!track.AlbumPosition.HasValue) return "";
+                    var digits = track.AlbumTotalTracks.HasValue && track.AlbumTotalTracks.Value > 0
+                        ? track.AlbumTotalTracks.Value.ToString().Length
+                        : 2;
+                    if (digits < 2) digits = 2;
+                    return track.AlbumPosition.Value.ToString(new string('0', digits));
+                }
                 case "disc": return track.Disc?.ToString() ?? "";
                 case "genre": return track.Genres != null && track.Genres.Length > 0 ? track.Genres[0] : "";
                 case "counter": return userSettings.InternalOrderNumber.ToString(userSettings.OrderNumberMask ?? "000");

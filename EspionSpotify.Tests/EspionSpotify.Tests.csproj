@@ -140,6 +140,7 @@
   <ItemGroup>
     <Compile Include="EncodeServiceTests.cs" />
     <Compile Include="ITunesArtworkTests.cs" />
+    <Compile Include="NaturalFileNameComparerTests.cs" />
     <Compile Include="PathTemplateTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="FileManagerTests.cs" />

@@ -22,7 +22,7 @@ namespace EspionSpotify.Native
         // custom template. Album artist is "Various Artists", album is the playlist name, so this
         // yields "Various Artists/<playlist>/NN Title". A custom template overrides it.
         private const string PLAYLIST_ALBUM_FOLDER_TEMPLATE = "{albumartist}/{album}";
-        private const string PLAYLIST_ALBUM_FILE_TEMPLATE = "{track2} {title}";
+        private const string PLAYLIST_ALBUM_FILE_TEMPLATE = "{trackpad} {title}";
 
         private readonly IFileSystem _fileSystem;
         private readonly DateTime _now;

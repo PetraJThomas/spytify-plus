@@ -124,6 +124,7 @@ namespace EspionSpotify.API
             if (!string.IsNullOrWhiteSpace(playlist.Name)) track.Album = playlist.Name;
             track.AlbumArtists = new[] {Constants.VARIOUS_ARTISTS};
             if (position.HasValue) track.AlbumPosition = position;
+            track.AlbumTotalTracks = playlist.Tracks?.Total; // pad the filename number to this width
 
             if (playlist.Images != null && playlist.Images.Count > 0)
             {
