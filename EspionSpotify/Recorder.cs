@@ -82,6 +82,9 @@ namespace EspionSpotify
             _userSettings.RecordRecordingsStatus == RecordRecordingsStatus.Skip
             && _fileManager.IsPathFileNameExists(_track, _userSettings, _fileSystem);
 
+        // A zero-byte take shorter than this is treated as a fast skip, not an endpoint misconfig.
+        private const int MinSecondsForEmptyEndpointWarning = 2;
+
         public int CountSeconds { get; set; }
         public bool Running { get; set; }
 
@@ -201,7 +204,12 @@ namespace EspionSpotify
 
             if (isTempWaveEmpty)
             {
-                _form.WriteIntoConsole(I18NKeys.LogSpotifyPlayingOutsideOfSelectedAudioEndPoint);
+                // Zero captured bytes usually means Spotify's audio is going to a different endpoint.
+                // But a fast skip (the track changed before any audio arrived) also yields zero bytes
+                // and is not an endpoint problem, so only surface the warning when the take actually
+                // ran for a moment. Otherwise this is just noise while spamming skip.
+                if (CountSeconds >= MinSecondsForEmptyEndpointWarning)
+                    _form.WriteIntoConsole(I18NKeys.LogSpotifyPlayingOutsideOfSelectedAudioEndPoint);
                 ForceStopRecording();
                 return;
             }
