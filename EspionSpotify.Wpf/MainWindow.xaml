@@ -1068,7 +1068,7 @@
                         <Button x:Name="ClbCancelButton" Click="CheckLibrary_Cancel_Click" Visibility="Collapsed"
                                 Content="{l:Tr clbCancel}" Padding="16,7" Margin="10,0,0,0" />
                         <Button x:Name="ClbRescanButton" Click="CheckLibrary_Scan_Click" Visibility="Collapsed"
-                                Content="{l:Tr clbRescan}" Padding="16,7" />
+                                Content="{l:Tr clbRescan}" Padding="16,7" Margin="10,0,0,0" />
                         <Button x:Name="ClbSaveReportButton" Click="CheckLibrary_OpenReport_Click" Visibility="Collapsed"
                                 Content="{l:Tr clbOpenReport}" Padding="16,7" Margin="10,0,0,0" />
                     </StackPanel>
