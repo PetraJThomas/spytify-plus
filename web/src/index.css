@@ -276,6 +276,7 @@ img {
 
 .origins {
   max-width: 820px;
+  padding-top: clamp(22px, 3vw, 32px);
 }
 .origins p {
   color: #cfcfcf;
@@ -288,6 +289,7 @@ img {
 /* Why band */
 .why {
   max-width: 820px;
+  padding-bottom: clamp(22px, 3vw, 32px);
 }
 .why p {
   color: #cfcfcf;
