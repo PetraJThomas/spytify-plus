@@ -23,5 +23,33 @@ namespace EspionSpotify.Tests
         {
             Assert.Null(ITunesArtwork.UpscaleArtworkUrl(input, 2048));
         }
+
+        [Theory]
+        // exact
+        [InlineData("Radiohead", "In Rainbows", "Radiohead", "In Rainbows")]
+        // case / punctuation / edition suffix differences still match
+        [InlineData("NiziU", "AWAKE", "NiziU", "AWAKE - EP")]
+        [InlineData("Radiohead", "In Rainbows", "RADIOHEAD", "In Rainbows (Deluxe Edition)")]
+        [InlineData("Beyoncé", "Renaissance", "Beyonce", "Renaissance")]
+        public void IsConfidentMatch_ArtistAndAlbumMatch_True(string sa, string sal, string ia, string ial)
+        {
+            Assert.True(ITunesArtwork.IsConfidentMatch(sa, sal, ia, ial));
+        }
+
+        [Theory]
+        // right artist, wrong album -> reject (would key in the wrong cover)
+        [InlineData("Radiohead", "In Rainbows", "Radiohead", "OK Computer")]
+        // right album title, wrong artist (cover / compilation) -> reject
+        [InlineData("NiziU", "AWAKE", "Various Artists", "AWAKE")]
+        // nothing matches
+        [InlineData("Radiohead", "In Rainbows", "Coldplay", "Parachutes")]
+        // short title must match exactly: "1" must not latch onto "10"
+        [InlineData("Some Artist", "1", "Some Artist", "10")]
+        // missing data -> no confident match
+        [InlineData("Radiohead", "In Rainbows", "Radiohead", "")]
+        public void IsConfidentMatch_Mismatch_False(string sa, string sal, string ia, string ial)
+        {
+            Assert.False(ITunesArtwork.IsConfidentMatch(sa, sal, ia, ial));
+        }
     }
 }
