@@ -131,7 +131,7 @@ const heroItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
 }
 
-const STATS = ['342 tests, all green', 'FLAC · OPUS · MP3 · WAV', 'English + French', '.NET Framework 4.8', 'MIT licensed']
+const STATS = ['349 tests, all green', 'FLAC · OPUS · MP3 · WAV', 'English + French', '.NET Framework 4.8', 'MIT licensed']
 
 const HIGHLIGHTS = [
   {
@@ -173,8 +173,8 @@ const HIGHLIGHTS = [
   {
     icon: ShieldCheck,
     tag: 'Solid, not just shiny',
-    summary: '342 tests passing, two languages kept in sync automatically, and your API keys encrypted on disk.',
-    body: 'There are 342 tests and they all pass. Every piece of on-screen text is translated across English and French, checked automatically so nothing slips through untranslated. And your Spotify API keys are encrypted where they are stored, not sitting in plain text.',
+    summary: '349 tests passing, two languages kept in sync automatically, and your API keys encrypted on disk.',
+    body: 'There are 349 tests and they all pass. Every piece of on-screen text is translated across English and French, checked automatically so nothing slips through untranslated. And your Spotify API keys are encrypted where they are stored, not sitting in plain text.',
   },
 ]
 
