@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,55 +49,80 @@ namespace EspionSpotify.Wpf.Analysis
         {
             var files = EnumerateLosslessFiles(root);
             var result = new LibraryScanResult { Root = root, Total = files.Count };
-
-            for (var i = 0; i < files.Count; i++)
+            if (files.Count == 0)
             {
-                ct.ThrowIfCancellationRequested();
-                var path = files[i];
-                progress?.Report(new LibraryScanProgress
-                {
-                    Done = i,
-                    Total = files.Count,
-                    CurrentFile = Path.GetFileName(path),
-                    Flagged = result.Findings.Count
-                });
-
-                try
-                {
-                    var sample = await FfmpegDecoder.DecodeAsync(path, ct).ConfigureAwait(false);
-                    var q = QualityAnalyzer.Analyze(sample);
-                    result.Scanned++;
-
-                    // IsTranscode is only ever set for a lossless codec with a lossy cut-off, so it is
-                    // exactly the "lossless container, lossy content" signal we want here.
-                    if (q.IsTranscode)
-                    {
-                        result.Findings.Add(new LibraryScanFinding
-                        {
-                            Path = path,
-                            FileName = Path.GetFileName(path),
-                            RelativeFolder = RelativeFolder(root, path),
-                            Codec = (sample.Codec ?? "?").ToUpperInvariant(),
-                            TierLabel = q.TierLabel,
-                            CutoffKHz = q.CutoffHz / 1000.0,
-                            Detail = q.Detail
-                        });
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    throw; // cancellation propagates to the caller; partial results are discarded
-                }
-                catch
-                {
-                    result.Skipped++; // unreadable / not decodable; leave it out rather than guess
-                }
+                progress?.Report(new LibraryScanProgress { Done = 0, Total = 0, Flagged = 0 });
+                return result;
             }
 
-            progress?.Report(new LibraryScanProgress
+            // Files are independent (each is its own ffmpeg decode plus a pure FFT pass), so scan
+            // several at once. Leave one core for the UI, and cap at 6 so we never spawn a swarm of
+            // ffmpeg processes on high-core machines. A SemaphoreSlim bounds the concurrency
+            // (Parallel.ForEachAsync isn't available on .NET Framework), and Task.WhenAll joins.
+            var maxDop = Math.Max(1, Math.Min(6, Environment.ProcessorCount - 1));
+            var findings = new ConcurrentBag<LibraryScanFinding>();
+            var done = 0;
+            var scanned = 0;
+            var skipped = 0;
+
+            using (var gate = new SemaphoreSlim(maxDop))
             {
-                Done = files.Count, Total = files.Count, Flagged = result.Findings.Count
-            });
+                async Task ScanOne(string path)
+                {
+                    await gate.WaitAsync(ct).ConfigureAwait(false);
+                    try
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        var sample = await FfmpegDecoder.DecodeAsync(path, ct, fast: true).ConfigureAwait(false);
+                        var q = QualityAnalyzer.Analyze(sample);
+                        Interlocked.Increment(ref scanned);
+
+                        // IsTranscode is only ever set for a lossless codec with a lossy cut-off, so it
+                        // is exactly the "lossless container, lossy content" signal we want here.
+                        if (q.IsTranscode)
+                        {
+                            findings.Add(new LibraryScanFinding
+                            {
+                                Path = path,
+                                FileName = Path.GetFileName(path),
+                                RelativeFolder = RelativeFolder(root, path),
+                                Codec = (sample.Codec ?? "?").ToUpperInvariant(),
+                                TierLabel = q.TierLabel,
+                                CutoffKHz = q.CutoffHz / 1000.0,
+                                Detail = q.Detail
+                            });
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw; // cancellation propagates to the caller; partial results are discarded
+                    }
+                    catch
+                    {
+                        Interlocked.Increment(ref skipped); // unreadable/undecodable; leave it out
+                    }
+                    finally
+                    {
+                        gate.Release();
+                    }
+
+                    var d = Interlocked.Increment(ref done);
+                    progress?.Report(new LibraryScanProgress
+                    {
+                        Done = d,
+                        Total = files.Count,
+                        CurrentFile = Path.GetFileName(path),
+                        Flagged = findings.Count
+                    });
+                }
+
+                await Task.WhenAll(files.Select(ScanOne)).ConfigureAwait(false);
+            }
+
+            result.Scanned = scanned;
+            result.Skipped = skipped;
+            foreach (var f in findings.OrderBy(f => f.Path, StringComparer.OrdinalIgnoreCase))
+                result.Findings.Add(f);
             return result;
         }
 

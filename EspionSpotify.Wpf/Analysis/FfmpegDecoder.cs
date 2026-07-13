@@ -21,7 +21,16 @@ namespace EspionSpotify.Wpf.Analysis
         private static string FfmpegPath =>
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Binaries", "ffmpeg.exe");
 
-        public static async Task<AudioSample> DecodeAsync(string path, CancellationToken ct = default)
+        // A short decode window is plenty to detect a brick-wall low-pass (it's an encoding property,
+        // consistent across the whole track), so the batch library scan uses it to go fast.
+        private const int FastSeconds = 90;
+
+        /// <param name="fast">
+        /// Batch mode: skip the whole-file bitrate measurement (unused by the transcode check) and
+        /// decode only the first <see cref="FastSeconds"/> seconds. The cut-off verdict is unchanged;
+        /// only the exact lossy-bitrate label and the full-length spectrogram are sacrificed.
+        /// </param>
+        public static async Task<AudioSample> DecodeAsync(string path, CancellationToken ct = default, bool fast = false)
         {
             if (!File.Exists(path)) throw new FileNotFoundException("File not found.", path);
             if (!File.Exists(FfmpegPath)) throw new FileNotFoundException("Bundled ffmpeg.exe is missing.", FfmpegPath);
@@ -30,12 +39,13 @@ namespace EspionSpotify.Wpf.Analysis
 
             // ffmpeg only prints a per-stream bitrate for some codecs (e.g. MP3); for the rest
             // (notably FLAC) measure the real audio-stream size so the figure isn't the cover-art-
-            // inflated container number.
+            // inflated container number. Skipped in fast mode: it re-reads the whole file and the
+            // transcode check doesn't use the bitrate anyway.
             var audioBitrate = info.AudioBitrateKbps;
-            if (audioBitrate == null && info.Duration.TotalSeconds >= 0.5)
+            if (!fast && audioBitrate == null && info.Duration.TotalSeconds >= 0.5)
                 audioBitrate = await MeasureAudioBitrateAsync(path, info.Duration, ct).ConfigureAwait(false);
 
-            var pcm = await DecodePcmAsync(path, ct).ConfigureAwait(false);
+            var pcm = await DecodePcmAsync(path, ct, fast ? FastSeconds : MaxSeconds).ConfigureAwait(false);
 
             var mono = new float[pcm.Length / 4];
             Buffer.BlockCopy(pcm, 0, mono, 0, mono.Length * 4);
@@ -148,12 +158,12 @@ namespace EspionSpotify.Wpf.Analysis
             return info;
         }
 
-        private static async Task<byte[]> DecodePcmAsync(string path, CancellationToken ct)
+        private static async Task<byte[]> DecodePcmAsync(string path, CancellationToken ct, int maxSeconds)
         {
             var psi = new ProcessStartInfo
             {
                 FileName = FfmpegPath,
-                Arguments = $"-v error -i \"{path}\" -t {MaxSeconds} -ac 1 -map 0:a:0? -f f32le -",
+                Arguments = $"-v error -i \"{path}\" -t {maxSeconds} -ac 1 -map 0:a:0? -f f32le -",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,

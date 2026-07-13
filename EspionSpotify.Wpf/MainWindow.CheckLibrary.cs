@@ -184,7 +184,7 @@ namespace EspionSpotify.Wpf
 
             var row = new Border
             {
-                Background = Frozen(0x0F, 0xFF, 0xFF, 0xFF),
+                Background = Frozen(0xFF, 0xFF, 0xFF, 0x12), // faint translucent white card (r,g,b,a)
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(14, 10, 12, 10),
                 Margin = new Thickness(0, 0, 0, 8),
