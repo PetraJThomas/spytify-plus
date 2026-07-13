@@ -140,7 +140,7 @@ namespace EspionSpotify.Wpf.Analysis
 
         // Self-contained dark-theme HTML report written to the output root, so results survive without
         // a rescan. No external assets (works offline, portable next to the library).
-        public static string BuildHtmlReport(LibraryScanResult result, string generatedAtText)
+        public static string BuildHtmlReport(LibraryScanResult result, string generatedAtText, string appVersion)
         {
             var sb = new StringBuilder();
             sb.Append("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">")
@@ -163,7 +163,10 @@ namespace EspionSpotify.Wpf.Analysis
 
             sb.Append("<h1>Spytify+ &middot; Library Check</h1>")
               .Append("<p class=\"sub\">").Append(Esc(result.Root)).Append("<br>Generated ")
-              .Append(Esc(generatedAtText)).Append("</p>");
+              .Append(Esc(generatedAtText));
+            if (!string.IsNullOrEmpty(appVersion))
+                sb.Append(" &middot; Spytify+ v").Append(Esc(appVersion));
+            sb.Append("</p>");
 
             var flagged = result.Findings.Count;
             sb.Append("<div class=\"summary\">")

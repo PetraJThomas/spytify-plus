@@ -481,6 +481,9 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
+
+                    <TextBlock Text="{Binding AppVersionDisplay}" Foreground="#777777" FontSize="12"
+                               HorizontalAlignment="Right" Margin="0,6,4,0" />
                 </StackPanel>
             </ScrollViewer>
 

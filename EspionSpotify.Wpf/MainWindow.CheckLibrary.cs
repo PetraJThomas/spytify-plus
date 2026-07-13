@@ -24,6 +24,24 @@ namespace EspionSpotify.Wpf
         private ClbState _clbState = ClbState.Idle;
         private string _clbReportPath;
 
+        // Release version for display and reports. Reads FileVersion (which tracks releases), not
+        // AssemblyVersion, which is pinned at 2.0.0.0 to keep the user-settings path stable.
+        public string AppVersion
+        {
+            get
+            {
+                try
+                {
+                    var fv = System.Diagnostics.FileVersionInfo.GetVersionInfo(
+                        System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    return new Version(fv.FileMajorPart, fv.FileMinorPart, fv.FileBuildPart).ToString();
+                }
+                catch { return ""; }
+            }
+        }
+
+        public string AppVersionDisplay => "Spytify+ v" + AppVersion;
+
         // Shown whenever the tab is opened: refresh the folder label; keep any existing scan/results.
         private void OnCheckLibraryShown()
         {
@@ -112,7 +130,7 @@ namespace EspionSpotify.Wpf
             try
             {
                 var now = DateTime.Now;
-                var html = LibraryScanner.BuildHtmlReport(r, now.ToString("yyyy-MM-dd HH:mm:ss"));
+                var html = LibraryScanner.BuildHtmlReport(r, now.ToString("yyyy-MM-dd HH:mm:ss"), AppVersion);
                 var name = "Spytify_library_check_" + now.ToString("yyyyMMddHHmmss") + ".html";
                 var path = Path.Combine(r.Root, name);
                 File.WriteAllText(path, html, new UTF8Encoding(false));
