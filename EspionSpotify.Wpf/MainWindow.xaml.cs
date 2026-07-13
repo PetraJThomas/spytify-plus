@@ -43,6 +43,7 @@ namespace EspionSpotify.Wpf
         private bool _toggleStopRecordingDelayed;
         private bool _loading;
         private System.Windows.Forms.NotifyIcon _tray;
+        private bool _forceClose; // set when the tray's Exit is chosen, to bypass close-to-tray
 
         public MainWindow()
         {
@@ -108,7 +109,8 @@ namespace EspionSpotify.Wpf
 
             var menu = new System.Windows.Forms.ContextMenuStrip();
             menu.Items.Add("Open Spytify+", null, (s, e) => RestoreFromTray());
-            menu.Items.Add("Exit", null, (s, e) => Close());
+            // The tray's Exit is the real quit: force past the close-to-tray interception below.
+            menu.Items.Add("Exit", null, (s, e) => { _forceClose = true; Close(); });
             _tray.ContextMenuStrip = menu;
             _tray.DoubleClick += (s, e) => RestoreFromTray();
 
@@ -121,9 +123,20 @@ namespace EspionSpotify.Wpf
                 }
             };
 
+            // Close-to-tray: with "Minimize to system tray" on, the X folds the window into the tray
+            // instead of quitting (quit is the tray's Exit). Without the toggle, X exits as normal.
+            Closing += (s, e) =>
+            {
+                if (_forceClose || !MinimizeToTray) return;
+                e.Cancel = true;
+                Hide();
+                if (_tray != null) _tray.Visible = true;
+            };
+
             Closed += (s, e) =>
             {
-                _tray?.Dispose(); _tray = null;
+                // Hide before disposing, or Windows leaves a dead tray icon behind until you hover it.
+                if (_tray != null) { _tray.Visible = false; _tray.Dispose(); _tray = null; }
 
                 // Release things that own OS resources or background threads before we go: the Spotify
                 // OAuth callback listener (holds the redirect port) and the audio session. Without this,
@@ -137,12 +150,19 @@ namespace EspionSpotify.Wpf
             };
         }
 
-        private void RestoreFromTray()
+        // Bring the window back from the tray (or from behind other windows). Public so the
+        // single-instance guard can reuse it when a second launch pings us, keeping the tray icon and
+        // window state consistent in one place.
+        public void RestoreFromTray()
         {
-            Show();
-            WindowState = WindowState.Normal;
-            Activate();
             if (_tray != null) _tray.Visible = false;
+            Show();
+            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+            ShowInTaskbar = true;
+            Activate();
+            // Activate() alone often fails to steal focus; a brief topmost bump forces us to the front.
+            Topmost = true;
+            Topmost = false;
         }
 
         #endregion System tray

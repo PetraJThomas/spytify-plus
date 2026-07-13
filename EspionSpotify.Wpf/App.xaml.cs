@@ -19,17 +19,32 @@ namespace EspionSpotify.Wpf
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            _instanceMutex = new Mutex(true, InstanceMutexName, out var isFirstInstance);
-            if (!isFirstInstance)
+            // Single-instance slot: acquire ownership via WaitOne rather than the constructor, so we can
+            // wait out a previous instance that is still shutting down. AbandonedMutexException means the
+            // prior owner died holding it (Environment.Exit doesn't release gracefully) and it's now ours.
+            _instanceMutex = new Mutex(false, InstanceMutexName);
+            bool owned;
+            try { owned = _instanceMutex.WaitOne(0); }
+            catch (AbandonedMutexException) { owned = true; }
+
+            if (!owned)
             {
-                // Already running: ask the live instance to surface its window, then exit quietly so we
-                // never spawn a duplicate that fights over the OAuth callback port.
+                // The slot is held. Ask whoever has it to surface right away (no-op if they're already
+                // dying), then wait briefly: if they were a previous instance mid-shutdown, the slot
+                // frees up and we take over, so a quick relaunch right after "Exit" actually starts
+                // instead of silently doing nothing. If a live instance keeps holding it, we bail.
                 try { EventWaitHandle.OpenExisting(ShowWindowEventName).Set(); } catch { /* ignored */ }
-                Shutdown();
-                return;
+                try { owned = _instanceMutex.WaitOne(TimeSpan.FromSeconds(3)); }
+                catch (AbandonedMutexException) { owned = true; }
+
+                if (!owned)
+                {
+                    Shutdown();
+                    return;
+                }
             }
 
-            // We are the one true instance: listen for later launches asking us to come to the front.
+            // We own the single-instance slot: listen for later launches asking us to come to the front.
             _showWindowSignal = new EventWaitHandle(false, EventResetMode.AutoReset, ShowWindowEventName);
             _showWindowRegistration = ThreadPool.RegisterWaitForSingleObject(
                 _showWindowSignal, (_, __) => Dispatcher.BeginInvoke(new Action(SurfaceMainWindow)),
@@ -50,13 +65,10 @@ namespace EspionSpotify.Wpf
         // whether it was minimized, hidden to the tray, or just behind other windows).
         private void SurfaceMainWindow()
         {
-            var window = MainWindow;
-            if (window == null) return;
-            window.Show();
-            if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
-            window.Activate();
-            window.Topmost = true;
-            window.Topmost = false;
+            // Reuse the window's own tray-restore so a second launch surfaces us the same way the tray
+            // "Open" does (window shown, tray icon cleared, brought to front) whether we were hidden in
+            // the tray, minimized, or just behind other windows.
+            if (MainWindow is MainWindow window) window.RestoreFromTray();
         }
 
         private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
