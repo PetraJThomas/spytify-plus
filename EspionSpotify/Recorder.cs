@@ -88,7 +88,12 @@ namespace EspionSpotify
         public int CountSeconds { get; set; }
         public bool Running { get; set; }
 
-        private bool TrackIsFetchingMetadata => _track.MetaDataUpdated == null && !_userSettings.RecordEverythingEnabled && _userSettings.MediaFormat == MediaFormat.Mp3;
+        // True while the track's metadata (album, year, etc.) is still being fetched from the API.
+        // The skip/re-tag path waits on this so the file path it computes matches an existing file:
+        // the album comes from the API a beat after the track starts, so checking too early would
+        // miss the existing file. Applies to every format (not just MP3): MetaDataUpdated is always
+        // set to a non-null result once the fetch completes, so this can't wait forever.
+        private bool TrackIsFetchingMetadata => _track.MetaDataUpdated == null && !_userSettings.RecordEverythingEnabled;
 
         private WaveFormat WaveFormat => _audioThrottler.WaveFormat;
 
