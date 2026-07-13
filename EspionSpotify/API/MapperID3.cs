@@ -81,9 +81,14 @@ namespace EspionSpotify.API
 
         #region MP3 Tags updater
 
-        internal async Task SaveMediaTags()
+        // Parameterless overload keeps the existing method-group call sites (Task.Run(mapper.SaveMediaTags)).
+        internal Task SaveMediaTags() => SaveMediaTags(true);
+
+        internal async Task SaveMediaTags(bool waitForFileRelease)
         {
-            await Task.Delay(1000);
+            // The recorder path waits a beat for the just-encoded file to be released before tagging;
+            // a direct library sweep works on static files and skips it (a big per-file saving).
+            if (waitForFileRelease) await Task.Delay(1000);
             using (var mp3 = File.Create(CurrentFile))
             {
                 await MapTags(mp3.Tag);

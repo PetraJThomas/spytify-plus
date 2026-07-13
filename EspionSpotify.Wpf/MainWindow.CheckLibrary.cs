@@ -173,38 +173,56 @@ namespace EspionSpotify.Wpf
             ClbProgressFile.Text = "";
 
             var files = await Task.Run(() => EnumerateAudioFiles(root)).ConfigureAwait(true);
-            int updated = 0, noIsrc = 0, noMatch = 0, unreadable = 0;
+            ClbProgress.Maximum = Math.Max(1, files.Count);
+            int updated = 0, noIsrc = 0, noMatch = 0, unreadable = 0, done = 0;
+
+            // API-bound, so scan several at once but keep the cap modest to stay under Spotify's rate
+            // limits (the album/artist caches are now concurrent-safe, so this is safe to parallelize).
+            var maxDop = Math.Max(2, Math.Min(5, Environment.ProcessorCount - 2));
+            IProgress<(int done, string file)> progress = new Progress<(int done, string file)>(p =>
+            {
+                ClbProgress.Value = p.done;
+                ClbProgressText.Text = string.Format(Loc.Instance["clbUpdateProgress"], p.done, files.Count, updated);
+                ClbProgressFile.Text = p.file ?? "";
+            });
 
             try
             {
-                for (var i = 0; i < files.Count; i++)
+                using (var gate = new SemaphoreSlim(maxDop))
                 {
-                    ct.ThrowIfCancellationRequested();
-                    var path = files[i];
-                    ClbProgress.Maximum = Math.Max(1, files.Count);
-                    ClbProgress.Value = i;
-                    ClbProgressText.Text = string.Format(Loc.Instance["clbUpdateProgress"], i, files.Count, updated);
-                    ClbProgressFile.Text = Path.GetFileName(path);
+                    async Task UpdateOne(string path)
+                    {
+                        await gate.WaitAsync(ct).ConfigureAwait(false);
+                        try
+                        {
+                            ct.ThrowIfCancellationRequested();
+                            MetadataUpdateOutcome outcome;
+                            try
+                            {
+                                outcome = await LibraryMetadataUpdater
+                                    .UpdateFileFromSpotifyAsync(path, spotify, _userSettings).ConfigureAwait(false);
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch { outcome = MetadataUpdateOutcome.Unreadable; }
 
-                    MetadataUpdateOutcome outcome;
-                    try
-                    {
-                        outcome = await LibraryMetadataUpdater
-                            .UpdateFileFromSpotifyAsync(path, spotify, _userSettings).ConfigureAwait(true);
-                    }
-                    catch
-                    {
-                        unreadable++;
-                        continue;
+                            switch (outcome)
+                            {
+                                case MetadataUpdateOutcome.Updated: Interlocked.Increment(ref updated); break;
+                                case MetadataUpdateOutcome.NoIsrc: Interlocked.Increment(ref noIsrc); break;
+                                case MetadataUpdateOutcome.NoMatch: Interlocked.Increment(ref noMatch); break;
+                                default: Interlocked.Increment(ref unreadable); break;
+                            }
+                        }
+                        finally
+                        {
+                            gate.Release();
+                        }
+
+                        var d = Interlocked.Increment(ref done);
+                        progress.Report((d, Path.GetFileName(path)));
                     }
 
-                    switch (outcome)
-                    {
-                        case MetadataUpdateOutcome.Updated: updated++; break;
-                        case MetadataUpdateOutcome.NoIsrc: noIsrc++; break;
-                        case MetadataUpdateOutcome.NoMatch: noMatch++; break;
-                        default: unreadable++; break;
-                    }
+                    await Task.WhenAll(files.Select(UpdateOne)).ConfigureAwait(true);
                 }
             }
             catch (OperationCanceledException)

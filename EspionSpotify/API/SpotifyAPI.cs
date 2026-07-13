@@ -39,8 +39,14 @@ namespace EspionSpotify.API
         private int _playlistAlbumCounter;
         private string _playlistAlbumLastTrackId;
         // Spotify only tags genre at the artist level (album/track genres are almost always empty),
-        // so we look it up on demand and cache per artist id: an album's tracks cost one call, not one each.
-        private readonly Dictionary<string, string[]> _artistGenresCache = new Dictionary<string, string[]>();
+        // so we look it up on demand and cache per artist id: an album's tracks cost one call, not one
+        // each. Concurrent (ConcurrentDictionary) so the parallel library sweep can share it safely.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string[]> _artistGenresCache =
+            new System.Collections.Concurrent.ConcurrentDictionary<string, string[]>();
+        // Album cache (by id), also concurrent: the metadata sweep hits many tracks per album, so one
+        // GetAlbum call serves the whole album instead of one per track.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, FullAlbum> _albumCache =
+            new System.Collections.Concurrent.ConcurrentDictionary<string, FullAlbum>();
 
         public SpotifyAPI()
         {
@@ -169,7 +175,7 @@ namespace EspionSpotify.API
 
                 if (full.Album?.Id != null)
                 {
-                    var album = await _api.GetAlbumWithoutExceptionAsync(full.Album.Id);
+                    var album = await GetCachedAlbumAsync(full.Album.Id);
                     if (album != null && !album.HasError())
                     {
                         MapSpotifyAlbumToTrack(track, album);
@@ -185,6 +191,17 @@ namespace EspionSpotify.API
             {
                 return null;
             }
+        }
+
+        // Album fetch with a per-id cache, so a sweep over many tracks of the same album makes one
+        // GetAlbum call. Concurrent-safe; a rare double-fetch under load is harmless.
+        private async Task<FullAlbum> GetCachedAlbumAsync(string albumId)
+        {
+            if (string.IsNullOrEmpty(albumId)) return null;
+            if (_albumCache.TryGetValue(albumId, out var cached)) return cached;
+            var album = await _api.GetAlbumWithoutExceptionAsync(albumId);
+            if (album != null && !album.HasError()) _albumCache[albumId] = album;
+            return album;
         }
 
         [Obsolete("It triggers too many web requests, ~ 60k per day")]

@@ -40,7 +40,7 @@ namespace EspionSpotify.API
             if (track == null) return MetadataUpdateOutcome.NoMatch;
 
             var mapper = new MapperID3(fileSystem, filePath, track, settings);
-            await mapper.SaveMediaTags().ConfigureAwait(false);
+            await mapper.SaveMediaTags(waitForFileRelease: false).ConfigureAwait(false);
 
             if (settings.SaveCoverFile)
             {
