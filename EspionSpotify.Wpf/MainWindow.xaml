@@ -1064,8 +1064,8 @@
                                 Content="Cancel" Padding="16,7" Margin="10,0,0,0" />
                         <Button x:Name="ClbRescanButton" Click="CheckLibrary_Scan_Click" Visibility="Collapsed"
                                 Content="Rescan" Padding="16,7" />
-                        <Button x:Name="ClbSaveReportButton" Click="CheckLibrary_SaveReport_Click" Visibility="Collapsed"
-                                Content="Save HTML report" Padding="16,7" Margin="10,0,0,0" />
+                        <Button x:Name="ClbSaveReportButton" Click="CheckLibrary_OpenReport_Click" Visibility="Collapsed"
+                                Content="Open report" Padding="16,7" Margin="10,0,0,0" />
                     </StackPanel>
                 </StackPanel>
 
@@ -1097,8 +1097,12 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="ClbSummary" Grid.Row="0" Foreground="#FFFFFF" FontSize="14"
-                                   FontWeight="SemiBold" Margin="0,0,0,12" TextWrapping="Wrap" />
+                        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                            <TextBlock x:Name="ClbSummary" Foreground="#FFFFFF" FontSize="14"
+                                       FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock x:Name="ClbReportText" Foreground="#888888" FontSize="12"
+                                       Margin="0,3,0,0" Visibility="Collapsed" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel x:Name="ClbFindings" />
                         </ScrollViewer>

@@ -22,6 +22,7 @@ namespace EspionSpotify.Wpf
         private CancellationTokenSource _clbCts;
         private LibraryScanResult _clbResult;
         private ClbState _clbState = ClbState.Idle;
+        private string _clbReportPath;
 
         // Shown whenever the tab is opened: refresh the folder label; keep any existing scan/results.
         private void OnCheckLibraryShown()
@@ -91,10 +92,39 @@ namespace EspionSpotify.Wpf
             }
 
             PopulateFindings(_clbResult);
+            AutoSaveReport(_clbResult);
             SetClbState(ClbState.Results);
         }
 
         private void CheckLibrary_Cancel_Click(object sender, RoutedEventArgs e) => _clbCts?.Cancel();
+
+        // Every completed scan writes its own timestamped report to the output root, so results are
+        // preserved automatically (no overwrite between scans) and findable without a rescan.
+        private void AutoSaveReport(LibraryScanResult r)
+        {
+            _clbReportPath = null;
+            if (r == null || string.IsNullOrWhiteSpace(r.Root))
+            {
+                ClbReportText.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            try
+            {
+                var now = DateTime.Now;
+                var html = LibraryScanner.BuildHtmlReport(r, now.ToString("yyyy-MM-dd HH:mm:ss"));
+                var name = "Spytify_library_check_" + now.ToString("yyyyMMddHHmmss") + ".html";
+                var path = Path.Combine(r.Root, name);
+                File.WriteAllText(path, html, new UTF8Encoding(false));
+                _clbReportPath = path;
+                ClbReportText.Text = "Report saved to " + name;
+            }
+            catch (Exception ex)
+            {
+                ClbReportText.Text = "Couldn't save report: " + ex.Message;
+            }
+            ClbReportText.Visibility = Visibility.Visible;
+        }
 
         private void PopulateFindings(LibraryScanResult r)
         {
@@ -208,19 +238,16 @@ namespace EspionSpotify.Wpf
             _ = AnalyzeFileAsync(path);
         }
 
-        private void CheckLibrary_SaveReport_Click(object sender, RoutedEventArgs e)
+        private void CheckLibrary_OpenReport_Click(object sender, RoutedEventArgs e)
         {
-            if (_clbResult == null) return;
+            if (string.IsNullOrEmpty(_clbReportPath) || !File.Exists(_clbReportPath)) return;
             try
             {
-                var html = LibraryScanner.BuildHtmlReport(_clbResult, DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
-                var path = Path.Combine(_clbResult.Root, "Spytify library check.html");
-                File.WriteAllText(path, html, new UTF8Encoding(false));
-                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(_clbReportPath) { UseShellExecute = true });
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Couldn't save the report: " + ex.Message,
+                MessageBox.Show(this, "Couldn't open the report: " + ex.Message,
                     "Spytify+", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
