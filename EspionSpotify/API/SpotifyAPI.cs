@@ -506,7 +506,15 @@ namespace EspionSpotify.API
                     _api = new SpotifyWebAPI
                     {
                         AccessToken = _token.AccessToken,
-                        TokenType = _token.TokenType
+                        TokenType = _token.TokenType,
+                        // Rate-limit resilience: on HTTP 429, wait the Retry-After the API sends and
+                        // retry. TooManyRequestsConsumesARetry=false means a 429 doesn't burn the
+                        // RetryTimes budget, so a large library sweep bursts, pauses until the window
+                        // recovers, then resumes, instead of silently dropping throttled files.
+                        UseAutoRetry = true,
+                        RetryTimes = 3,
+                        RetryAfter = 500,
+                        TooManyRequestsConsumesARetry = false
                     };
                 }
                 catch (Exception)
