@@ -1220,7 +1220,9 @@ namespace EspionSpotify.Wpf
             SetPanelActive(SettingsPanel, tag == "settings");
             SetPanelActive(AdvancedPanel, tag == "advanced");
             SetPanelActive(AnalyzePanel, tag == "analyze");
+            SetPanelActive(CheckLibraryPanel, tag == "checklibrary");
             if (tag == "settings") RefreshSpotifyConnState();
+            if (tag == "checklibrary") OnCheckLibraryShown();
         }
 
         private static TranslateTransform SlideOf(FrameworkElement el)
