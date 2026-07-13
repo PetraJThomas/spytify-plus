@@ -1080,7 +1080,8 @@
                                 <TextBlock Foreground="#DDDDDD" TextWrapping="Wrap" FontSize="13" LineHeight="20"
                                            Text="Scans every lossless file (FLAC, WAV, AIFF, APE, WavPack, TAK) in your output folder and flags any whose audio is actually lossy inside, a lossy source re-wrapped as lossless. Lossy formats like MP3 are skipped, since they are expected to be lossy." />
                                 <TextBlock Foreground="#888888" TextWrapping="Wrap" FontSize="12" Margin="0,10,0,0"
-                                           Text="Uses the same analysis as the Analyze tab. Large libraries take a few seconds per file; you can cancel anytime." />
+                                           Text="Uses the same analysis as the Analyze tab. You can cancel anytime." />
+                                <TextBlock x:Name="ClbThreadHint" Foreground="#1DB954" FontSize="12" Margin="0,10,0,0" />
                             </StackPanel>
                         </Border>
                     </StackPanel>

@@ -48,6 +48,9 @@ namespace EspionSpotify.Wpf
             ClbFolderText.Text = string.IsNullOrWhiteSpace(OutputPath)
                 ? "No output folder set (choose one on the Recorder tab)."
                 : OutputPath;
+            ClbThreadHint.Text =
+                $"Scans up to {LibraryScanner.MaxParallelism} files in parallel " +
+                $"({Environment.ProcessorCount} logical threads detected, minus 2 for the system).";
             if (_clbState == ClbState.Idle) SetClbState(ClbState.Idle);
         }
 

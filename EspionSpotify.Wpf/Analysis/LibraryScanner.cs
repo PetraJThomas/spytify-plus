@@ -26,6 +26,10 @@ namespace EspionSpotify.Wpf.Analysis
                 ".ape", ".wv", ".tak", ".tta", ".alac"
             };
 
+        // Files scanned at once: total logical threads minus two, left for the UI and the OS. Scales
+        // with the actual machine (min 1). Each worker runs its own ffmpeg decode plus an FFT pass.
+        public static int MaxParallelism => Math.Max(1, Environment.ProcessorCount - 2);
+
         public static bool IsLosslessContainer(string path) =>
             !string.IsNullOrEmpty(path) && LosslessExtensions.Contains(Path.GetExtension(path) ?? "");
 
@@ -56,10 +60,9 @@ namespace EspionSpotify.Wpf.Analysis
             }
 
             // Files are independent (each is its own ffmpeg decode plus a pure FFT pass), so scan
-            // several at once. Leave one core for the UI, and cap at 6 so we never spawn a swarm of
-            // ffmpeg processes on high-core machines. A SemaphoreSlim bounds the concurrency
-            // (Parallel.ForEachAsync isn't available on .NET Framework), and Task.WhenAll joins.
-            var maxDop = Math.Max(1, Math.Min(6, Environment.ProcessorCount - 1));
+            // several at once, scaled to the machine (see MaxParallelism). A SemaphoreSlim bounds the
+            // concurrency (Parallel.ForEachAsync isn't available on .NET Framework); Task.WhenAll joins.
+            var maxDop = MaxParallelism;
             var findings = new ConcurrentBag<LibraryScanFinding>();
             var done = 0;
             var scanned = 0;
