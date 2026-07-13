@@ -842,13 +842,13 @@
     <value>Scans up to {0} files in parallel ({1} logical threads detected, minus 2 for the system).</value>
   </data>
   <data name="clbScan" xml:space="preserve">
-    <value>Scan library</value>
+    <value>Analyse Library</value>
   </data>
   <data name="clbCancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
   <data name="clbRescan" xml:space="preserve">
-    <value>Rescan</value>
+    <value>Re-Analyse</value>
   </data>
   <data name="clbOpenReport" xml:space="preserve">
     <value>Open report</value>
@@ -893,7 +893,7 @@
     <value>Scan failed: {0}</value>
   </data>
   <data name="clbUpdate" xml:space="preserve">
-    <value>Update metadata</value>
+    <value>Update Library Metadata</value>
   </data>
   <data name="clbUpdateProgress" xml:space="preserve">
     <value>{0} of {1}  ·  {2} refreshed</value>

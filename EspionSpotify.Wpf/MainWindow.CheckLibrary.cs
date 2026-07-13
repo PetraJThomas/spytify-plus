@@ -436,16 +436,23 @@ namespace EspionSpotify.Wpf
             Grid.SetColumn(left, 0);
             grid.Children.Add(left);
 
-            var label = new TextBlock
+            var badge = new Border
             {
-                Text = "no match",
-                Foreground = Frozen(0xEF, 0x53, 0x50, 0xFF),
-                FontSize = 12,
+                Background = Frozen(0xEF, 0x53, 0x50, 0xFF), // red
+                CornerRadius = new CornerRadius(5),
+                Padding = new Thickness(8, 2, 8, 2),
+                Margin = new Thickness(10, 0, 2, 0),
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(10, 0, 2, 0)
+                Child = new TextBlock
+                {
+                    Text = "no match",
+                    Foreground = Brushes.White,
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold
+                }
             };
-            Grid.SetColumn(label, 1);
-            grid.Children.Add(label);
+            Grid.SetColumn(badge, 1);
+            grid.Children.Add(badge);
 
             return new Border
             {

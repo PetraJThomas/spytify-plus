@@ -893,7 +893,7 @@
     <value>Échec de l'analyse : {0}</value>
   </data>
   <data name="clbUpdate" xml:space="preserve">
-    <value>Mettre à jour les métadonnées</value>
+    <value>Mettre à jour les métadonnées de la bibliothèque</value>
   </data>
   <data name="clbUpdateProgress" xml:space="preserve">
     <value>{0} sur {1}  ·  {2} actualisés</value>
