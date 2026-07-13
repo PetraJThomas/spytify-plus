@@ -217,10 +217,26 @@ namespace EspionSpotify
                 var bytes = track.AlbumArtImage ?? await MapperID3.GetAlbumCover(track.AlbumArtUrl).ConfigureAwait(false);
                 if (bytes == null || bytes.Length == 0) return;
 
-                if (needCover) fileSystem.File.WriteAllBytes(coverPath, bytes);
-                if (needFolder) fileSystem.File.WriteAllBytes(folderPath, bytes);
+                if (needCover) SaveCoverBytes(fileSystem, coverPath, bytes);
+                if (needFolder) SaveCoverBytes(fileSystem, folderPath, bytes);
             }
             catch { /* best-effort; a missing cover file never fails a recording */ }
+        }
+
+        // Writes a cover file, clearing any Hidden/System/ReadOnly attributes first. Windows Media
+        // Player leaves album art as a Hidden+System "Folder.jpg", and File.WriteAllBytes throws
+        // UnauthorizedAccessException on a hidden target, so without this the overwrite silently fails
+        // and the stale hidden WMP art is left in place. Per-file best-effort so one failure doesn't
+        // skip the other.
+        private static void SaveCoverBytes(IFileSystem fileSystem, string path, byte[] bytes)
+        {
+            try
+            {
+                if (fileSystem.File.Exists(path))
+                    fileSystem.File.SetAttributes(path, System.IO.FileAttributes.Normal);
+                fileSystem.File.WriteAllBytes(path, bytes);
+            }
+            catch { /* best-effort */ }
         }
 
         // Appends the recording to an Extended-M3U playlist in its folder, named after the folder
