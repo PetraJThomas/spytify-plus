@@ -181,6 +181,10 @@
     <value>Couper le son des publicités</value>
     <comment>interface</comment>
   </data>
+  <data name="lblSkipSpotifyDj" xml:space="preserve">
+    <value>Ignorer le DJ Spotify</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblCounterToFilePrefix" xml:space="preserve">
     <value>Inscrire au début du nom des fichiers enregistrés la valeur du compteur</value>
     <comment>interface</comment>
@@ -211,6 +215,10 @@
   </data>
   <data name="logAd" xml:space="preserve">
     <value>// Annonce</value>
+    <comment>console</comment>
+  </data>
+  <data name="logSkippingSpotifyDj" xml:space="preserve">
+    <value>// DJ Spotify ignoré</value>
     <comment>console</comment>
   </data>
   <data name="logDeleting" xml:space="preserve">
@@ -263,6 +271,26 @@
   </data>
   <data name="msgNewVersionTitle" xml:space="preserve">
     <value>Version {0} a été publiée!</value>
+    <comment>message</comment>
+  </data>
+  <data name="lblCheckForUpdates" xml:space="preserve">
+    <value>Rechercher des mises à jour</value>
+    <comment>label</comment>
+  </data>
+  <data name="msgUpToDateTitle" xml:space="preserve">
+    <value>Vous êtes à jour</value>
+    <comment>message</comment>
+  </data>
+  <data name="msgUpToDateContent" xml:space="preserve">
+    <value>Vous utilisez déjà la dernière version (v{0}).</value>
+    <comment>message</comment>
+  </data>
+  <data name="msgUpdateCheckFailedTitle" xml:space="preserve">
+    <value>Échec de la recherche de mises à jour</value>
+    <comment>message</comment>
+  </data>
+  <data name="msgUpdateCheckFailedContent" xml:space="preserve">
+    <value>Impossible de joindre GitHub pour rechercher des mises à jour. Réessayez plus tard.</value>
     <comment>message</comment>
   </data>
   <data name="msgTitleCantQuit" xml:space="preserve">

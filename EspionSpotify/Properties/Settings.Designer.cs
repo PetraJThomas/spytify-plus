@@ -286,7 +286,19 @@ namespace EspionSpotify.Properties {
                 this["settings_mute_ads_enabled"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool settings_skip_spotify_dj_enabled {
+            get {
+                return ((bool)(this["settings_skip_spotify_dj_enabled"]));
+            }
+            set {
+                this["settings_skip_spotify_dj_enabled"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]

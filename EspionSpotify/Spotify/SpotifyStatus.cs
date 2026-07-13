@@ -34,7 +34,10 @@ namespace EspionSpotify.Spotify
 
         public async Task<Track> GetTrack()
         {
-            if (!CurrentTrack.IsNormalPlaying)
+            // A Spotify DJ interlude ("DJ X - ...") has no Spotify track behind it, so a metadata
+            // lookup can only 404. Skip it regardless of the skip-recording toggle: there is nothing
+            // to fetch either way, and this keeps the console free of the 404 noise.
+            if (!CurrentTrack.IsNormalPlaying || CurrentTrack.IsSpotifyDj)
             {
                 await ExternalAPI.Instance.Authenticate();
                 return CurrentTrack;

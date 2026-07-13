@@ -278,17 +278,27 @@ namespace EspionSpotify.API
             {
                 await Task.Delay(1000);
                 var res = await UpdateTrack(track, true);
-                if (track.MetaDataUpdated != true)
+                // Only nudge re-auth when Spotify actually rejects us (expired token, missing scope, or a
+                // different account than the one that granted rights). A readable playback with no current
+                // item, the DJ talking, an ad, a pause, or a device switch is transient and must not pop
+                // the browser auth page.
+                if (track.MetaDataUpdated != true && IsSpotifyUnauthorized(playback))
                 {
-                    // open spotify authentication page if user is disconnected
-                    // user might be connected with a different account that the one that granted rights
-                    OpenAuthenticationDialog(true);           
+                    OpenAuthenticationDialog(true);
                 }
                 return res;
             }
 
             if (hasNoPlayback || playback.HasError())
             {
+                // A DJ voice segment, an ad, a pause, a device switch, or a transient 404/5xx leaves no
+                // readable track for a moment. Don't tear down the Spotify API, force Last.fm, and nag
+                // the user over that transient state: skip metadata for this track and keep using Spotify
+                // on the next tick. Only fall back when Spotify is genuinely unreachable (no response at
+                // all) or the session is unauthorized (bad token/scope/account).
+                if (playback != null && !IsSpotifyUnauthorized(playback))
+                    return false;
+
                 _api.Dispose();
 
                 // fallback in case getting the playback did not work
@@ -465,6 +475,16 @@ namespace EspionSpotify.API
             return genres;
         }
 
+        // 401/403 mean the session is genuinely bad (expired token, missing scope, or a different
+        // account). Anything else reachable — a 404/5xx error, or a 200 with no current item — just
+        // means there is nothing to read right now (DJ narration, ad, pause, device switch): transient,
+        // not a broken API, so we must not force the Last.fm fallback or the re-auth dialog.
+        private static bool IsSpotifyUnauthorized(PlaybackContext playback)
+        {
+            var status = playback?.Error?.Status;
+            return status == 401 || status == 403;
+        }
+
         private bool IsPlaybackTrackDetectedTrack(Track track, FullTrack spotifyTrack)
         {
             var (titleParts, separatorType) = SpotifyStatus.GetTitleTags(spotifyTrack.Name, 2);
@@ -493,12 +513,21 @@ namespace EspionSpotify.API
         {
             if (_connectionDialogOpened) return;
 
-            if (refresh)
+            if (refresh) _token = null;
+
+            // Always (re)start the callback listener before opening the browser. A listener left dead
+            // by a previous attempt would otherwise silently swallow the redirect and hang the connect
+            // on "Connecting"; a clean stop+start guarantees a live server catches the code.
+            try
             {
                 _auth.Stop();
-                _token = null;
-                _auth.Start();
             }
+            catch
+            {
+                // ignored
+            }
+
+            _auth.Start();
 
             _auth.ShowDialog = true;
             _auth.OpenBrowser();
@@ -554,8 +583,25 @@ namespace EspionSpotify.API
             if (_disposed) return;
 
             if (disposing)
+            {
                 if (_api != null)
                     _api.Dispose();
+
+                // Stop the OAuth callback listener (EmbedIO on the redirect port). Without this, a
+                // rebuilt SpotifyAPI (API/format switch) leaves a zombie listener bound to the port;
+                // the browser redirect can then hit the dead instance and the live one hangs forever
+                // on "Connecting".
+                if (_auth != null)
+                    try
+                    {
+                        _auth.AuthReceived -= AuthOnAuthReceived;
+                        _auth.Stop();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+            }
 
             _disposed = true;
         }

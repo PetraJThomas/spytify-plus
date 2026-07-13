@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using EspionSpotify.Enums;
 using EspionSpotify.Extensions;
 
@@ -122,6 +123,12 @@ namespace EspionSpotify.Models
 
         public bool IsUnknown => string.IsNullOrEmpty(Title) && !Artist.IsNullOrAdOrSpotifyIdleState();
         public bool IsUnknownPlaying => IsUnknown && Playing;
+
+        // Spotify's AI DJ tags its spoken interludes as artist "DJ X" (window title "DJ X - Welcome").
+        // Those look like normal tracks but have no Spotify entry, so a metadata lookup always 404s.
+        // Detection only: the recorder decides whether to skip based on the user's toggle.
+        public bool IsSpotifyDj =>
+            string.Equals((Artist ?? "").Trim(), Constants.SPOTIFY_DJ_ARTIST, StringComparison.OrdinalIgnoreCase);
 
         public void SetArtistFromApi(string value)
         {

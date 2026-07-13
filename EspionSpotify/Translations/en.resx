@@ -181,6 +181,10 @@
     <value>Mute Ads</value>
     <comment>interface</comment>
   </data>
+  <data name="lblSkipSpotifyDj" xml:space="preserve">
+    <value>Skip Spotify DJ</value>
+    <comment>interface</comment>
+  </data>
   <data name="lblCounterToFilePrefix" xml:space="preserve">
     <value>Add the counter number in front of all files name</value>
     <comment>interface</comment>
@@ -211,6 +215,10 @@
   </data>
   <data name="logAd" xml:space="preserve">
     <value>// Advertisement</value>
+    <comment>console</comment>
+  </data>
+  <data name="logSkippingSpotifyDj" xml:space="preserve">
+    <value>// Skipping Spotify DJ</value>
     <comment>console</comment>
   </data>
   <data name="logDeleting" xml:space="preserve">
@@ -263,6 +271,26 @@
   </data>
   <data name="msgNewVersionTitle" xml:space="preserve">
     <value>Version {0} is out!</value>
+    <comment>message</comment>
+  </data>
+  <data name="lblCheckForUpdates" xml:space="preserve">
+    <value>Check for updates</value>
+    <comment>label</comment>
+  </data>
+  <data name="msgUpToDateTitle" xml:space="preserve">
+    <value>You're up to date</value>
+    <comment>message</comment>
+  </data>
+  <data name="msgUpToDateContent" xml:space="preserve">
+    <value>You're already running the latest version (v{0}).</value>
+    <comment>message</comment>
+  </data>
+  <data name="msgUpdateCheckFailedTitle" xml:space="preserve">
+    <value>Update check failed</value>
+    <comment>message</comment>
+  </data>
+  <data name="msgUpdateCheckFailedContent" xml:space="preserve">
+    <value>Couldn't reach GitHub to check for updates. Please try again later.</value>
     <comment>message</comment>
   </data>
   <data name="msgTitleCantQuit" xml:space="preserve">

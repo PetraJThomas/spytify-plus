@@ -25,6 +25,7 @@ namespace EspionSpotify.Models
         public bool ListenToSpotifyPlaybackEnabled { get; set; }
         public bool ForceSpotifyToSkipEnabled { get; set; }
         public bool MuteAdsEnabled { get; set; }
+        public bool SkipSpotifyDjEnabled { get; set; }
         public bool MinimizeToSystemTrayEnabled { get; set; }
         public bool RecordEverythingEnabled { get; set; }
         public bool RecordAdsEnabled { get; set; }

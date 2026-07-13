@@ -68,6 +68,9 @@
     <Setting Name="settings_mute_ads_enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="settings_skip_spotify_dj_enabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
     <Setting Name="advanced_record_everything" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

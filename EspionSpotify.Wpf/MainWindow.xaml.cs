@@ -80,6 +80,9 @@ namespace EspionSpotify.Wpf
                     typeof(ModernWpf.Controls.NavigationView));
                 dpd?.AddValueChanged(Nav, (s2, e2) => UpdateLogo(Nav.IsPaneOpen));
                 UpdateLogo(Nav.IsPaneOpen);
+
+                // Quietly check GitHub for a newer release on startup; only prompts if one is found.
+                _ = EspionSpotify.GitHub.GetVersion();
             };
         }
 
@@ -118,7 +121,20 @@ namespace EspionSpotify.Wpf
                 }
             };
 
-            Closed += (s, e) => { _tray?.Dispose(); _tray = null; };
+            Closed += (s, e) =>
+            {
+                _tray?.Dispose(); _tray = null;
+
+                // Release things that own OS resources or background threads before we go: the Spotify
+                // OAuth callback listener (holds the redirect port) and the audio session. Without this,
+                // a capture/listener thread can outlive the window and leave a ghost process that keeps
+                // the callback port bound, so the next launch's "Connect to Spotify" hangs forever.
+                try { (ExternalAPI.Instance as IDisposable)?.Dispose(); } catch { /* ignored */ }
+                try { (_audioSession as IDisposable)?.Dispose(); } catch { /* ignored */ }
+
+                // Backstop: force a clean process exit so no stray foreground thread can keep us alive.
+                Environment.Exit(0);
+            };
         }
 
         private void RestoreFromTray()
@@ -552,6 +568,9 @@ namespace EspionSpotify.Wpf
 
             SpotifyConnecting = true;
             SetConnState(Loc.Instance["connConnecting"], AmberBrush);
+            // Clear any leftover "dialog already open" guard from a previous attempt that hung, so this
+            // click actually (re)opens the browser instead of silently doing nothing until an app restart.
+            (ExternalAPI.Instance as EspionSpotify.API.SpotifyAPI)?.Reset();
             try { await ExternalAPI.Instance.Authenticate(); } catch { /* the API swallows auth errors too */ }
 
             for (var i = 0; i < 90 && !ExternalAPI.Instance.IsAuthenticated; i++)
@@ -591,6 +610,7 @@ namespace EspionSpotify.Wpf
 
         // --- General toggles ---
         public bool MuteAds { get => _userSettings.MuteAdsEnabled; set => SetToggle(value, v => { _userSettings.MuteAdsEnabled = v; Settings.Default.settings_mute_ads_enabled = v; }); }
+        public bool SkipSpotifyDj { get => _userSettings.SkipSpotifyDjEnabled; set => SetToggle(value, v => { _userSettings.SkipSpotifyDjEnabled = v; Settings.Default.settings_skip_spotify_dj_enabled = v; }); }
         public bool MinimizeToTray { get => _userSettings.MinimizeToSystemTrayEnabled; set => SetToggle(value, v => { _userSettings.MinimizeToSystemTrayEnabled = v; Settings.Default.settings_minimize_to_system_tray_enabled = v; }); }
 
         // --- Advanced: Spy ---
@@ -719,6 +739,7 @@ namespace EspionSpotify.Wpf
             new TemplateTag { Token = "{year}", Name = "Release year", Detail = "Album release year.  e.g. 2007" },
             new TemplateTag { Token = "{track}", Name = "Track number", Detail = "Track number on the album.  e.g. 1" },
             new TemplateTag { Token = "{track2}", Name = "Track no. (2-digit)", Detail = "Track number padded to two digits.  e.g. 01" },
+            new TemplateTag { Token = "{trackpad}", Name = "Track no. (auto-pad)", Detail = "Track number zero-padded to the album's width, so large playlist albums sort right.  e.g. 001 in a 100-track album, 01 otherwise" },
             new TemplateTag { Token = "{disc}", Name = "Disc number", Detail = "Disc number.  e.g. 1" },
             new TemplateTag { Token = "{genre}", Name = "First genre", Detail = "First genre from the metadata.  e.g. Alternative" },
             new TemplateTag { Token = "{counter}", Name = "Recording counter", Detail = "The app's recording counter, with its digit mask.  e.g. 001" }
@@ -841,6 +862,7 @@ namespace EspionSpotify.Wpf
             _userSettings.RecordEverythingEnabled = Settings.Default.advanced_record_everything;
             _userSettings.RecordAdsEnabled = Settings.Default.advanced_record_everything_and_ads_enabled;
             _userSettings.MuteAdsEnabled = Settings.Default.settings_mute_ads_enabled;
+            _userSettings.SkipSpotifyDjEnabled = Settings.Default.settings_skip_spotify_dj_enabled;
             _userSettings.MinimizeToSystemTrayEnabled = Settings.Default.settings_minimize_to_system_tray_enabled;
             _userSettings.TrackTitleSeparator = Settings.Default.advanced_file_replace_space_by_underscore_enabled ? "_" : " ";
             _userSettings.OrderNumberMask = Settings.Default.app_counter_number_mask;
@@ -973,6 +995,11 @@ namespace EspionSpotify.Wpf
 
         private void SetExternalApi(ExternalAPIType api, bool isSpotifyApiSet = false)
         {
+            // Dispose the API we're replacing first. For Spotify this stops its OAuth callback listener
+            // so the incoming instance can bind the redirect port; otherwise a stale listener hijacks
+            // the browser redirect and the connect hangs on "Connecting" (Last.fm/None are no-ops here).
+            (ExternalAPI.Instance as IDisposable)?.Dispose();
+
             switch (api)
             {
                 case ExternalAPIType.Spotify:
@@ -1165,6 +1192,35 @@ namespace EspionSpotify.Wpf
         {
             return Dispatcher.Invoke(() => MessageBox.Show(this, message, title,
                 MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK);
+        }
+
+        // Manual "Check for updates" click. GetVersion(manual: true) prompts on its own when a newer
+        // release exists; here we only need to tell the user when they're already up to date or the
+        // check couldn't reach GitHub.
+        private async void CheckForUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as System.Windows.Controls.Button;
+            if (btn != null) btn.IsEnabled = false;
+            try
+            {
+                var result = await EspionSpotify.GitHub.GetVersion(manual: true);
+
+                if (result == EspionSpotify.UpdateCheckResult.UpToDate)
+                    MessageBox.Show(this,
+                        string.Format(Rm.GetString(TranslationKeys.msgUpToDateContent) ?? "You're on the latest version ({0}).", AppVersion),
+                        Rm.GetString(TranslationKeys.msgUpToDateTitle) ?? "Spytify+",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                else if (result == EspionSpotify.UpdateCheckResult.Failed)
+                    MessageBox.Show(this,
+                        Rm.GetString(TranslationKeys.msgUpdateCheckFailedContent) ?? "Couldn't check for updates. Please try again later.",
+                        Rm.GetString(TranslationKeys.msgUpdateCheckFailedTitle) ?? "Spytify+",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                // UpdateAvailable: GetVersion already showed the update prompt.
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
         }
 
         #endregion IFrmEspionSpotify

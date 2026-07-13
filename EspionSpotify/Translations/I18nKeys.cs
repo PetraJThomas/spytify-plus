@@ -48,6 +48,8 @@ namespace EspionSpotify.Translations
         public static TranslationKeys LblUpdateRecordingsID3Tags => TranslationKeys.lblUpdateRecordingsID3Tags;
 
         public static TranslationKeys LogAd => TranslationKeys.logAd;
+        public static TranslationKeys LogSkippingSpotifyDj => TranslationKeys.logSkippingSpotifyDj;
+        public static TranslationKeys LblSkipSpotifyDj => TranslationKeys.lblSkipSpotifyDj;
         public static TranslationKeys LogDeleting => TranslationKeys.logDeleting;
         public static TranslationKeys LogException => TranslationKeys.logException;
         public static TranslationKeys LogMaxFileSequenceReached => TranslationKeys.logMaxFileSequenceReached;

@@ -87,6 +87,10 @@ namespace EspionSpotify
 
         public bool IsTypeAllowed => _currentTrack.IsNormalPlaying || IsRecordUnknownActive;
 
+        // Spotify's AI DJ tags its spoken interludes as "DJ X - ...". They read as normal tracks but
+        // are never music, so when the user opts in we skip recording them (no junk file, no folder).
+        public bool IsSpotifyDjToSkip => _userSettings.SkipSpotifyDjEnabled && _currentTrack.IsSpotifyDj;
+
         public async Task Run()
         {
             if (Running) return;
@@ -209,7 +213,13 @@ namespace EspionSpotify
 
             StopLastRecorder();
 
-            var canRecord = _isPlaying && !RecorderUpAndRunning && IsTypeAllowed && !IsMaxOrderNumberAsFileExceeded;
+            // A Spotify DJ interlude ("DJ X - ...") is never music: log it once and don't record it,
+            // but keep the rest of the bookkeeping (counter, icon) so the previous song finalizes.
+            var skipSpotifyDj = IsSpotifyDjToSkip;
+            if (skipSpotifyDj) _form.WriteIntoConsole(I18NKeys.LogSkippingSpotifyDj);
+
+            var canRecord = _isPlaying && !RecorderUpAndRunning && IsTypeAllowed
+                            && !IsMaxOrderNumberAsFileExceeded && !skipSpotifyDj;
             if (canRecord)
             {
                 RecordSpotify();

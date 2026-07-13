@@ -472,6 +472,7 @@
                         <StackPanel>
                             <TextBlock Style="{StaticResource SectionHeader}" Text="{l:Tr lblGeneral}" />
                             <ui:ToggleSwitch Header="{l:Tr lblMuteAds}" IsOn="{Binding MuteAds, Mode=TwoWay}" />
+                            <ui:ToggleSwitch Header="{l:Tr lblSkipSpotifyDj}" IsOn="{Binding SkipSpotifyDj, Mode=TwoWay}" />
                             <ui:ToggleSwitch Header="{l:Tr lblMinimizeToSystemTray}" IsOn="{Binding MinimizeToTray, Mode=TwoWay}" />
                             <StackPanel Style="{StaticResource Row}">
                                 <TextBlock Style="{StaticResource FieldLabel}" Text="{l:Tr lblLanguage}" />
@@ -482,8 +483,12 @@
                         </StackPanel>
                     </Border>
 
-                    <TextBlock Text="{Binding AppVersionDisplay}" Foreground="#777777" FontSize="12"
-                               HorizontalAlignment="Right" Margin="0,6,4,0" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,4,0">
+                        <Button Click="CheckForUpdates_Click" Content="{l:Tr lblCheckForUpdates}"
+                                Height="30" Padding="12,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding AppVersionDisplay}" Foreground="#777777" FontSize="12"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" />
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
 
