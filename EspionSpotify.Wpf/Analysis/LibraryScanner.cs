@@ -143,12 +143,13 @@ namespace EspionSpotify.Wpf.Analysis
 
         // Self-contained dark-theme HTML report written to the output root, so results survive without
         // a rescan. No external assets (works offline, portable next to the library).
-        public static string BuildHtmlReport(LibraryScanResult result, string generatedAtText, string appVersion)
+        public static string BuildHtmlReport(LibraryScanResult result, string generatedAtText,
+            string appVersion, LibraryReportStrings s)
         {
             var sb = new StringBuilder();
-            sb.Append("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">")
+            sb.Append("<!doctype html><html lang=\"").Append(s.HtmlLang).Append("\"><head><meta charset=\"utf-8\">")
               .Append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
-              .Append("<title>Spytify+ Library Check</title><style>")
+              .Append("<title>Spytify+ ").Append(Esc(s.Title)).Append("</title><style>")
               .Append("*{box-sizing:border-box}body{margin:0;background:#0f0f10;color:#e9e9ea;")
               .Append("font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:32px}")
               .Append(".wrap{max-width:1000px;margin:0 auto}h1{font-size:22px;margin:0 0 4px}")
@@ -164,29 +165,32 @@ namespace EspionSpotify.Wpf.Analysis
               .Append(".clean{background:#1a1a1c;border:1px solid #2a2a2d;border-radius:10px;padding:28px;text-align:center}")
               .Append("</style></head><body><div class=\"wrap\">");
 
-            sb.Append("<h1>Spytify+ &middot; Library Check</h1>")
-              .Append("<p class=\"sub\">").Append(Esc(result.Root)).Append("<br>Generated ")
-              .Append(Esc(generatedAtText));
+            sb.Append("<h1>Spytify+ &middot; ").Append(Esc(s.Title)).Append("</h1>")
+              .Append("<p class=\"sub\">").Append(Esc(result.Root)).Append("<br>")
+              .Append(Esc(s.Generated)).Append(' ').Append(Esc(generatedAtText));
             if (!string.IsNullOrEmpty(appVersion))
                 sb.Append(" &middot; Spytify+ v").Append(Esc(appVersion));
             sb.Append("</p>");
 
             var flagged = result.Findings.Count;
             sb.Append("<div class=\"summary\">")
-              .Append(Stat(result.Scanned.ToString(), "lossless files scanned", ""))
-              .Append(Stat(flagged.ToString(), "not truly lossless", flagged > 0 ? "warn" : "ok"));
+              .Append(Stat(result.Scanned.ToString(), s.ScannedLabel, ""))
+              .Append(Stat(flagged.ToString(), s.FlaggedLabel, flagged > 0 ? "warn" : "ok"));
             if (result.Skipped > 0)
-                sb.Append(Stat(result.Skipped.ToString(), "skipped (unreadable)", ""));
+                sb.Append(Stat(result.Skipped.ToString(), s.SkippedLabel, ""));
             sb.Append("</div>");
 
             if (flagged == 0)
             {
-                sb.Append("<div class=\"clean\"><span class=\"ok\" style=\"font-size:18px\">&#10003; All clear</span>")
-                  .Append("<p class=\"sub\" style=\"margin:8px 0 0\">Every lossless file reached full band. No transcodes found.</p></div>");
+                sb.Append("<div class=\"clean\"><span class=\"ok\" style=\"font-size:18px\">&#10003; ")
+                  .Append(Esc(s.AllClear)).Append("</span>")
+                  .Append("<p class=\"sub\" style=\"margin:8px 0 0\">").Append(Esc(s.AllClearNote)).Append("</p></div>");
             }
             else
             {
-                sb.Append("<table><thead><tr><th>File</th><th>Folder</th><th>Verdict</th><th>Cut-off</th></tr></thead><tbody>");
+                sb.Append("<table><thead><tr><th>").Append(Esc(s.ColFile)).Append("</th><th>")
+                  .Append(Esc(s.ColFolder)).Append("</th><th>").Append(Esc(s.ColVerdict))
+                  .Append("</th><th>").Append(Esc(s.ColCutoff)).Append("</th></tr></thead><tbody>");
                 foreach (var f in result.Findings)
                 {
                     sb.Append("<tr><td>").Append(Esc(f.FileName)).Append("</td>")
@@ -206,6 +210,59 @@ namespace EspionSpotify.Wpf.Analysis
 
         private static string Esc(string s) => (s ?? "")
             .Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+    }
+
+    // Localized labels for the HTML report. Self-contained EN/FR pairs (the report is a generated
+    // artifact, so it carries its own strings rather than pulling from a per-culture resx).
+    internal sealed class LibraryReportStrings
+    {
+        public string HtmlLang;
+        public string FileSuffix; // appended before ".html" ("" for en, "_fr" for fr)
+        public string Title;
+        public string Generated;
+        public string ScannedLabel;
+        public string FlaggedLabel;
+        public string SkippedLabel;
+        public string AllClear;
+        public string AllClearNote;
+        public string ColFile;
+        public string ColFolder;
+        public string ColVerdict;
+        public string ColCutoff;
+
+        public static readonly LibraryReportStrings English = new LibraryReportStrings
+        {
+            HtmlLang = "en",
+            FileSuffix = "",
+            Title = "Library Check",
+            Generated = "Generated",
+            ScannedLabel = "lossless files scanned",
+            FlaggedLabel = "not truly lossless",
+            SkippedLabel = "skipped (unreadable)",
+            AllClear = "All clear",
+            AllClearNote = "Every lossless file reached full band. No transcodes found.",
+            ColFile = "File",
+            ColFolder = "Folder",
+            ColVerdict = "Verdict",
+            ColCutoff = "Cut-off"
+        };
+
+        public static readonly LibraryReportStrings French = new LibraryReportStrings
+        {
+            HtmlLang = "fr",
+            FileSuffix = "_fr",
+            Title = "Vérification de la bibliothèque",
+            Generated = "Généré le",
+            ScannedLabel = "fichiers sans perte analysés",
+            FlaggedLabel = "pas réellement sans perte",
+            SkippedLabel = "ignorés (illisibles)",
+            AllClear = "Tout est bon",
+            AllClearNote = "Tous les fichiers sans perte atteignent toute la bande. Aucun réencodage détecté.",
+            ColFile = "Fichier",
+            ColFolder = "Dossier",
+            ColVerdict = "Verdict",
+            ColCutoff = "Coupure"
+        };
     }
 
     internal sealed class LibraryScanProgress

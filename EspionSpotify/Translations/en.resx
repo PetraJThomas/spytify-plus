@@ -825,4 +825,67 @@
   <data name="anzVerdictHeader" xml:space="preserve">
     <value>Analysis Verdict</value>
   </data>
+  <data name="tabCheckLibrary" xml:space="preserve">
+    <value>Check Library</value>
+  </data>
+  <data name="clbIntro" xml:space="preserve">
+    <value>Scans every lossless file (FLAC, WAV, AIFF, APE, WavPack, TAK) in your output folder and flags any whose audio is actually lossy inside, a lossy source re-wrapped as lossless. Lossy formats like MP3 are skipped, since they are expected to be lossy.</value>
+  </data>
+  <data name="clbIntroNote" xml:space="preserve">
+    <value>Uses the same analysis as the Analyze tab. You can cancel anytime.</value>
+  </data>
+  <data name="clbThreadHint" xml:space="preserve">
+    <value>Scans up to {0} files in parallel ({1} logical threads detected, minus 2 for the system).</value>
+  </data>
+  <data name="clbScan" xml:space="preserve">
+    <value>Scan library</value>
+  </data>
+  <data name="clbCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="clbRescan" xml:space="preserve">
+    <value>Rescan</value>
+  </data>
+  <data name="clbOpenReport" xml:space="preserve">
+    <value>Open report</value>
+  </data>
+  <data name="clbNoFolder" xml:space="preserve">
+    <value>No output folder set (choose one on the Recorder tab).</value>
+  </data>
+  <data name="clbSetFolderFirst" xml:space="preserve">
+    <value>Set a valid output folder on the Recorder tab first.</value>
+  </data>
+  <data name="clbEnumerating" xml:space="preserve">
+    <value>Enumerating files…</value>
+  </data>
+  <data name="clbNoLosslessFiles" xml:space="preserve">
+    <value>No lossless files found.</value>
+  </data>
+  <data name="clbProgress" xml:space="preserve">
+    <value>{0} of {1} scanned  ·  {2} flagged</value>
+  </data>
+  <data name="clbSummaryClean" xml:space="preserve">
+    <value>All {0} lossless files passed. No transcodes found.</value>
+  </data>
+  <data name="clbSummaryFlagged" xml:space="preserve">
+    <value>Scanned {0} lossless files  ·  {1} not truly lossless.</value>
+  </data>
+  <data name="clbSkippedSuffix" xml:space="preserve">
+    <value>  ({0} skipped)</value>
+  </data>
+  <data name="clbAllFullBand" xml:space="preserve">
+    <value>✓  Every lossless file reached full band.</value>
+  </data>
+  <data name="clbReportSaved" xml:space="preserve">
+    <value>Report saved to {0}</value>
+  </data>
+  <data name="clbReportSaveError" xml:space="preserve">
+    <value>Couldn't save report: {0}</value>
+  </data>
+  <data name="clbReportOpenError" xml:space="preserve">
+    <value>Couldn't open the report: {0}</value>
+  </data>
+  <data name="clbScanFailed" xml:space="preserve">
+    <value>Scan failed: {0}</value>
+  </data>
 </root>

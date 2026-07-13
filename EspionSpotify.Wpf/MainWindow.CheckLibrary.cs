@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using EspionSpotify.Enums;
 using EspionSpotify.Wpf.Analysis;
 
 namespace EspionSpotify.Wpf
@@ -46,11 +47,10 @@ namespace EspionSpotify.Wpf
         private void OnCheckLibraryShown()
         {
             ClbFolderText.Text = string.IsNullOrWhiteSpace(OutputPath)
-                ? "No output folder set (choose one on the Recorder tab)."
+                ? Loc.Instance["clbNoFolder"]
                 : OutputPath;
-            ClbThreadHint.Text =
-                $"Scans up to {LibraryScanner.MaxParallelism} files in parallel " +
-                $"({Environment.ProcessorCount} logical threads detected, minus 2 for the system).";
+            ClbThreadHint.Text = string.Format(Loc.Instance["clbThreadHint"],
+                LibraryScanner.MaxParallelism, Environment.ProcessorCount);
             if (_clbState == ClbState.Idle) SetClbState(ClbState.Idle);
         }
 
@@ -72,7 +72,7 @@ namespace EspionSpotify.Wpf
             var root = OutputPath;
             if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
             {
-                MessageBox.Show(this, "Set a valid output folder on the Recorder tab first.",
+                MessageBox.Show(this, Loc.Instance["clbSetFolderFirst"],
                     "Spytify+", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -82,7 +82,7 @@ namespace EspionSpotify.Wpf
             _clbResult = null;
             SetClbState(ClbState.Scanning);
             ClbProgress.Value = 0;
-            ClbProgressText.Text = "Enumerating files…";
+            ClbProgressText.Text = Loc.Instance["clbEnumerating"];
             ClbProgressFile.Text = "";
 
             var progress = new Progress<LibraryScanProgress>(p =>
@@ -90,8 +90,8 @@ namespace EspionSpotify.Wpf
                 ClbProgress.Maximum = Math.Max(1, p.Total);
                 ClbProgress.Value = p.Done;
                 ClbProgressText.Text = p.Total == 0
-                    ? "No lossless files found."
-                    : $"{p.Done} of {p.Total} scanned  ·  {p.Flagged} flagged";
+                    ? Loc.Instance["clbNoLosslessFiles"]
+                    : string.Format(Loc.Instance["clbProgress"], p.Done, p.Total, p.Flagged);
                 ClbProgressFile.Text = p.CurrentFile ?? "";
             });
 
@@ -107,7 +107,7 @@ namespace EspionSpotify.Wpf
             catch (Exception ex)
             {
                 SetClbState(ClbState.Idle);
-                MessageBox.Show(this, "Scan failed: " + ex.Message,
+                MessageBox.Show(this, string.Format(Loc.Instance["clbScanFailed"], ex.Message),
                     "Spytify+", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -120,7 +120,9 @@ namespace EspionSpotify.Wpf
         private void CheckLibrary_Cancel_Click(object sender, RoutedEventArgs e) => _clbCts?.Cancel();
 
         // Every completed scan writes its own timestamped report to the output root, so results are
-        // preserved automatically (no overwrite between scans) and findable without a rescan.
+        // preserved automatically (no overwrite between scans) and findable without a rescan. The
+        // English report is always written; when French is the selected language a French report is
+        // written alongside it (…_fr.html), and "Open report" opens the user's-language one.
         private void AutoSaveReport(LibraryScanResult r)
         {
             _clbReportPath = null;
@@ -133,18 +135,36 @@ namespace EspionSpotify.Wpf
             try
             {
                 var now = DateTime.Now;
-                var html = LibraryScanner.BuildHtmlReport(r, now.ToString("yyyy-MM-dd HH:mm:ss"), AppVersion);
-                var name = "Spytify_library_check_" + now.ToString("yyyyMMddHHmmss") + ".html";
-                var path = Path.Combine(r.Root, name);
-                File.WriteAllText(path, html, new UTF8Encoding(false));
-                _clbReportPath = path;
-                ClbReportText.Text = "Report saved to " + name;
+                var stamp = now.ToString("yyyyMMddHHmmss");
+                var generatedAt = now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                var enPath = WriteReport(r, generatedAt, stamp, LibraryReportStrings.English);
+                _clbReportPath = enPath;
+                var names = Path.GetFileName(enPath);
+
+                if (SelectedLanguage == LanguageType.fr)
+                {
+                    var frPath = WriteReport(r, generatedAt, stamp, LibraryReportStrings.French);
+                    _clbReportPath = frPath; // open the report in the user's language
+                    names += ", " + Path.GetFileName(frPath);
+                }
+
+                ClbReportText.Text = string.Format(Loc.Instance["clbReportSaved"], names);
             }
             catch (Exception ex)
             {
-                ClbReportText.Text = "Couldn't save report: " + ex.Message;
+                ClbReportText.Text = string.Format(Loc.Instance["clbReportSaveError"], ex.Message);
             }
             ClbReportText.Visibility = Visibility.Visible;
+        }
+
+        private string WriteReport(LibraryScanResult r, string generatedAt, string stamp, LibraryReportStrings s)
+        {
+            var html = LibraryScanner.BuildHtmlReport(r, generatedAt, AppVersion, s);
+            var name = "Spytify_library_check_" + stamp + s.FileSuffix + ".html";
+            var path = Path.Combine(r.Root, name);
+            File.WriteAllText(path, html, new UTF8Encoding(false));
+            return path;
         }
 
         private void PopulateFindings(LibraryScanResult r)
@@ -152,16 +172,16 @@ namespace EspionSpotify.Wpf
             ClbFindings.Children.Clear();
 
             var flagged = r.Findings.Count;
-            var skipped = r.Skipped > 0 ? $"  ({r.Skipped} skipped)" : "";
-            ClbSummary.Text = flagged == 0
-                ? $"All {r.Scanned} lossless files passed. No transcodes found.{skipped}"
-                : $"Scanned {r.Scanned} lossless files  ·  {flagged} not truly lossless.{skipped}";
+            var skipped = r.Skipped > 0 ? string.Format(Loc.Instance["clbSkippedSuffix"], r.Skipped) : "";
+            ClbSummary.Text = (flagged == 0
+                ? string.Format(Loc.Instance["clbSummaryClean"], r.Scanned)
+                : string.Format(Loc.Instance["clbSummaryFlagged"], r.Scanned, flagged)) + skipped;
 
             if (flagged == 0)
             {
                 ClbFindings.Children.Add(new TextBlock
                 {
-                    Text = "✓  Every lossless file reached full band.",
+                    Text = Loc.Instance["clbAllFullBand"],
                     Foreground = Frozen(0x1E, 0xD7, 0x60, 0xFF),
                     FontSize = 14,
                     Margin = new Thickness(0, 6, 0, 0)
@@ -268,7 +288,7 @@ namespace EspionSpotify.Wpf
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Couldn't open the report: " + ex.Message,
+                MessageBox.Show(this, string.Format(Loc.Instance["clbReportOpenError"], ex.Message),
                     "Spytify+", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }

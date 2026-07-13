@@ -173,7 +173,7 @@
                     <ui:FontIcon Glyph="&#xE9D9;" />
                 </ui:NavigationViewItem.Icon>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem Content="Check Library" Tag="checklibrary">
+            <ui:NavigationViewItem Content="{l:Tr tabCheckLibrary}" Tag="checklibrary">
                 <ui:NavigationViewItem.Icon>
                     <ui:FontIcon Glyph="&#xE8F1;" />
                 </ui:NavigationViewItem.Icon>
@@ -1052,7 +1052,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="Check Library" FontSize="20" FontWeight="SemiBold" Foreground="#FFFFFF" />
+                    <TextBlock Text="{l:Tr tabCheckLibrary}" FontSize="20" FontWeight="SemiBold" Foreground="#FFFFFF" />
                     <TextBlock x:Name="ClbFolderText" Foreground="#999999" Margin="0,2,0,0"
                                TextTrimming="CharacterEllipsis" />
                     <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
@@ -1060,15 +1060,15 @@
                                 Background="#1DB954" Foreground="#000000" Padding="16,7" FontWeight="SemiBold">
                             <StackPanel Orientation="Horizontal">
                                 <ui:FontIcon Glyph="&#xE721;" FontSize="14" Margin="0,0,8,0" />
-                                <TextBlock Text="Scan library" />
+                                <TextBlock Text="{l:Tr clbScan}" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="ClbCancelButton" Click="CheckLibrary_Cancel_Click" Visibility="Collapsed"
-                                Content="Cancel" Padding="16,7" Margin="10,0,0,0" />
+                                Content="{l:Tr clbCancel}" Padding="16,7" Margin="10,0,0,0" />
                         <Button x:Name="ClbRescanButton" Click="CheckLibrary_Scan_Click" Visibility="Collapsed"
-                                Content="Rescan" Padding="16,7" />
+                                Content="{l:Tr clbRescan}" Padding="16,7" />
                         <Button x:Name="ClbSaveReportButton" Click="CheckLibrary_OpenReport_Click" Visibility="Collapsed"
-                                Content="Open report" Padding="16,7" Margin="10,0,0,0" />
+                                Content="{l:Tr clbOpenReport}" Padding="16,7" Margin="10,0,0,0" />
                     </StackPanel>
                 </StackPanel>
 
@@ -1078,9 +1078,9 @@
                         <Border CornerRadius="10" Background="#12FFFFFF" Padding="20">
                             <StackPanel>
                                 <TextBlock Foreground="#DDDDDD" TextWrapping="Wrap" FontSize="13" LineHeight="20"
-                                           Text="Scans every lossless file (FLAC, WAV, AIFF, APE, WavPack, TAK) in your output folder and flags any whose audio is actually lossy inside, a lossy source re-wrapped as lossless. Lossy formats like MP3 are skipped, since they are expected to be lossy." />
+                                           Text="{l:Tr clbIntro}" />
                                 <TextBlock Foreground="#888888" TextWrapping="Wrap" FontSize="12" Margin="0,10,0,0"
-                                           Text="Uses the same analysis as the Analyze tab. You can cancel anytime." />
+                                           Text="{l:Tr clbIntroNote}" />
                                 <TextBlock x:Name="ClbThreadHint" Foreground="#1DB954" FontSize="12" Margin="0,10,0,0" />
                             </StackPanel>
                         </Border>

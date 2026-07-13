@@ -199,6 +199,27 @@
         lblMetadataSource,
         lblStartRecording,
         lblStop,
-        anzVerdictHeader
+        anzVerdictHeader,
+        tabCheckLibrary,
+        clbIntro,
+        clbIntroNote,
+        clbThreadHint,
+        clbScan,
+        clbCancel,
+        clbRescan,
+        clbOpenReport,
+        clbNoFolder,
+        clbSetFolderFirst,
+        clbEnumerating,
+        clbNoLosslessFiles,
+        clbProgress,
+        clbSummaryClean,
+        clbSummaryFlagged,
+        clbSkippedSuffix,
+        clbAllFullBand,
+        clbReportSaved,
+        clbReportSaveError,
+        clbReportOpenError,
+        clbScanFailed
     }
 }

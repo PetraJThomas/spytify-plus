@@ -825,4 +825,67 @@
   <data name="anzVerdictHeader" xml:space="preserve">
     <value>Verdict de l'analyse</value>
   </data>
+  <data name="tabCheckLibrary" xml:space="preserve">
+    <value>Vérifier la bibliothèque</value>
+  </data>
+  <data name="clbIntro" xml:space="preserve">
+    <value>Analyse chaque fichier sans perte (FLAC, WAV, AIFF, APE, WavPack, TAK) de votre dossier de sortie et signale ceux dont l'audio est en réalité compressé avec perte : une source avec perte réencapsulée en sans perte. Les formats avec perte comme le MP3 sont ignorés, car ils sont censés être compressés.</value>
+  </data>
+  <data name="clbIntroNote" xml:space="preserve">
+    <value>Utilise la même analyse que l'onglet Analyse. Vous pouvez annuler à tout moment.</value>
+  </data>
+  <data name="clbThreadHint" xml:space="preserve">
+    <value>Analyse jusqu'à {0} fichiers en parallèle ({1} threads logiques détectés, moins 2 pour le système).</value>
+  </data>
+  <data name="clbScan" xml:space="preserve">
+    <value>Analyser la bibliothèque</value>
+  </data>
+  <data name="clbCancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="clbRescan" xml:space="preserve">
+    <value>Réanalyser</value>
+  </data>
+  <data name="clbOpenReport" xml:space="preserve">
+    <value>Ouvrir le rapport</value>
+  </data>
+  <data name="clbNoFolder" xml:space="preserve">
+    <value>Aucun dossier de sortie défini (choisissez-en un dans l'onglet Enregistreur).</value>
+  </data>
+  <data name="clbSetFolderFirst" xml:space="preserve">
+    <value>Définissez d'abord un dossier de sortie valide dans l'onglet Enregistreur.</value>
+  </data>
+  <data name="clbEnumerating" xml:space="preserve">
+    <value>Énumération des fichiers…</value>
+  </data>
+  <data name="clbNoLosslessFiles" xml:space="preserve">
+    <value>Aucun fichier sans perte trouvé.</value>
+  </data>
+  <data name="clbProgress" xml:space="preserve">
+    <value>{0} sur {1} analysés  ·  {2} signalés</value>
+  </data>
+  <data name="clbSummaryClean" xml:space="preserve">
+    <value>Les {0} fichiers sans perte ont réussi. Aucun réencodage détecté.</value>
+  </data>
+  <data name="clbSummaryFlagged" xml:space="preserve">
+    <value>{0} fichiers sans perte analysés  ·  {1} pas réellement sans perte.</value>
+  </data>
+  <data name="clbSkippedSuffix" xml:space="preserve">
+    <value>  ({0} ignorés)</value>
+  </data>
+  <data name="clbAllFullBand" xml:space="preserve">
+    <value>✓  Tous les fichiers sans perte atteignent toute la bande.</value>
+  </data>
+  <data name="clbReportSaved" xml:space="preserve">
+    <value>Rapport enregistré : {0}</value>
+  </data>
+  <data name="clbReportSaveError" xml:space="preserve">
+    <value>Impossible d'enregistrer le rapport : {0}</value>
+  </data>
+  <data name="clbReportOpenError" xml:space="preserve">
+    <value>Impossible d'ouvrir le rapport : {0}</value>
+  </data>
+  <data name="clbScanFailed" xml:space="preserve">
+    <value>Échec de l'analyse : {0}</value>
+  </data>
 </root>
