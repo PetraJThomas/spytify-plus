@@ -15,7 +15,7 @@
 </p>
 <p align="center">
   <img alt="Filename and folder template builder" src="docs/screenshots/templates.png" width="49%" />
-  <img alt="Audio quality analysis" src="docs/screenshots/analyze_empty.png" width="49%" />
+  <img alt="Audio quality analysis" src="docs/screenshots/analyze.png" width="49%" />
 </p>
 
 ## How it works
