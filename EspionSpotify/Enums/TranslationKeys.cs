@@ -86,6 +86,7 @@
         logStopRecordingWhenSongEnds,
         logTrackExists,
         logMetadataUpdated,
+        logExistingTruncatedRerecording,
         logUnknownException,
         logUnsupportedNumberChannels,
         logUnsupportedRate,

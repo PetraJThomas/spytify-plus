@@ -353,6 +353,10 @@
     <value>Métadonnées mises à jour : {0}</value>
     <comment>console</comment>
   </data>
+  <data name="logExistingTruncatedRerecording" xml:space="preserve">
+    <value>Réenregistrement : {0} (le fichier existant est tronqué)</value>
+    <comment>console</comment>
+  </data>
   <data name="logTrackExists" xml:space="preserve">
     <value>Passe: {0} (l'enregistrement existe déjà)</value>
     <comment>console</comment>

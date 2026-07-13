@@ -357,6 +357,10 @@
     <value>Updated metadata: {0}</value>
     <comment>console</comment>
   </data>
+  <data name="logExistingTruncatedRerecording" xml:space="preserve">
+    <value>Re-recording: {0} (existing file is truncated)</value>
+    <comment>console</comment>
+  </data>
   <data name="logMissingDlls" xml:space="preserve">
     <value>// Error: DLL files missing - libmp3lame.32.dll and libmp3lame.64.dll</value>
     <comment>console</comment>

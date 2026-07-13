@@ -174,6 +174,17 @@ namespace EspionSpotify
             _canBeSkippedValidated = true;
             if (IsSkipTrackActive)
             {
+                // Verify the EXISTING file too: if length-verification is on and the file already in
+                // the library is truncated (a bad earlier rip, shorter than the track), don't skip.
+                // Record fresh instead; the encode path only overwrites when the new take is valid,
+                // so a truncated file is replaced when possible and kept if the re-record is also cut
+                // short. This makes verify-length apply in skip mode, not just to new recordings.
+                if (_userSettings.VerifyRecordingLength && ExistingRecordingIsTruncated())
+                {
+                    _form.WriteIntoConsole(I18NKeys.LogExistingTruncatedRerecording, _track.ToString());
+                    return false; // fall through to a fresh recording
+                }
+
                 _form.WriteIntoConsole(I18NKeys.LogTrackExists, _track.ToString());
                 await UpdateMediaTagsWhenSkippingTrack();
                 ForceStopRecording();
@@ -191,7 +202,28 @@ namespace EspionSpotify
 
             return false;
         }
-        
+
+        // True when the file already on disk for this track is truncated versus the track's known
+        // length (same 80% rule as new captures, via EncodeService.IsTruncatedCapture). Best-effort:
+        // an unreadable file or an unknown track length counts as "not truncated" so we never
+        // re-record on a guess.
+        private bool ExistingRecordingIsTruncated()
+        {
+            if (!_track.Length.HasValue || _track.Length.Value <= 0) return false;
+            try
+            {
+                var path = _fileManager.GetOutputFileAndInitDirectories().ToMediaFilePath();
+                int seconds;
+                using (var f = TagLib.File.Create(path))
+                    seconds = (int)Math.Round(f.Properties.Duration.TotalSeconds);
+                return seconds > 0 && EncodeService.IsTruncatedCapture(true, seconds, _track.Length);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private async Task RecordingStopped()
         {
             while (TrackIsFetchingMetadata) await Task.Delay(100);
