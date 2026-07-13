@@ -325,16 +325,16 @@ export default function App() {
           >
             <Screenshot
               src={recordShot}
-              w={1092}
-              h={676}
+              w={1349}
+              h={737}
               alt="Spytify+ Record tab: the player card with live album art and the capture log"
               caption="Recording, with a live now-playing card and the capture log"
               onZoom={setZoom}
             />
             <Screenshot
               src={analyzeShot}
-              w={1637}
-              h={1265}
+              w={1349}
+              h={1392}
               alt="Spytify+ Analyze tab: waveform, frequency response and Inferno spectrogram with a lossless verdict"
               caption="Analyzing a file: waveform, spectrogram and a plain-English verdict"
               onZoom={setZoom}
@@ -413,8 +413,8 @@ export default function App() {
           <Reveal className="split__media" delay={0.1}>
             <Screenshot
               src={templatesShot}
-              w={1000}
-              h={640}
+              w={1349}
+              h={737}
               alt="Spytify+ filename and folder template builder with a click-to-insert tag legend"
               onZoom={setZoom}
             />
