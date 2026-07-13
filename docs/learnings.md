@@ -175,3 +175,47 @@ discover; recorded here so they don't have to be rediscovered.
   value in the persisted `user.config` and relaunch instead of clicking.
 - **`docs/*` is git-ignored except `.md`** (inherited rule). Committing README
   screenshots needed a `!docs/screenshots/` exception.
+
+## Library integrity, settings & release (Phase 11)
+
+- **The .NET user-settings path embeds the entry assembly's `AssemblyVersion`**
+  (`…\<Company>\<App>_<hash>\<AssemblyVersion>\user.config`). Every version bump strands
+  settings in a new folder. Fix: **pin the WPF `AssemblyVersion`** (2.0.0.0) forever;
+  bump the release version via the engine `AssemblyVersion` (the updater compares that)
+  and the WPF `<Version>`. Gotcha: an unset `<FileVersion>` inherits `AssemblyVersion`
+  (the pin), not `<Version>`, so set `<FileVersion>` explicitly or the displayed version
+  is wrong. A company rename (`Spytify` → `Spytify+`) also moves the folder.
+- **A setter that saves to `Settings.Default` but that `LoadState` never reads back**
+  silently doesn't persist (`UpdateId3Tags` reverted every launch). Every toggle needs
+  both halves.
+- **Windows Media Player writes album art as a Hidden+System `Folder.jpg`**, and
+  `File.WriteAllBytes`/`File.Create` throw `UnauthorizedAccessException` on a *hidden*
+  target. Our overwrite was silently swallowed. Clear Hidden/System/ReadOnly before
+  writing. (Windows' own half-finished FLAC-art feature created the file that blocked us.)
+- **Windows FLAC support is broken/unfinished**: the shell doesn't read embedded FLAC art
+  for thumbnails, and the new Media Player reads it in its Edit dialog but won't show it
+  on the tile and can't write FLAC tags at all. Not a file problem, use VLC/MusicBee/
+  foobar. `Folder.jpg` is the sidecar that some players/Explorer do honour.
+- **Spotify's `isrc:` search doesn't index every track** (notably DIY-distributor
+  ISRCs, `QZ…`). A whole album that *is* on Spotify can come back "no match". Fall back to
+  the embedded **Spotify track ID** (`GetTrack(id)`, exact). We embed both, so it's still
+  an exact-identifier match, never fuzzy.
+- **429 is benign** (rolling ~30s window, resets itself; no account/app penalty). But the
+  old code counted throttled calls as "no match" silently. `SpotifyWebAPI` has built-in
+  retry: `UseAutoRetry=true` + `TooManyRequestsConsumesARetry=false` waits the
+  `Retry-After` and keeps retrying without burning the budget.
+- **.NET Framework `ZipFile.CreateFromDirectory` writes BACKSLASH separators** (non-
+  standard; breaks extraction elsewhere). Build the release zip by walking files and
+  `ZipArchive.CreateEntry(rel.Replace('\\','/'))`.
+- **The release zip must include the `Updater/` subfolder** (the app launches
+  `<app>/Updater/Updater.exe`), which the WPF build does *not* produce, copy it from the
+  engine output. The updater ignores draft/prerelease releases; the asset must match
+  `^Spytify(-|\.)…zip$`.
+- **Adding an optional parameter breaks method-group→delegate conversion**
+  (`Task.Run(mapper.SaveMediaTags)` stopped compiling). Use an overload, not a default arg.
+- **Building the test project only rebuilds the engine's own dll, not the copy inside
+  the running exe.** After engine changes, do a full solution build (and close the app,
+  which minimises to the tray and locks the dll) so the launched exe is current.
+- **Fixed 2-digit `{track2}` mis-sorts past 99**, and the `.m3u` sorted ordinally
+  (`"100"` between `"10"` and `"11"`). Windows Explorer's natural sort hid it in the file
+  view but players and the m3u were wrong. Dynamic-width padding + a natural comparer fix it.

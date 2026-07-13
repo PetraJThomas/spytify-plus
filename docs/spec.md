@@ -64,7 +64,7 @@ Spotify's output faithfully.
 - UI: **ModernWpfUI 0.9.6** (Fluent styling, NavigationView, modern window
   chrome).
 - Build: Visual Studio MSBuild (engine project is non-SDK / packages.config; WPF
-  project is SDK-style). The test suite (325 tests) must stay green.
+  project is SDK-style). The test suite (349 tests) must stay green.
 
 ## Success criteria
 
@@ -74,7 +74,7 @@ Spotify's output faithfully.
   (visible cut-off cliff), a FLAC transcoded from MP3 (lossy-source flag), and
   high-bitrate AAC/Opus (full-band but still lossy — codec is authoritative).
 - en/fr resx in sync, every key mirrored in the `TranslationKeys` enum,
-  **325/325 tests pass**.
+  **349/349 tests pass**.
 - Consistent, polished UX; Spytify+ branding throughout.
 - Offline-library features (templates, playlist-as-album, verification, quality
   gating, cover.jpg + ISRC/Spotify-ID tags, .m3u export) work without ever altering

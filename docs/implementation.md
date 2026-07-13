@@ -5,7 +5,7 @@
 ```
 EspionSpotify/            engine (library, non-SDK csproj + packages.config, net48)
 EspionSpotify.Wpf/        WPF front-end (SDK-style csproj, net48, AssemblyName=Spytify)
-EspionSpotify.Tests/      xUnit test suite (325 tests)
+EspionSpotify.Tests/      xUnit test suite (349 tests)
 psd/new_assets/           Spytify+ brand source (.ai, SVG, @4x PNG)
 docs/                     this documentation
 ```

@@ -136,7 +136,39 @@ mirrors Spotify's output (no upsampling, no forced CBR, no loudness processing).
 - Shipping prep: LICENSE gained a Spytify+ copyright line; README rewritten for the
   fork with current screenshots.
 
+## Phase 11 — Library integrity, hardening & the v2.1.0 release (2026-07-13)
+- **Check Library** tab, two library-wide tools:
+  - *Analyse Library*: parallel spectral scan flagging lossless files that are actually
+    lossy inside (a lossy source re-wrapped as FLAC/WAV). Auto-saves a bilingual HTML
+    report; a finding row click opens the file in Analyze.
+  - *Update Library Metadata*: a direct sweep refreshing tags + cover art from Spotify +
+    iTunes, keyed exactly by embedded ISRC with a **Spotify track-ID fallback** (Spotify's
+    `isrc:` search doesn't index every track, e.g. DIY-distributor releases). Parallel,
+    429-safe, lists the files it couldn't match.
+- **Rate-limit resilience**: enabled `SpotifyWebAPI.UseAutoRetry` with
+  `TooManyRequestsConsumesARetry=false`, so 429s wait the `Retry-After` and retry rather
+  than being silently counted as "no match". Made the artist-genre + album caches
+  concurrent so the sweep can parallelize; skip the 1s `SaveMediaTags` delay for sweeps.
+- **Cover art on Windows**: write `Folder.jpg` next to `cover.jpg`; clear Hidden/System/
+  ReadOnly before writing (Windows Media Player leaves a hidden `Folder.jpg` that
+  `File.WriteAllBytes` can't overwrite). High-res via iTunes now validates artist **and**
+  album so a fuzzy match can't key wrong-album art.
+- **Metadata**: genre falls back to the artist's Spotify genres; the metadata-fetch gate
+  is now format-agnostic (was MP3-only) so FLAC skip-retag matches; skip-scrub re-tags +
+  refreshes covers in place and re-records truncated existing files (verify-length in
+  skip mode); a "Updated metadata" console line confirms it.
+- **Settings**: collapsed to one canonical `user.config`. The .NET settings path embeds
+  the entry AssemblyVersion, so the WPF `AssemblyVersion` is **pinned at 2.0.0.0**; the
+  `Upgrade()` migration was removed; fixed the `UpdateId3Tags` toggle never being read on
+  load. `FileVersion` set explicitly (else it inherits the pin).
+- **Large playlist-albums**: `{trackpad}` token zero-pads the number to the album's total
+  width (100 → `001`..`100`), plus a natural-sort `.m3u` (`NaturalFileNameComparer`).
+- **Released v2.1.0** to GitHub: engine `AssemblyVersion` 2.1.0.0 (updater compares it),
+  WPF `FileVersion` 2.1.0.0. Release zip = `net48/` contents + the `Updater/` subfolder,
+  built with forward-slash entries (.NET Framework's zipper defaults to backslashes). See
+  the `spytify-release-process` memory.
+
 ## Current state
-All of the above is committed and building; **325/325 tests pass**. Open items are in
-`completed.md` under "Remaining / future". Pre-ship: the in-app updater still points
-at `jwallet/spy-spotify` and must be repointed before a public release.
+All of the above is committed and building; **349/349 tests pass**. **v2.1.0 shipped**
+(auto-updater repointed to `PetraJThomas/spytify-plus`). Open items are in `completed.md`
+under "Remaining / future".

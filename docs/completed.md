@@ -1,7 +1,7 @@
 # Spytify+ — Completed
 
 Checklist of what's done on `spytify-plus`. All items are committed and the
-solution builds; the **325-test** suite passes.
+solution builds; the **349-test** suite passes. Shipped as **v2.1.0** (2026-07-13).
 
 ## Engine
 - [x] Retarget all projects to .NET 4.8
@@ -93,26 +93,51 @@ solution builds; the **325-test** suite passes.
 - [x] Export an .m3u playlist per folder (`BuildM3uEntry`)
 - [x] LICENSE Spytify+ copyright line; README rewritten for the fork + screenshots
 
+## Library integrity, hardening & release (Phase 11, 2026-07-13)
+- [x] **Check Library** tab, `Analyse Library`: parallel spectral scan of the whole
+      output folder for lossless containers that are actually lossy inside; auto-saved
+      HTML report (bilingual en/fr); click a finding to open it in Analyze
+- [x] **Update Library Metadata**: direct sweep refreshing tags + cover art from Spotify
+      + iTunes, keyed exactly by embedded ISRC with a Spotify track-ID fallback (Spotify's
+      `isrc:` search doesn't index every track); parallel, 429-safe, lists no-match files
+- [x] Spotify API honours HTTP 429 (auto-retry, `TooManyRequestsConsumesARetry=false`);
+      artist-genre + album caches made concurrent; the 1s tag-write delay is skipped for sweeps
+- [x] `Folder.jpg` written next to `cover.jpg` (Windows shell/Media Player); overwrite
+      hidden WMP art files (clear Hidden/System/ReadOnly before write)
+- [x] High-res covers via iTunes with artist+album match validation (no wrong-album art)
+- [x] Genre falls back to the artist's Spotify genres when the album has none
+- [x] Skip-scrub maintenance: re-tag + refresh covers in place; re-record truncated
+      existing files (verify-length now applies in skip mode); "Updated metadata" log
+- [x] Metadata-fetch gate made format-agnostic (was MP3-only) so FLAC skip-retag resolves
+- [x] Settings collapsed to one canonical file: WPF `AssemblyVersion` pinned at 2.0.0.0
+      (that segment is the settings path); removed the `Upgrade()` migration; fixed the
+      `UpdateId3Tags` toggle never being read back on load
+- [x] Large playlist-albums: `{trackpad}` dynamic zero-padding (100→`001`..`100`) +
+      natural-sort m3u (`NaturalFileNameComparer`)
+- [x] Shipped **v2.1.0**: engine `AssemblyVersion` 2.1.0.0 (updater compares it), WPF
+      `FileVersion` 2.1.0.0, WPF `AssemblyVersion` pinned. Release zip = `net48/` +
+      `Updater/` subfolder, forward-slash entries
+
 ## Verification
 - Build: VS MSBuild, Release. Engine = packages.config; WPF = SDK-style.
-- Tests: **325/325** (xUnit). `TranslationTests` enforces resx ⇄ enum parity.
+- Tests: **349/349** (xUnit). `TranslationTests` enforces resx ⇄ enum parity.
 - Manual GUI checks (user-run): Analyze classification across FLAC/WAV/320/256/128
   MP3 + MP3-sourced FLAC; live language switch; title-bar icon + crisp vector
   footer; button icons render.
 
 ## Remaining / future
 
-### Pre-ship (public release)
-- [ ] **Repoint the auto-updater** from `jwallet/spy-spotify` to the fork's own repo
-      — two files: `EspionSpotify/GitHub.cs` and `EspionSpotify.Updater/Utilities/
-      GitHub.cs`. Otherwise users get "updated" back to upstream.
-- [ ] Create the GitHub repo, bump the version (engine `AssemblyInfo` is 1.12.0.0;
-      WPF/tags are 1.0.x — pick a scheme, tag must be > the shipped version), and add
-      a tag-triggered release workflow (build → test → zip `net48/` → GitHub Release).
-- [ ] PR/merge `spytify-plus` → `master`.
+### Shipped (was pre-ship)
+- [x] Auto-updater repointed to `PetraJThomas/spytify-plus` (`EspionSpotify/GitHub.cs`
+      + `EspionSpotify.Updater/Utilities/GitHub.cs`).
+- [x] GitHub repo created (public); version scheme settled (engine AsmVersion = release
+      version; WPF AsmVersion pinned; tag `v2.1.0`). Release cut manually via `gh` (see
+      `spytify-release-process` memory) rather than a workflow.
+- [x] Working branch is `main` (canonical default).
 
 ### Optional / polish
-- [ ] Playlist-as-album numbers in playback order, not true playlist index.
+- [x] Playlist-as-album uses the true playlist index (not playback order), and pads it
+      dynamically for large playlists.
 - [ ] Quality-analysis gating is flag-only — could move/reject suspect files or tag
       the detected quality.
 - [ ] Verify-length threshold (80%) is a code constant — could be a slider.
@@ -120,6 +145,6 @@ solution builds; the **325-test** suite passes.
       verified live.
 - [ ] Move the analyzer into the engine for headless reuse (currently the WPF layer
       runs it via the `QueueQualityAnalysis` callback).
-- [ ] Filled-glyph icon variants (Segoe MDL2 is single-weight; `FontWeight` no-op).
-- [ ] Localize the spectrogram palette names (currently literal; selection matches
-      on them).
+- [ ] Custom `SettingsProvider` to key settings on a fixed name instead of pinning
+      `AssemblyVersion` (fully identity-independent; not urgent).
+- [ ] Localize the Check Library UI strings' non-`clb` bits + spectrogram palette names.
