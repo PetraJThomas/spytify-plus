@@ -353,6 +353,10 @@
     <value>Skipping: {0} (recording already exists)</value>
     <comment>console</comment>
   </data>
+  <data name="logMetadataUpdated" xml:space="preserve">
+    <value>Updated metadata: {0}</value>
+    <comment>console</comment>
+  </data>
   <data name="logMissingDlls" xml:space="preserve">
     <value>// Error: DLL files missing - libmp3lame.32.dll and libmp3lame.64.dll</value>
     <comment>console</comment>

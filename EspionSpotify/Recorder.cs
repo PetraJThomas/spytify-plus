@@ -280,19 +280,25 @@ namespace EspionSpotify
 
             _currentOutputFile = _fileManager.GetOutputFileAndInitDirectories();
 
+            var updated = false;
             if (_userSettings.UpdateRecordingsID3TagsEnabled)
-                await UpdateMediaTagsFileBasedOnMediaFormat();
+                updated = await UpdateMediaTagsFileBasedOnMediaFormat();
 
             // The embedded cover is refreshed by the re-tag above; also drop/refresh the sidecar
             // cover.jpg / Folder.jpg so a skip-scrub backfills them onto folders recorded before
             // the feature existed, not only on fresh recordings. Best-effort, once per folder.
             if (_userSettings.SaveCoverFile)
                 await EncodeService.SaveCoverFilesAsync(_fileSystem, _currentOutputFile, _track);
+
+            // Confirm in the console when we actually re-tagged an existing file, so a skip-scrub is
+            // visible and it's obvious when the file wasn't found (nothing written).
+            if (updated)
+                _form.WriteIntoConsole(I18NKeys.LogMetadataUpdated, _track.ToString());
         }
 
-        private async Task UpdateMediaTagsFileBasedOnMediaFormat()
+        private async Task<bool> UpdateMediaTagsFileBasedOnMediaFormat()
         {
-            if (!_fileSystem.File.Exists(_currentOutputFile.ToMediaFilePath())) return;
+            if (!_fileSystem.File.Exists(_currentOutputFile.ToMediaFilePath())) return false;
 
             switch (_userSettings.MediaFormat)
             {
@@ -307,9 +313,9 @@ namespace EspionSpotify
                         _track,
                         _userSettings);
                     await Task.Run(mapper.SaveMediaTags);
-                    return;
+                    return true;
                 default:
-                    return;
+                    return false;
             }
         }
 

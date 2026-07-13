@@ -349,6 +349,10 @@
     <value>Enregistré: {0} en {1}</value>
     <comment>console</comment>
   </data>
+  <data name="logMetadataUpdated" xml:space="preserve">
+    <value>Métadonnées mises à jour : {0}</value>
+    <comment>console</comment>
+  </data>
   <data name="logTrackExists" xml:space="preserve">
     <value>Passe: {0} (l'enregistrement existe déjà)</value>
     <comment>console</comment>
