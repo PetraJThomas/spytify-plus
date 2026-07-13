@@ -1,7 +1,7 @@
 # Spytify+ — Completed
 
 Checklist of what's done on `spytify-plus`. All items are committed and the
-solution builds; the **349-test** suite passes. Shipped as **v2.1.0** (2026-07-13).
+solution builds; the **349-test** suite passes. Shipped as **v2.2.0** (2026-07-14).
 
 ## Engine
 - [x] Retarget all projects to .NET 4.8
@@ -117,6 +117,27 @@ solution builds; the **349-test** suite passes. Shipped as **v2.1.0** (2026-07-1
 - [x] Shipped **v2.1.0**: engine `AssemblyVersion` 2.1.0.0 (updater compares it), WPF
       `FileVersion` 2.1.0.0, WPF `AssemblyVersion` pinned. Release zip = `net48/` +
       `Updater/` subfolder, forward-slash entries
+
+## Spotify DJ, connect/lifecycle hardening & release (Phase 12, 2026-07-14)
+- [x] **Skip Spotify DJ** toggle (General card, default on): drops the AI DJ's spoken
+      interludes (`DJ X - ...`, exact artist match) from recording; DJ metadata lookup
+      always skipped (can only 404). No more junk files / empty folders / 404 spam
+- [x] Transient playback (DJ voice, ad, pause, 404) no longer forces the Last.fm fallback
+      + popup; only a genuine 401/403 / no-response does (`IsSpotifyUnauthorized`)
+- [x] **Spotify connect hang fixed**: `SpotifyAPI.Dispose` stops the OAuth callback
+      listener; `SetExternalApi` disposes the outgoing instance; connect always (re)starts
+      a fresh listener; a hung attempt is retryable without an app restart
+- [x] Clean forced shutdown on close (dispose listener + audio session + `Environment.Exit`)
+      so no ghost process holds the callback port
+- [x] Single-instance guard (second launch surfaces the running window and exits); the
+      exit-then-immediate-relaunch race handled via `WaitOne` + `AbandonedMutexException`
+- [x] Close-to-tray when the toggle is on (X → tray, quit via tray Exit); no ghost tray
+      icon on exit; robust shared `RestoreFromTray`
+- [x] In-app update check: `GitHub.GetVersion` on startup (was never invoked) + manual
+      "Check for updates" button with up-to-date / failed feedback (`UpdateCheckResult`)
+- [x] Tag builder surfaces the `{trackpad}` token chip
+- [x] Shipped **v2.2.0**: engine `AssemblyVersion` 2.2.0.0, WPF `FileVersion` 2.2.0.0,
+      WPF `AssemblyVersion` pinned. First build whose auto-update check actually runs
 
 ## Verification
 - Build: VS MSBuild, Release. Engine = packages.config; WPF = SDK-style.

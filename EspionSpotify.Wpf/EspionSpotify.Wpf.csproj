@@ -14,8 +14,8 @@
     <!-- Release/display version. Bump Version AND FileVersion (and the engine's AssemblyVersion,
          which the updater reads) for each release. FileVersion must be set explicitly here: because
          AssemblyVersion is pinned below, an unset FileVersion would inherit the pin, not Version. -->
-    <Version>2.1.1</Version>
-    <FileVersion>2.1.1.0</FileVersion>
+    <Version>2.2.0</Version>
+    <FileVersion>2.2.0.0</FileVersion>
     <!-- PINNED. The .NET user-settings path embeds the ENTRY assembly's AssemblyVersion, so if this
          tracked the release version, every bump would strand settings in a new user.config folder.
          Keep it fixed at 2.0.0.0 forever so there is exactly one settings file across all releases.

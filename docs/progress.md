@@ -168,7 +168,39 @@ mirrors Spotify's output (no upsampling, no forced CBR, no loudness processing).
   built with forward-slash entries (.NET Framework's zipper defaults to backslashes). See
   the `spytify-release-process` memory.
 
+## Phase 12 — Spotify DJ, connect/lifecycle hardening & the v2.2.0 release (2026-07-14)
+- **Skip Spotify DJ**: the AI DJ's spoken interludes arrive as a window title like
+  `DJ X - Welcome` (artist "DJ X"), which read as normal tracks, so they made junk
+  files, empty `DJ X\Untitled\` folders and 404 lookups. New **"Skip Spotify DJ"**
+  toggle (General card, default on) drops them from recording; the metadata lookup is
+  skipped unconditionally for a DJ segment (it can only 404). Exact artist match on
+  `DJ X` so real songs are never caught.
+- **Transient-playback fix**: a DJ voice segment / ad / pause no longer tears down the
+  Spotify API and forces Last.fm + a popup. Only a genuine 401/403 or no-response falls
+  back (`IsSpotifyUnauthorized` gate); a transient no-track/404 just skips that track.
+- **Spotify connect hang fixed (the big one)**: the OAuth callback listener was never
+  stopped, so every rebuilt `SpotifyAPI` (and every launch that didn't cleanly exit) left
+  a zombie listener holding the redirect port; the live window then hung on "Connecting".
+  Fixes: `SpotifyAPI.Dispose` stops the listener; `SetExternalApi` disposes the outgoing
+  instance first; the connect dialog always (re)starts a fresh listener; a hung attempt
+  is retryable (the dialog guard resets each Connect click).
+- **Process lifecycle**: clean forced shutdown on window close (dispose listener + audio
+  session + `Environment.Exit`) so no ghost process lingers on the port; a **single-instance
+  guard** (a second launch surfaces the running window and exits); and the exit-then-quick-
+  relaunch race is handled (acquire the slot via `WaitOne`, wait out a shutting-down prior
+  instance, treat `AbandonedMutexException` as ownership).
+- **Tray**: close-to-tray when the toggle is on (X folds to tray, quit via tray Exit); no
+  ghost tray icon on exit; `RestoreFromTray` made robust + shared with the single-instance
+  surface path.
+- **In-app update check**: `GitHub.GetVersion` runs on startup (was never called) and a
+  manual **"Check for updates"** button (Configuration) with up-to-date / failed feedback;
+  `GetVersion` returns an `UpdateCheckResult`. en/fr + enum.
+- **Tag builder**: surfaced the `{trackpad}` token chip (was engine-only since Phase 11).
+- **Released v2.2.0** to GitHub (same packaging as v2.1.x: `net48/` contents + `Updater/`
+  subfolder, forward-slash entries). NOTE: this is the first build whose auto-update check
+  actually runs, so prior installs won't self-update to it, but every install from here on
+  will see future releases.
+
 ## Current state
-All of the above is committed and building; **349/349 tests pass**. **v2.1.0 shipped**
-(auto-updater repointed to `PetraJThomas/spytify-plus`). Open items are in `completed.md`
-under "Remaining / future".
+All of the above is committed and building; **349/349 tests pass**. **v2.2.0 shipped**.
+Open items are in `completed.md` under "Remaining / future".
