@@ -193,10 +193,12 @@ namespace EspionSpotify
         // (the cross-player convention read by VLC, foobar, MusicBee, Kodi) and "Folder.jpg"
         // (the name the Windows shell and Media Player look for; they ignore cover.jpg). Only when
         // the track is grouped into a sub-folder (a shared cover at the output root would be
-        // meaningless). Neither file is overwritten if it already exists, so a cover you dropped
-        // in yourself is left alone. Shared by the encode path and the skip/re-tag path so a
-        // skip-scrub backfills covers onto existing folders too. Best-effort.
-        public static async Task SaveCoverFilesAsync(IFileSystem fileSystem, OutputFile outputFile, Track track)
+        // meaningless). Shared by the encode path and the skip/re-tag path so a skip-scrub backfills
+        // covers onto existing folders too. Best-effort.
+        // overwrite=false (fresh recordings): existing files are left alone, so a cover you dropped
+        // in yourself survives. overwrite=true (skip/re-tag scrub): refresh both to the current art.
+        public static async Task SaveCoverFilesAsync(IFileSystem fileSystem, OutputFile outputFile,
+            Track track, bool overwrite = false)
         {
             try
             {
@@ -207,8 +209,8 @@ namespace EspionSpotify
 
                 var coverPath = fileSystem.Path.Combine(dir, "cover.jpg");
                 var folderPath = fileSystem.Path.Combine(dir, "Folder.jpg");
-                var needCover = !fileSystem.File.Exists(coverPath);
-                var needFolder = !fileSystem.File.Exists(folderPath);
+                var needCover = overwrite || !fileSystem.File.Exists(coverPath);
+                var needFolder = overwrite || !fileSystem.File.Exists(folderPath);
                 if (!needCover && !needFolder) return;
                 if (string.IsNullOrWhiteSpace(track.AlbumArtUrl)) return;
 
