@@ -175,6 +175,7 @@ namespace EspionSpotify.Wpf
             var files = await Task.Run(() => EnumerateAudioFiles(root)).ConfigureAwait(true);
             ClbProgress.Maximum = Math.Max(1, files.Count);
             int updated = 0, noIsrc = 0, noMatch = 0, unreadable = 0, done = 0;
+            var noMatchPaths = new System.Collections.Concurrent.ConcurrentBag<string>();
 
             // API-bound, so scan several at once but keep the cap modest to stay under Spotify's rate
             // limits (the album/artist caches are now concurrent-safe, so this is safe to parallelize).
@@ -209,7 +210,10 @@ namespace EspionSpotify.Wpf
                             {
                                 case MetadataUpdateOutcome.Updated: Interlocked.Increment(ref updated); break;
                                 case MetadataUpdateOutcome.NoIsrc: Interlocked.Increment(ref noIsrc); break;
-                                case MetadataUpdateOutcome.NoMatch: Interlocked.Increment(ref noMatch); break;
+                                case MetadataUpdateOutcome.NoMatch:
+                                    Interlocked.Increment(ref noMatch);
+                                    noMatchPaths.Add(path);
+                                    break;
                                 default: Interlocked.Increment(ref unreadable); break;
                             }
                         }
@@ -233,6 +237,8 @@ namespace EspionSpotify.Wpf
 
             ClbFindings.Children.Clear();
             ClbSummary.Text = string.Format(Loc.Instance["clbUpdateSummary"], updated, noIsrc, noMatch);
+            foreach (var p in noMatchPaths.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
+                ClbFindings.Children.Add(BuildNoMatchRow(p, root));
             ClbReportText.Visibility = Visibility.Collapsed;
             SetClbState(ClbState.Results);
         }
@@ -397,6 +403,59 @@ namespace EspionSpotify.Wpf
             };
             row.MouseLeftButtonUp += (s, e) => OpenInAnalyze(f.Path);
             return row;
+        }
+
+        // A read-only row listing a file the sweep couldn't match on Spotify (for diagnosis).
+        private Border BuildNoMatchRow(string path, string root)
+        {
+            var left = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            left.Children.Add(new TextBlock
+            {
+                Text = Path.GetFileName(path),
+                Foreground = Brushes.White,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            var dir = Path.GetDirectoryName(path) ?? "";
+            var rel = !string.IsNullOrEmpty(root) && dir.StartsWith(root, StringComparison.OrdinalIgnoreCase)
+                ? dir.Substring(root.Length).TrimStart('\\', '/')
+                : dir;
+            left.Children.Add(new TextBlock
+            {
+                Text = rel,
+                Foreground = Frozen(0x99, 0x99, 0x99, 0xFF),
+                FontSize = 12,
+                Margin = new Thickness(0, 1, 0, 0),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Grid.SetColumn(left, 0);
+            grid.Children.Add(left);
+
+            var label = new TextBlock
+            {
+                Text = "no match",
+                Foreground = Frozen(0xEF, 0x53, 0x50, 0xFF),
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(10, 0, 2, 0)
+            };
+            Grid.SetColumn(label, 1);
+            grid.Children.Add(label);
+
+            return new Border
+            {
+                Background = Frozen(0xFF, 0xFF, 0xFF, 0x12),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(14, 10, 12, 10),
+                Margin = new Thickness(0, 0, 0, 8),
+                Child = grid,
+                ToolTip = path
+            };
         }
 
         // Switch to the Analyze tab (via the nav, so the selection updates) and load the file.
