@@ -380,7 +380,7 @@ export default function App() {
           <p>
             It all stays open-source under the same <strong>MIT license</strong>, straight back to the
             original. No donation buttons, badges or trackers live here: it is kept purely for the love of
-            the thing.
+            the thing. Genuine thanks to jwallet and Fora888 for the groundwork.
           </p>
         </Reveal>
 
