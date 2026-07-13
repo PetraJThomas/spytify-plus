@@ -149,6 +149,44 @@ namespace EspionSpotify.API
             }
         }
 
+        // Builds a fully-enriched Track from an ISRC: an exact library-refresh lookup with no
+        // playback. Searches Spotify by isrc:, maps the first hit and its album, fills genre from
+        // the primary artist, and upgrades the cover via iTunes, the same pipeline UpdateTrack uses.
+        public async Task<Track> GetTrackByIsrcAsync(string isrc)
+        {
+            if (string.IsNullOrWhiteSpace(isrc)) return null;
+            await GetSpotifyWebAPI();
+            if (_api == null) return null;
+
+            try
+            {
+                var search = await _api.SearchItemsAsync($"isrc:{isrc}", SearchType.Track, 1, 0, "");
+                var full = search?.Tracks?.Items?.FirstOrDefault();
+                if (full == null || string.IsNullOrEmpty(full.Id)) return null;
+
+                var track = new Track();
+                MapSpotifyTrackToTrack(track, full);
+
+                if (full.Album?.Id != null)
+                {
+                    var album = await _api.GetAlbumWithoutExceptionAsync(full.Album.Id);
+                    if (album != null && !album.HasError())
+                    {
+                        MapSpotifyAlbumToTrack(track, album);
+                        if (track.Genres == null || track.Genres.Length == 0)
+                            track.Genres = await GetArtistGenresAsync(album.Artists?.FirstOrDefault()?.Id);
+                    }
+                }
+
+                await ITunesArtwork.ApplyHighResCoverAsync(track, Settings.Default.advanced_cover_art_size);
+                return track;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         [Obsolete("It triggers too many web requests, ~ 60k per day")]
         public async Task<(string, bool)> GetCurrentPlayback()
         {

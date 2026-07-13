@@ -892,4 +892,16 @@
   <data name="clbScanFailed" xml:space="preserve">
     <value>Scan failed: {0}</value>
   </data>
+  <data name="clbUpdate" xml:space="preserve">
+    <value>Update metadata</value>
+  </data>
+  <data name="clbUpdateProgress" xml:space="preserve">
+    <value>{0} of {1}  ·  {2} refreshed</value>
+  </data>
+  <data name="clbUpdateSummary" xml:space="preserve">
+    <value>Refreshed {0} files from Spotify  ·  {1} without an ISRC  ·  {2} no match</value>
+  </data>
+  <data name="clbNeedsSpotify" xml:space="preserve">
+    <value>Connect the Spotify API on the Configuration tab first.</value>
+  </data>
 </root>

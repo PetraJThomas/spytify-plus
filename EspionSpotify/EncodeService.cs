@@ -197,14 +197,23 @@ namespace EspionSpotify
         // covers onto existing folders too. Best-effort.
         // overwrite=false (fresh recordings): existing files are left alone, so a cover you dropped
         // in yourself survives. overwrite=true (skip/re-tag scrub): refresh both to the current art.
-        public static async Task SaveCoverFilesAsync(IFileSystem fileSystem, OutputFile outputFile,
+        public static Task SaveCoverFilesAsync(IFileSystem fileSystem, OutputFile outputFile,
             Track track, bool overwrite = false)
+        {
+            // Only when grouped into a sub-folder (a shared cover at the output root is meaningless).
+            if (outputFile == null || string.IsNullOrEmpty(outputFile.FoldersPath))
+                return Task.CompletedTask;
+            var dir = fileSystem.Path.GetDirectoryName(outputFile.ToMediaFilePath());
+            return SaveCoverFilesToDirAsync(fileSystem, dir, track, overwrite);
+        }
+
+        // Path-based variant: writes cover.jpg / Folder.jpg into a specific directory. Used by the
+        // direct library metadata sweep, which works from a file path rather than an OutputFile.
+        public static async Task SaveCoverFilesToDirAsync(IFileSystem fileSystem, string dir,
+            Track track, bool overwrite)
         {
             try
             {
-                if (outputFile == null || string.IsNullOrEmpty(outputFile.FoldersPath)) return;
-
-                var dir = fileSystem.Path.GetDirectoryName(outputFile.ToMediaFilePath());
                 if (string.IsNullOrEmpty(dir)) return;
 
                 var coverPath = fileSystem.Path.Combine(dir, "cover.jpg");

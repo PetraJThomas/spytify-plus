@@ -892,4 +892,16 @@
   <data name="clbScanFailed" xml:space="preserve">
     <value>Échec de l'analyse : {0}</value>
   </data>
+  <data name="clbUpdate" xml:space="preserve">
+    <value>Mettre à jour les métadonnées</value>
+  </data>
+  <data name="clbUpdateProgress" xml:space="preserve">
+    <value>{0} sur {1}  ·  {2} actualisés</value>
+  </data>
+  <data name="clbUpdateSummary" xml:space="preserve">
+    <value>{0} fichiers actualisés depuis Spotify  ·  {1} sans ISRC  ·  {2} sans correspondance</value>
+  </data>
+  <data name="clbNeedsSpotify" xml:space="preserve">
+    <value>Connectez d'abord l'API Spotify dans l'onglet Configuration.</value>
+  </data>
 </root>

@@ -1,6 +1,8 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using EspionSpotify.API;
 using EspionSpotify.Enums;
 using EspionSpotify.Wpf.Analysis;
 
@@ -24,6 +27,14 @@ namespace EspionSpotify.Wpf
         private LibraryScanResult _clbResult;
         private ClbState _clbState = ClbState.Idle;
         private string _clbReportPath;
+        private bool _clbLastOpWasScan; // gates the "Open report" button (only a scan makes a report)
+
+        // Audio containers the metadata sweep considers (it only touches files that carry an ISRC).
+        private static readonly HashSet<string> AudioExtensions =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ".flac", ".mp3", ".wav", ".wave", ".m4a", ".opus", ".ogg", ".aiff", ".aif", ".ape", ".wv"
+            };
 
         // Release version for display and reports. Reads FileVersion (which tracks releases), not
         // AssemblyVersion, which is pinned at 2.0.0.0 to keep the user-settings path stable.
@@ -62,9 +73,12 @@ namespace EspionSpotify.Wpf
             ClbResults.Visibility = state == ClbState.Results ? Visibility.Visible : Visibility.Collapsed;
 
             ClbScanButton.Visibility = state == ClbState.Idle ? Visibility.Visible : Visibility.Collapsed;
+            ClbUpdateButton.Visibility = state == ClbState.Idle || state == ClbState.Results
+                ? Visibility.Visible : Visibility.Collapsed;
             ClbCancelButton.Visibility = state == ClbState.Scanning ? Visibility.Visible : Visibility.Collapsed;
             ClbRescanButton.Visibility = state == ClbState.Results ? Visibility.Visible : Visibility.Collapsed;
-            ClbSaveReportButton.Visibility = state == ClbState.Results ? Visibility.Visible : Visibility.Collapsed;
+            ClbSaveReportButton.Visibility = state == ClbState.Results && _clbLastOpWasScan
+                ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private async void CheckLibrary_Scan_Click(object sender, RoutedEventArgs e)
@@ -80,6 +94,7 @@ namespace EspionSpotify.Wpf
             _clbCts?.Cancel();
             _clbCts = new CancellationTokenSource();
             _clbResult = null;
+            _clbLastOpWasScan = true;
             SetClbState(ClbState.Scanning);
             ClbProgress.Value = 0;
             ClbProgressText.Text = Loc.Instance["clbEnumerating"];
@@ -118,6 +133,91 @@ namespace EspionSpotify.Wpf
         }
 
         private void CheckLibrary_Cancel_Click(object sender, RoutedEventArgs e) => _clbCts?.Cancel();
+
+        private static List<string> EnumerateAudioFiles(string root) =>
+            Directory.Exists(root)
+                ? Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
+                    .Where(p => AudioExtensions.Contains(Path.GetExtension(p) ?? ""))
+                    .OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToList()
+                : new List<string>();
+
+        // Direct metadata refresh: walk the library and, for every file that carries an ISRC, re-fetch
+        // its tags + cover art from Spotify/iTunes and rewrite them. No playback, no recorder. Exact
+        // (ISRC) match only, so files without one are simply skipped. Runs sequentially: it's API-bound
+        // and SpotifyAPI's caches aren't built for concurrent access.
+        private async void CheckLibrary_UpdateMetadata_Click(object sender, RoutedEventArgs e)
+        {
+            var root = OutputPath;
+            if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
+            {
+                MessageBox.Show(this, Loc.Instance["clbSetFolderFirst"],
+                    "Spytify+", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (!(ExternalAPI.Instance is ISpotifyAPI spotify) || !ExternalAPI.Instance.IsAuthenticated)
+            {
+                MessageBox.Show(this, Loc.Instance["clbNeedsSpotify"],
+                    "Spytify+", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            _clbCts?.Cancel();
+            _clbCts = new CancellationTokenSource();
+            var ct = _clbCts.Token;
+            _clbResult = null;
+            _clbLastOpWasScan = false;
+            SetClbState(ClbState.Scanning);
+            ClbProgress.Value = 0;
+            ClbProgressText.Text = Loc.Instance["clbEnumerating"];
+            ClbProgressFile.Text = "";
+
+            var files = await Task.Run(() => EnumerateAudioFiles(root)).ConfigureAwait(true);
+            int updated = 0, noIsrc = 0, noMatch = 0, unreadable = 0;
+
+            try
+            {
+                for (var i = 0; i < files.Count; i++)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var path = files[i];
+                    ClbProgress.Maximum = Math.Max(1, files.Count);
+                    ClbProgress.Value = i;
+                    ClbProgressText.Text = string.Format(Loc.Instance["clbUpdateProgress"], i, files.Count, updated);
+                    ClbProgressFile.Text = Path.GetFileName(path);
+
+                    MetadataUpdateOutcome outcome;
+                    try
+                    {
+                        outcome = await LibraryMetadataUpdater
+                            .UpdateFileFromSpotifyAsync(path, spotify, _userSettings).ConfigureAwait(true);
+                    }
+                    catch
+                    {
+                        unreadable++;
+                        continue;
+                    }
+
+                    switch (outcome)
+                    {
+                        case MetadataUpdateOutcome.Updated: updated++; break;
+                        case MetadataUpdateOutcome.NoIsrc: noIsrc++; break;
+                        case MetadataUpdateOutcome.NoMatch: noMatch++; break;
+                        default: unreadable++; break;
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                SetClbState(ClbState.Idle);
+                return;
+            }
+
+            ClbFindings.Children.Clear();
+            ClbSummary.Text = string.Format(Loc.Instance["clbUpdateSummary"], updated, noIsrc, noMatch);
+            ClbReportText.Visibility = Visibility.Collapsed;
+            SetClbState(ClbState.Results);
+        }
 
         // Every completed scan writes its own timestamped report to the output root, so results are
         // preserved automatically (no overwrite between scans) and findable without a rescan. The
@@ -201,6 +301,7 @@ namespace EspionSpotify.Wpf
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // chevron
 
             var left = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
             left.Children.Add(new TextBlock
@@ -231,7 +332,7 @@ namespace EspionSpotify.Wpf
                 VerticalAlignment = VerticalAlignment.Center,
                 Child = new TextBlock
                 {
-                    Text = "⚠ " + f.TierLabel,
+                    Text = "\u26A0 " + f.TierLabel,
                     Foreground = Brushes.Black,
                     FontSize = 12,
                     FontWeight = FontWeights.SemiBold
@@ -252,6 +353,19 @@ namespace EspionSpotify.Wpf
             };
             Grid.SetColumn(cutoff, 2);
             grid.Children.Add(cutoff);
+
+            // Right-anchored chevron to signal the row is clickable (opens the file in Analyze).
+            var chevron = new TextBlock
+            {
+                Text = "\uE76C", // Segoe MDL2 ChevronRight
+                FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                FontSize = 11,
+                Foreground = Frozen(0x88, 0x88, 0x88, 0xFF),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(10, 0, 2, 0)
+            };
+            Grid.SetColumn(chevron, 3);
+            grid.Children.Add(chevron);
 
             var row = new Border
             {

@@ -1063,6 +1063,8 @@
                                 <TextBlock Text="{l:Tr clbScan}" />
                             </StackPanel>
                         </Button>
+                        <Button x:Name="ClbUpdateButton" Click="CheckLibrary_UpdateMetadata_Click" Visibility="Collapsed"
+                                Content="{l:Tr clbUpdate}" Padding="16,7" Margin="10,0,0,0" />
                         <Button x:Name="ClbCancelButton" Click="CheckLibrary_Cancel_Click" Visibility="Collapsed"
                                 Content="{l:Tr clbCancel}" Padding="16,7" Margin="10,0,0,0" />
                         <Button x:Name="ClbRescanButton" Click="CheckLibrary_Scan_Click" Visibility="Collapsed"

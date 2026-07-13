@@ -221,6 +221,10 @@
         clbReportSaved,
         clbReportSaveError,
         clbReportOpenError,
-        clbScanFailed
+        clbScanFailed,
+        clbUpdate,
+        clbUpdateProgress,
+        clbUpdateSummary,
+        clbNeedsSpotify
     }
 }
