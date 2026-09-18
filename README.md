@@ -1,10 +1,15 @@
-# Spytify+
+<p align="center">
+  <img src="docs/logo-full.svg" alt="Spytify+" width="440">
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
+  <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-blue">
+  <img alt=".NET Framework 4.8" src="https://img.shields.io/badge/.NET%20Framework-4.8-512BD4">
+  <a href="https://petrajthomas.github.io/spytify-plus/"><img alt="Website" src="https://img.shields.io/badge/website-spytify--plus-1fd65f"></a>
+</p>
 
 **Spytify+** is a Windows recorder that captures Spotify to a clean, tagged, offline music library. It records what Spotify plays out (WASAPI loopback), skips ads, splits songs into separate tracks, and writes full metadata and cover art. FLAC is a first-class format, and with Spotify Lossless plus a matched sample rate the capture can be bit-perfect.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Platform](https://img.shields.io/badge/platform-Windows-blue)
-![.NET Framework 4.8](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4)
 
 > This is a fork. Spytify+ builds on [`Fora888/spytify-flac`](https://gitlab.com/Fora888/spytify-flac) (which added FLAC), itself a fork of [`AntoineGoued/spytify-opus-support`](https://gitlab.com/AntoineGoued/spytify-opus-support) (which added OPUS), downstream of the original [Spytify by jwallet](https://github.com/jwallet/spy-spotify). All are MIT-licensed. See [Credits](#credits).
 

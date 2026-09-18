@@ -230,3 +230,4 @@ project.lock.json
 docs/*
 !docs/*.md
 !docs/screenshots/
+!docs/logo-full.svg
