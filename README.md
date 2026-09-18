@@ -6,7 +6,7 @@
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![.NET Framework 4.8](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4)
 
-> This is a fork. Spytify+ builds on [`Fora888/spytify-flac`](https://gitlab.com/Fora888/spytify-flac) (which added FLAC), itself a fork of the original [Spytify by jwallet](https://github.com/jwallet/spy-spotify). All three are MIT-licensed. See [Credits](#credits).
+> This is a fork. Spytify+ builds on [`Fora888/spytify-flac`](https://gitlab.com/Fora888/spytify-flac) (which added FLAC), itself a fork of [`AntoineGoued/spytify-opus-support`](https://gitlab.com/AntoineGoued/spytify-opus-support) (which added OPUS), downstream of the original [Spytify by jwallet](https://github.com/jwallet/spy-spotify). All are MIT-licensed. See [Credits](#credits).
 
 ## Screenshots
 
@@ -109,11 +109,18 @@ Projects: `EspionSpotify` (engine, `EspionSpotify.dll`), `EspionSpotify.Wpf` (th
 
 ## Credits
 
-Spytify+ stands on the work of others, all MIT-licensed:
+Spytify+ stands on the work of others, all MIT-licensed. The lineage runs:
 
-- **[Spytify](https://github.com/jwallet/spy-spotify) by jwallet**: the original Spotify recorder. Most of the recording engine and the general FAQ come from here.
+```
+jwallet/spy-spotify  ->  AntoineGoued/spytify-opus-support  ->  Fora888/spytify-flac  ->  Spytify+
+```
+
+- **[Spytify](https://github.com/jwallet/spy-spotify) by jwallet**: the original Spotify recorder. The recording engine and the general FAQ originate here.
+- **[spytify-opus-support](https://gitlab.com/AntoineGoued/spytify-opus-support) by AntoineGoued**: added OPUS output.
 - **[spytify-flac](https://gitlab.com/Fora888/spytify-flac) by Fora888**: added native FLAC output.
-- **Spytify+**: the WPF rewrite, offline-library features, and quality tooling in this repo.
+- **Spytify+**: the WPF rewrite, offline-library features, and quality tooling in this repo. Major parts of the engine have since been reworked.
+
+Neither GitLab fork added its own copyright notice, so nothing was inherited to preserve beyond jwallet's; they are named in `LICENSE` and here because the work is theirs, not because the licence compels it.
 
 For setup basics (installing a virtual audio cable, isolating Spotify's audio, connecting the Spotify API), the upstream [Spytify FAQ](https://jwallet.github.io/spy-spotify/faq.html) still applies.
 

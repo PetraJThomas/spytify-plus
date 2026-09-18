@@ -38,6 +38,7 @@ import templatesShot from './assets/templates.webp'
 const REPO = 'https://github.com/PetraJThomas/spytify-plus'
 const ORIGINAL = 'https://github.com/jwallet/spy-spotify'
 const FLAC_FORK = 'https://gitlab.com/Fora888/spytify-flac'
+const OPUS_FORK = 'https://gitlab.com/AntoineGoued/spytify-opus-support'
 const PORTFOLIO = 'https://petrajthomas.com'
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -370,17 +371,21 @@ export default function App() {
             <a href={ORIGINAL} target="_blank" rel="noreferrer">
               jwallet's original Spytify
             </a>
-            , with FLAC support picked up from{' '}
-            <a href={FLAC_FORK} target="_blank" rel="noreferrer">
-              Fora888's fork
+            , by way of{' '}
+            <a href={OPUS_FORK} target="_blank" rel="noreferrer">
+              AntoineGoued's OPUS fork
             </a>{' '}
-            along the way. What I added on top is the WPF rewrite, the analysis engine, and everything
-            around building a proper offline library.
+            and then{' '}
+            <a href={FLAC_FORK} target="_blank" rel="noreferrer">
+              Fora888's FLAC fork
+            </a>
+            . What I added on top is the WPF rewrite, the analysis engine, and everything around building
+            a proper offline library, with major parts of the engine reworked since.
           </p>
           <p>
             It all stays open-source under the same <strong>MIT license</strong>, straight back to the
             original. No donation buttons, badges or trackers live here: it is kept purely for the love of
-            the thing. Genuine thanks to jwallet and Fora888 for the groundwork.
+            the thing. Genuine thanks to jwallet, AntoineGoued and Fora888 for the groundwork.
           </p>
         </Reveal>
 
